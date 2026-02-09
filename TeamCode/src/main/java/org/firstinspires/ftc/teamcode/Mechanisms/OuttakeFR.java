@@ -11,22 +11,22 @@ public class OuttakeFR {
     private Servo servoTrigger;
     private DcMotorEx motorLaunch, motorRamp1, motorRamp2, motorIntake;
 
-    /*private ElapsedTime stateTimer = new ElapsedTime();
+    private ElapsedTime stateTimer = new ElapsedTime();
 
     private enum LaunchState {
         IDLE,
-        SPIN_UP,
+        //SPIN_UP,
         LAUNCH
     }
-    private LaunchState launchState; */
+    private LaunchState launchState;
 
 
     // ----------------- LAUNCHER CONSTANTS ------------------
-    /*private int shotsRemaining = 0;
+    private int shotsRemaining = 0;
     private double launchVelocity = 0;
     public double LAUNCH_TARGET_VEL = 2100;
     private double LAUNCH_MIN_VEL = LAUNCH_TARGET_VEL - 100;
-    private double LAUNCH_MAX_SPINUP_TIME = 1.5;*/
+    private double LAUNCH_MAX_SPINUP_TIME = 1.5;
 
     public void init(HardwareMap hwMap) {
         servoTrigger = hwMap.get(Servo.class, "trigga");
@@ -51,46 +51,46 @@ public class OuttakeFR {
         motorIntake.setPower(0);
     }
 
-    /*public void update() {
+    public void update() {
         switch (launchState) {
             case IDLE:
                 if (shotsRemaining > 0) {
-                    motorLaunch.setVelocity(LAUNCH_TARGET_VEL);
 
                     stateTimer.reset();
-                    launchState = LaunchState.SPIN_UP;
+                    launchState = LaunchState.LAUNCH;
                 }
                 break;
-            case SPIN_UP:
+            /*case SPIN_UP:
                 if (launchVelocity > LAUNCH_MIN_VEL || stateTimer.seconds() > LAUNCH_MAX_SPINUP_TIME) {
                     stateTimer.reset();
 
                     launchState = LaunchState.LAUNCH;
                 }
-                break;
+                break;*/
             case LAUNCH:
                 if (shotsRemaining > 0) {
-                    shotsRemaining -= 1;
-                    motorRamp1.setPower(0.6);
-                    motorRamp2.setPower(-0.6);
-                    motorIntake.setPower(1);
-                    stateTimer.reset();
+                    if (stateTimer.seconds() < 0.5 || motorLaunch.getVelocity() > LAUNCH_MIN_VEL) {
+                        shotsRemaining -= 1;
+                        motorRamp1.setPower(0.6);
+                        motorRamp2.setPower(-0.6);
+                        motorIntake.setPower(1);
+                        stateTimer.reset();
+                    }
                 } else {
                     motorRamp1.setPower(0);
                     motorRamp2.setPower(0);
                     motorIntake.setPower(0);
                     motorLaunch.setPower(0);
+                    stateTimer.reset();
+                    launchState = LaunchState.IDLE;
                 }
-                break;
         }
     }
-    public void fireShots(int numberOfShots) {
-        if (stateTimer.seconds() >= 0.5) {
-            shotsRemaining = numberOfShots;
-        }
-    }*/
-    public boolean isBusy(){
-        return launchState != LaunchState.IDLE;
+    public void fireShots(int numBalls) {
+        if (!isBusy()) {  shotsRemaining = numBalls;  }
+    }
+    public boolean isBusy() {
+        return (launchState != LaunchState.IDLE) || (shotsRemaining > 0);
     }
 
 

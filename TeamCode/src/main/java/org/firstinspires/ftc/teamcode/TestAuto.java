@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
 import org.firstinspires.ftc.teamcode.Mechanisms.Webcam;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "GoalAutonomous12BallMaybe", group = "Auto")
+@Autonomous(name = "TestAuto", group = "Auto")
 public class TestAuto extends OpMode {
 
     public Follower follower;
@@ -65,7 +65,7 @@ public class TestAuto extends OpMode {
     @Override
     public void loop() {
         follower.update(); // Update Pedro Pathing - will also cause the robot to follow the current path
-        //outtake.update();
+        outtake.update();
         autonomousPathUpdate(); // Update autonomous state machine
     }
 
@@ -98,6 +98,7 @@ public class TestAuto extends OpMode {
                 // Wait for the starting delay to expire
                 if (delayTimer.seconds() > delaySeconds) {
                     // Begin the whole route
+                    outtake.setOuttakeVelocity(1800);
                     follower.followPath(launchPath1, true);
                     pathState = 1;
                 }
@@ -107,14 +108,14 @@ public class TestAuto extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Begin the first launch sequence
-                    //outtake.fireBalls(3);
+                    outtake.fireShots(3);
                     pathState = 2;
                 }
                 break;
             case 2:
                 /* Let the first launch sequence play out */
 
-                if (!follower.isBusy())//!outtake.isBusy())
+                if (!outtake.isBusy())
                 {
                     // drive to the first line of balls
                     follower.followPath(intakePathReady1);
@@ -142,20 +143,15 @@ public class TestAuto extends OpMode {
                 break;
             case 5:
                 if(!follower.isBusy()) {
-                    outtake.setIntakePower(0.6);
-
-
+                    outtake.fireShots(3);
                     pathState = 6;
                 }
                 break;
             case 6:
                 if(!outtake.isBusy()) {
-                    outtake.setIntakePower(0);
-                    outtake.setOuttakeVelocity(0);
-                    outtake.setServoPosition(.4);
                     //pathState = 7
                 }
-
+                break;
         }
     }
 }

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
 import org.firstinspires.ftc.teamcode.Mechanisms.Webcam;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "GoalAutonomous12BallMaybe", group = "Auto")
+@Autonomous(name = "Close", group = "Auto")
 public class Close extends OpMode {
 
     public Follower follower;

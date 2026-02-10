@@ -30,7 +30,7 @@ public class TestAuto extends OpMode {
     Webcam webcam = new Webcam(hardwareMap);
 
     // Define important coordinate locations for the Blue side of the field
-    private Pose startPose = new Pose(56, 84, Math.toRadians(-90));
+    private Pose startPose = new Pose(60, 84, Math.toRadians(-90));
     private Pose launchPose = new Pose(56,84,Math.toRadians(-90));
 
     //private Pose intake1ControlPoint = new Pose(48, 104);
@@ -53,6 +53,7 @@ public class TestAuto extends OpMode {
         // Initialize external systems
         webcam = new Webcam(hardwareMap);
         webcam.init(hardwareMap, telemetry);
+        outtake.init(hardwareMap);
     }
 
     @Override
@@ -96,9 +97,9 @@ public class TestAuto extends OpMode {
         switch (pathState) {
             case 0:
                 // Wait for the starting delay to expire
-                if (delayTimer.seconds() > delaySeconds) {
+                if (delayTimer.seconds() > 0.5) {
                     // Begin the whole route
-                    outtake.setOuttakeVelocity(1800);
+                    outtake.setOuttakeVelocity(1700);
                     follower.followPath(launchPath1, true);
                     pathState = 1;
                 }
@@ -136,7 +137,7 @@ public class TestAuto extends OpMode {
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
                     outtake.setIntakePower(0);
-                    outtake.setOuttakeVelocity(1800);
+                    outtake.setOuttakeVelocity(1700);
                     follower.followPath(launchPath2, true);
                     pathState = 5;
                 }

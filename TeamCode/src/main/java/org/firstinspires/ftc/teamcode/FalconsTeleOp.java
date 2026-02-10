@@ -162,6 +162,8 @@ public class FalconsTeleOp extends OpMode {
             motorLaunch.setVelocity(2040);
         } else if (gamepad2.a) {
             motorLaunch.setVelocity(1750);
+        } else if (gamepad2.x) {
+            motorLaunch.setVelocity(1490);
         } else {
             motorLaunch.setVelocity(0);
         }
@@ -174,8 +176,8 @@ public class FalconsTeleOp extends OpMode {
         lastRB = gamepad1.right_bumper;
 
         if (intakeRun) {
-            motorRamp1.setPower(0.8);
-            motorRamp2.setPower(-0.8);
+            motorRamp1.setPower(1);
+            motorRamp2.setPower(-1);
             motorIntake.setPower(1);
         } else if (gamepad2.right_bumper) {
             motorRamp1.setPower(0.6);
@@ -197,13 +199,9 @@ public class FalconsTeleOp extends OpMode {
             servoTrigger.setPosition(0.48);
         }
 
-        if (motorLaunch.getVelocity() > 1750 && gamepad2.b) {
-            lightLauncher.setPosition(0.611);
-        } else if (gamepad2.b) {
-            lightLauncher.setPosition(0.279);
-        } else if (motorLaunch.getVelocity() > 1550 && gamepad2.a) {
-            lightLauncher.setPosition(0.611);
-        } else if (gamepad2.a) {
+        if ((motorLaunch.getVelocity() > 1750 && gamepad2.b) || (motorLaunch.getVelocity() > 1550 && gamepad2.a) || (motorLaunch.getVelocity() > 1400 && gamepad2.x)) {
+            lightLauncher.setPosition(0.6);
+        } else if (gamepad2.b || gamepad2.a || gamepad2.x) {
             lightLauncher.setPosition(0.279);
         } else {
             lightLauncher.setPosition(0);

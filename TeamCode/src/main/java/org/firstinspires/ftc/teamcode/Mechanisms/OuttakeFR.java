@@ -18,19 +18,15 @@ public class OuttakeFR {
         //SPIN_UP,
         LAUNCH
     }
-    private LaunchState launchState;
+    private LaunchState launchState = LaunchState.IDLE;
 
 
     // ----------------- LAUNCHER CONSTANTS ------------------
     private int shotsRemaining = 0;
-    private double launchVelocity = 0;
-    public double LAUNCH_TARGET_VEL = 2100;
-    private double LAUNCH_MIN_VEL = LAUNCH_TARGET_VEL - 100;
-    private double LAUNCH_MAX_SPINUP_TIME = 1.5;
 
     public void init(HardwareMap hwMap) {
         servoTrigger = hwMap.get(Servo.class, "trigga");
-        motorLaunch = hwMap.get(DcMotorEx.class, "launch1");
+        motorLaunch = hwMap.get(DcMotorEx.class, "Launch1");
         motorRamp1 = hwMap.get(DcMotorEx.class, "Intake1");
         motorRamp2 = hwMap.get(DcMotorEx.class,"Intake2");
         motorIntake = hwMap.get(DcMotorEx.class,"intake");
@@ -42,7 +38,6 @@ public class OuttakeFR {
         motorLaunch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorLaunch.setVelocityPIDFCoefficients(500,0,0,0);
 
-        //launchState = LaunchState.IDLE;
 
         servoTrigger.setPosition(0.4);
         motorLaunch.setPower(0);
@@ -54,26 +49,21 @@ public class OuttakeFR {
     public void update() {
         switch (launchState) {
             case IDLE:
-                if (shotsRemaining > 0) {
-
-                    stateTimer.reset();
-                    launchState = LaunchState.LAUNCH;
+                if (motorLaunch.getVelocity() > 1580) {
+                    if (shotsRemaining > 0) {
+                        stateTimer.reset();
+                        launchState = LaunchState.LAUNCH;
+                    }
                 }
                 break;
-            /*case SPIN_UP:
-                if (launchVelocity > LAUNCH_MIN_VEL || stateTimer.seconds() > LAUNCH_MAX_SPINUP_TIME) {
-                    stateTimer.reset();
-
-                    launchState = LaunchState.LAUNCH;
-                }
-                break;*/
             case LAUNCH:
                 if (shotsRemaining > 0) {
-                    if (stateTimer.seconds() < 0.5 || motorLaunch.getVelocity() > LAUNCH_MIN_VEL) {
-                        shotsRemaining -= 1;
+                    if (stateTimer.seconds() < 0.5) {
                         motorRamp1.setPower(0.6);
                         motorRamp2.setPower(-0.6);
                         motorIntake.setPower(1);
+                    } else {
+                        shotsRemaining -= 1;
                         stateTimer.reset();
                     }
                 } else {
@@ -102,15 +92,19 @@ public class OuttakeFR {
 
     // Intake Logic
     public void setIntakePower(double power) {
-        motorIntake.setPower(1);
+        motorIntake.setPower(Math.abs(power*1000000));
         motorRamp1.setPower(power);
         motorRamp2.setPower(-power);
     }
+
 
     public void setServoPosition(double position) {
         servoTrigger.setPosition(position);
     }
 
+    public double getFlywheelVelocity(){
+        return motorLaunch.getVelocity();
+    }
 }
 
 

@@ -38,20 +38,19 @@ public class Close extends OpMode {
     private Pose launch1ControlPoint = new Pose(48, 60, Math.toRadians(180));
 
 
-    private Pose intake2ControlPoint = new Pose(48, 61);
+    private Pose intake2ControlPoint = new Pose(48, 40);
     private Pose intake2ReadyPose =  new Pose(18, 61, Math.toRadians(145));
     private Pose intake2FinishPose = new Pose(12, 61, Math.toRadians(145));
 
 
     private Pose launch3ControlPoint = new Pose(48, 60);
-    //private Pose hitLever = new Pose(17, 75, Math.toRadians(180));
-    //private Pose hitLeverControlPoint = new Pose(40, 80);
 
-    private Pose intake3ReadyPose = new Pose(48, 84, Math.toRadians(180));
+
+    private Pose intake3ReadyPose = new Pose(46, 84, Math.toRadians(180));
     private Pose intake3FinishPose = new Pose(18, 84, Math.toRadians(180));
     //private Pose launch4ControlPoint = new Pose(55, 58);
 
-    private Pose leavePose = new Pose(44, 84, Math.toRadians(-50));
+    private Pose leavePose = new Pose(38, 84, Math.toRadians(-50));
 
     private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReady2,intakePath2, launchPath3, intakePathReady3, intakePath3, launchPath4, leavePath, hitLever1;
 
@@ -142,11 +141,11 @@ public class Close extends OpMode {
 
         // ....... Intake 2
         intakePathReady2 = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPose, intake2ControlPoint, intake2ReadyPose  ))
-                .setLinearHeadingInterpolation(launchPose.getHeading(), intake2ReadyPose.getHeading()).build();
-        intakePath2 = follower.pathBuilder()
+                .addPath(new BezierCurve(  launchPose, intake2ControlPoint, intake2FinishPose  ))
+                .setLinearHeadingInterpolation(launchPose.getHeading(), intake2FinishPose.getHeading()).build();
+        /*intakePath2 = follower.pathBuilder()
                 .addPath(new BezierLine(  intake2ReadyPose, intake2FinishPose  ))
-                .setLinearHeadingInterpolation(intake2ReadyPose.getHeading(), intake2FinishPose.getHeading()).build();
+                .setLinearHeadingInterpolation(intake2ReadyPose.getHeading(), intake2FinishPose.getHeading()).build();*/
 
         // ....... Launch 3
         launchPath3 = follower.pathBuilder()
@@ -161,6 +160,7 @@ public class Close extends OpMode {
         intakePath3 = follower.pathBuilder()
                 .addPath(new BezierLine(intake3ReadyPose, intake3FinishPose))
                 .setLinearHeadingInterpolation(intake3ReadyPose.getHeading(), intake3FinishPose.getHeading())
+
                 .build();
 
         // ....... Launch 4
@@ -215,14 +215,14 @@ public class Close extends OpMode {
                 if (!follower.isBusy()) {
                     // Intake the first line of balls
                     outtake.setIntakePower(1);
-                    follower.followPath(intakePath1, 0.8, true);
+                    follower.followPath(intakePath1, 0.6, true);
                     pathState = 5;
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    outtake.setIntakePower(-0.1);
+                    outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(1680);
                     follower.followPath(launchPath2, true);
@@ -236,36 +236,36 @@ public class Close extends OpMode {
                     // Begin the second launch sequence
                     outtake.setIntakePower(0);
                     outtake.fireShots(3);
-                    pathState = 7;
+                    pathState = 8;//7;
                 }
                 break;
-            case 7:
+            //case 7:
                 /* Let the second launch sequence play out */
 
-                if (!outtake.isBusy())
+                /*if (!outtake.isBusy())
                 {
                     // Drive to the gate of balls
                     outtake.setServoPosition(0.48);
                     follower.followPath(intakePathReady2);
                     pathState = 8;
                 }
-                break;
+                break;*/
             case 8:
                 /* Let the robot get to the gate of balls */
 
-                if (!follower.isBusy()) {
+                if (!outtake.isBusy()) {
                     // Intake the gate of balls
-                    outtake.setIntakePower(1);
-                    follower.followPath(intakePath2, 0.8, true);
+                    outtake.setIntakePower2(1,5);
+                    follower.followPath(intakePathReady2, true);
                     pathState = 9;
                 }
                 break;
             case 9:
                 /* Let the intake sequence play out */
 
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() && !outtake.isIntakeBusy()) {
                     // Stop the intake and drive back to launch position
-                    outtake.setIntakePower(-0.1);
+                    outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(1680);
                     follower.followPath(launchPath3, true);
@@ -296,15 +296,16 @@ public class Close extends OpMode {
 
                 if (!follower.isBusy()) {
                     // intake second line of balls
+                    outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
-                    follower.followPath(intakePath3, 0.8, true);
+                    follower.followPath(intakePath3, 0.6, true);
                     pathState = 13;
                 }
                 break;
             case 13:
                 if (!follower.isBusy()) {
                     // stop intake and goto launch
-                    outtake.setIntakePower(-0.1);
+                    outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(1680);
                     follower.followPath(launchPath4, true);

@@ -12,6 +12,7 @@ public class OuttakeFR {
     private DcMotorEx motorLaunch, motorRamp1, motorRamp2, motorIntake;
 
     private ElapsedTime stateTimer = new ElapsedTime();
+    private ElapsedTime intakeTimer = new ElapsedTime();
 
     private enum LaunchState {
         IDLE,
@@ -59,8 +60,8 @@ public class OuttakeFR {
             case LAUNCH:
                 if (shotsRemaining > 0) {
                     if (stateTimer.seconds() < 0.5) {
-                        motorRamp1.setPower(0.6);
-                        motorRamp2.setPower(-0.6);
+                        motorRamp1.setPower(0.65);
+                        motorRamp2.setPower(-0.65);
                         motorIntake.setPower(1);
                     } else {
                         shotsRemaining -= 1;
@@ -95,6 +96,32 @@ public class OuttakeFR {
         motorIntake.setPower(Math.abs(power*1000000));
         motorRamp1.setPower(power);
         motorRamp2.setPower(-power);
+    }
+
+    boolean intake67;
+    boolean meow;
+
+    public void setIntakePower2(double power, double time) {
+        if (!meow) {
+            intakeTimer.reset();
+            meow = true;
+        }
+        if (intakeTimer.seconds() < time) {
+            motorIntake.setPower(Math.abs(power * 1000000));
+            motorRamp1.setPower(power);
+            motorRamp2.setPower(-power);
+            intake67 = true;
+        } else {
+            motorIntake.setPower(0);
+            motorRamp1.setPower(0);
+            motorRamp2.setPower(0);
+            intakeTimer.reset();
+            intake67 = false;
+            meow = false;
+        }
+    }
+    public boolean isIntakeBusy() {
+        return (intake67);
     }
 
 

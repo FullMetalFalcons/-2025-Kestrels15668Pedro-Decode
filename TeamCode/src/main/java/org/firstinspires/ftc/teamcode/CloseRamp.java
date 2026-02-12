@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
 import org.firstinspires.ftc.teamcode.Mechanisms.Webcam;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Close", group = "Auto")
-public class Close extends OpMode {
+@Autonomous(name = "CloseRamp", group = "Auto")
+public class CloseRamp extends OpMode {
 
     public Follower follower;
     private int pathState;
@@ -29,10 +29,9 @@ public class Close extends OpMode {
     Webcam webcam = new Webcam(hardwareMap);
 
     // Define important coordinate locations for the Blue side of the field
-    private Pose startPose = new Pose(18, 118.5, Math.toRadians(-50));
+    private Pose startPose = new Pose(18, 122, Math.toRadians(-50));
     private Pose launchPose = new Pose(48,84,Math.toRadians(-50));
 
-    //private Pose intake1ControlPoint = new Pose(48, 104);
     private Pose intake1ReadyPose =  new Pose(44, 60, Math.toRadians(180));
     private Pose intake1FinishPose = new Pose(18, 60, Math.toRadians(180));
     private Pose launch1ControlPoint = new Pose(48, 60, Math.toRadians(180));
@@ -48,9 +47,8 @@ public class Close extends OpMode {
 
     private Pose intake3ReadyPose = new Pose(46, 84, Math.toRadians(180));
     private Pose intake3FinishPose = new Pose(18, 84, Math.toRadians(180));
-    //private Pose launch4ControlPoint = new Pose(55, 58);
 
-    private Pose leavePose = new Pose(38, 84, Math.toRadians(-50));
+    private Pose leavePose = new Pose(42, 82, Math.toRadians(-50));
 
     private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReady2,intakePath2, launchPath3, intakePathReady3, intakePath3, launchPath4, leavePath, hitLever1;
 

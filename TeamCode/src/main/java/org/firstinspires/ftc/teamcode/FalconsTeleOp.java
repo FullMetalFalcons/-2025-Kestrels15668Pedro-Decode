@@ -38,7 +38,7 @@ public class FalconsTeleOp extends OpMode {
         motorRamp2 = (DcMotorEx) hardwareMap.dcMotor.get("Intake2");
         motorIntake = (DcMotorEx) hardwareMap.dcMotor.get("intake");
 
-        servoTrigger = (Servo) hardwareMap.servo.get("trigga");
+        servoTrigger = (Servo) hardwareMap.servo.get("trigga"); // rly chud
         lightLauncher = (Servo) hardwareMap.servo.get("light");
 
 
@@ -151,6 +151,24 @@ public class FalconsTeleOp extends OpMode {
         motorRF.setPower(powerRF);
         motorRB.setPower(powerRB);
 
+        telemetry.addData("LF", powerLF);
+        telemetry.addData("LB", powerLB);
+        telemetry.addData("RF", powerRF);
+        telemetry.addData("RB", powerRB);
+
+        telemetry.addData("MLF", motorLF.getPower());
+        telemetry.addData("MLB", motorLB.getPower());
+        telemetry.addData("MRF", motorRF.getPower());
+        telemetry.addData("MRB", motorRB.getPower());
+
+        telemetry.addData("powerX", powerX);
+        telemetry.addData("powerY", powerY);
+        telemetry.addData("powerAng", powerAng);
+        telemetry.addData("left_stick_x", gamepad1.left_stick_x);
+        telemetry.addData("left_stick_y", -gamepad1.left_stick_y);
+        telemetry.addData("right_stick_x", -gamepad1.right_stick_x);
+
+
         if (gamepad1.right_trigger > 0.25) {
             reverse = -1;
         } else {
@@ -179,9 +197,13 @@ public class FalconsTeleOp extends OpMode {
             motorRamp1.setPower(1);
             motorRamp2.setPower(-1);
             motorIntake.setPower(1);
-        } else if (gamepad2.right_bumper) {
+        } else if (gamepad2.right_bumper && gamepad2.b) {
             motorRamp1.setPower(0.6);
             motorRamp2.setPower(-0.6);
+            motorIntake.setPower(1);
+        } else if (gamepad2.right_bumper && (gamepad2.a || gamepad2.x)) {
+            motorRamp1.setPower(1);
+            motorRamp2.setPower(-1);
             motorIntake.setPower(1);
         } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
             motorRamp1.setPower(-0.55);

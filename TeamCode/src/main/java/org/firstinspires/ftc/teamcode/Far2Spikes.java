@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
 import org.firstinspires.ftc.teamcode.Mechanisms.Webcam;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Far", group = "Auto")
-public class Far extends OpMode {
+@Autonomous(name = "Far2Spikes", group = "Auto")
+public class Far2Spikes extends OpMode {
 
     public Follower follower;
     private int pathState;
@@ -29,28 +29,28 @@ public class Far extends OpMode {
     Webcam webcam = new Webcam(hardwareMap);
 
     // Define important coordinate locations for the Blue side of the field
-    private Pose startPose = new Pose(56, 8, Math.toRadians(-90));
-    private Pose launchPose = new Pose(56,14,Math.toRadians(-77));
+    private Pose startPose = new Pose(56, 9.5, Math.toRadians(270));
+    private Pose launchPose = new Pose(56,14,Math.toRadians(293));
 
    //TODO add lever hit
     private Pose intake1ControlPoint = new Pose(56, 36);
-    private Pose intake1ReadyPose =  new Pose(44, 36, Math.toRadians(180));
-    private Pose intake1FinishPose = new Pose(14, 36, Math.toRadians(180));
+    private Pose intake1ReadyPose =  new Pose(48, 36, Math.toRadians(180));
+    private Pose intake1FinishPose = new Pose(16, 36, Math.toRadians(180));
 
 
 
-    private Pose intake2ControlPoint = new Pose(56, 60);
-    private Pose intake2ReadyPose =  new Pose(44, 60, Math.toRadians(180));
-    private Pose intake2FinishPose = new Pose(14, 60, Math.toRadians(180));
+    private Pose intake2ControlPoint = new Pose(58, 60);
+    private Pose intake2ReadyPose =  new Pose(50, 60, Math.toRadians(180));
+    private Pose intake2FinishPose = new Pose(16, 60, Math.toRadians(180));
 
 
-    private Pose intake3ControlPoint = new Pose(10, 20);
-    private Pose intake3ReadyPose =  new Pose(16, 20, Math.toRadians(-145));
-    private Pose intake3FinishPose = new Pose(9, 10, Math.toRadians(-145));
+    private Pose intake3ControlPoint = new Pose(9, 20);
+    private Pose intake3ReadyPose =  new Pose(14, 20, Math.toRadians(225));
+    private Pose intake3FinishPose = new Pose(8, 10, Math.toRadians(200));
     private Pose launch3ControlPoint = new Pose(30, 20);
 
 
-    private Pose leavePose = new Pose(36, 14, Math.toRadians(-90));
+    private Pose leavePose = new Pose(36, 12, Math.toRadians(270));
 
     private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReady2,intakePath2, launchPath3, intakePathReady3, intakePath3, launchPath4, leavePath, hitLever1;
 
@@ -168,7 +168,7 @@ public class Far extends OpMode {
                 .build();
         intakePath3 = follower.pathBuilder()
                 .addPath(new BezierCurve(intake3ReadyPose, intake3ControlPoint, intake3FinishPose))
-                .setConstantHeadingInterpolation(Math.toRadians(-145))
+                .setLinearHeadingInterpolation(intake3ReadyPose.getHeading(), intake3FinishPose.getHeading())
                 .build();
 
         // ....... Launch 4
@@ -192,7 +192,8 @@ public class Far extends OpMode {
                 // Wait for the starting delay to expire
                 if (delayTimer.seconds() > delaySeconds) {
                     // Begin the whole route
-                    outtake.setOuttakeVelocity(1680);
+                    outtake.isFar = true;
+                    outtake.setOuttakeVelocity(true);
                     outtake.setServoPosition(0.4);
                     follower.followPath(launchPath1, true);
                     pathState = 1;
@@ -212,7 +213,7 @@ public class Far extends OpMode {
 
                 if (!outtake.isBusy()) {
                     // drive to the first line of balls
-                    follower.followPath(intakePathReady1);
+                    follower.followPath(intakePathReady1, true);
                     outtake.setServoPosition(0.48);
                     pathState = 3;
                 }
@@ -232,7 +233,7 @@ public class Far extends OpMode {
                     // Stop the intake and drive back to launch position
                     outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);
-                    outtake.setOuttakeVelocity(1680);
+                    outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPath2, true);
                     pathState = 6;
                 }
@@ -264,7 +265,7 @@ public class Far extends OpMode {
                 if (!follower.isBusy()) {
                     // Intake the second line of balls of balls
                     outtake.setIntakePower(1);
-                    follower.followPath(intakePathReady2, true);
+                    follower.followPath(intakePath2, 0.6, true);
                     pathState = 9;
                 }
                 break;
@@ -275,7 +276,7 @@ public class Far extends OpMode {
                     // Stop the intake and drive back to launch position
                     outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);
-                    outtake.setOuttakeVelocity(1680);
+                    outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPath3, true);
                     pathState = 10;
                 }
@@ -306,7 +307,7 @@ public class Far extends OpMode {
                     // intake third line of balls
                     outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
-                    follower.followPath(intakePath3, 0.6, true);
+                    follower.followPath(intakePath3, 0.55, true);
                     pathState = 13;
                 }
                 break;
@@ -315,7 +316,7 @@ public class Far extends OpMode {
                     // stop intake and goto launch
                     outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);
-                    outtake.setOuttakeVelocity(1680);
+                    outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPath4, true);
                     pathState = 14;
                 }

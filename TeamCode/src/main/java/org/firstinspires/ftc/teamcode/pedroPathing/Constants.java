@@ -26,7 +26,7 @@ public class Constants {
             .mass(robotWeightInPounds / lbPerKg)
             .forwardZeroPowerAcceleration(-34.036282596)
             .lateralZeroPowerAcceleration(-60.040102549)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.06, 0, 0.005, 0.02))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.058, 0, 0.006, 0.02))
             .headingPIDFCoefficients(new PIDFCoefficients(1,0,0.08,0.02))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.014,0,0.0002,0,0.03))
             .centripetalScaling(0.005)

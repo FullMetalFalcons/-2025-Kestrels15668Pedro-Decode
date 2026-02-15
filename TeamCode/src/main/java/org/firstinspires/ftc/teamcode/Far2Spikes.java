@@ -30,7 +30,7 @@ public class Far2Spikes extends OpMode {
 
     // Define important coordinate locations for the Blue side of the field
     private Pose startPose = new Pose(56, 9.5, Math.toRadians(270));
-    private Pose launchPose = new Pose(56,14,Math.toRadians(293));
+    private Pose launchPose = new Pose(56,14,Math.toRadians(292));
 
    //TODO add lever hit
     private Pose intake1ControlPoint = new Pose(56, 36);
@@ -54,6 +54,7 @@ public class Far2Spikes extends OpMode {
 
     private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReady2,intakePath2, launchPath3, intakePathReady3, intakePath3, launchPath4, leavePath, hitLever1;
 
+    private ElapsedTime timer = new ElapsedTime();
 
     @Override
     public void init() {
@@ -61,7 +62,7 @@ public class Far2Spikes extends OpMode {
 
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
         if (gamepad1.dpad_right) {
-            startPose = startPose.mirror();
+            launchPose = new Pose(144-56,14,Math.toRadians(270-24.1));
             launchPose = launchPose.mirror();
             intake1ReadyPose = intake1ReadyPose.mirror();
             intake1ControlPoint = intake1ControlPoint.mirror();
@@ -184,6 +185,7 @@ public class Far2Spikes extends OpMode {
                 .build();
     }
 
+    //TODO add outtake delay
     public void autonomousPathUpdate() {
 
         // Autonomous state machine
@@ -267,12 +269,13 @@ public class Far2Spikes extends OpMode {
                     outtake.setIntakePower(1);
                     follower.followPath(intakePath2, 0.6, true);
                     pathState = 9;
+                    timer.reset();
                 }
                 break;
             case 9:
                 /* Let the intake sequence play out */
 
-                if (!follower.isBusy() && !outtake.isIntakeBusy()) {
+                if (!follower.isBusy()  || timer.seconds() > 3) {
                     // Stop the intake and drive back to launch position
                     outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);
@@ -298,12 +301,13 @@ public class Far2Spikes extends OpMode {
                     outtake.setServoPosition(0.48);
                     follower.followPath(intakePathReady3, true);
                     pathState = 12;
+                    timer.reset();
                 }
                 break;
             case 12:
                 /* Let the intake sequence play out */
 
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() && timer.seconds() > 3) {
                     // intake third line of balls
                     outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
@@ -312,7 +316,7 @@ public class Far2Spikes extends OpMode {
                 }
                 break;
             case 13:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy()|| timer.seconds() > 3) {
                     // stop intake and goto launch
                     outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);

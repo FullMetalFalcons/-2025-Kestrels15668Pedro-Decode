@@ -29,9 +29,11 @@ public class Close3Spikes extends OpMode {
     Webcam webcam = new Webcam(hardwareMap);
 
     // Define important coordinate locations for the Blue side of the field
-    private Pose startPose = new Pose(16, 111, Math.toRadians(270));
-    private Pose startControlPoint = new Pose(60, 110);
+    private Pose startPose = new Pose(22, 122, Math.toRadians(360-45));
+    //private Pose startControlPoint = new Pose(60, 110);
     private Pose launchPose = new Pose(54,84,Math.toRadians(310));
+    private Pose launchPose2 = new Pose(54,84,Math.toRadians(305));
+
 
     private Pose intake1ReadyPose =  new Pose(47, 84, Math.toRadians(180));
     private Pose intake1FinishPose = new Pose(22, 84, Math.toRadians(180));
@@ -39,16 +41,16 @@ public class Close3Spikes extends OpMode {
 
     private Pose intake2ControlPoint = new Pose(64, 56);
     private Pose intake2ReadyPose =  new Pose(48, 60, Math.toRadians(180));
-    private Pose intake2FinishPose = new Pose(22, 60, Math.toRadians(180));
+    private Pose intake2FinishPose = new Pose(20, 60, Math.toRadians(180));
 
 
     private Pose intakeRampControlPoint = new Pose(48, 52);
     private Pose intakeRampReadyPose =  new Pose(18, 55, Math.toRadians(145));
-    private Pose intakeRampFinishPose = new Pose(14, 55, Math.toRadians(145));
+    private Pose intakeRampFinishPose = new Pose(10, 53.5, Math.toRadians(145));
 
 
     private Pose intake3ControlPoint = new Pose(56, 30);
-    private Pose intake3ReadyPose =  new Pose(46, 36, Math.toRadians(180));
+    private Pose intake3ReadyPose =  new Pose(48, 36, Math.toRadians(180));
     private Pose intake3FinishPose = new Pose(18, 36, Math.toRadians(180));
 
     private Pose leavePose = new Pose(44, 80, Math.toRadians(310));
@@ -64,8 +66,9 @@ public class Close3Spikes extends OpMode {
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
         if (gamepad1.dpad_right) {
             startPose = startPose.mirror();
-            startControlPoint = startControlPoint.mirror();
-            launchPose = new Pose(90,84,Math.toRadians(222));
+            //startControlPoint = startControlPoint.mirror();
+            launchPose = new Pose(90,84,Math.toRadians(224));
+            launchPose2 = new Pose(90,84,Math.toRadians(227));
             intake1ReadyPose = intake1ReadyPose.mirror();
             intake1FinishPose = intake1FinishPose.mirror();
             intake2ReadyPose = intake2ReadyPose.mirror();
@@ -133,8 +136,8 @@ public class Close3Spikes extends OpMode {
     public void buildPaths() {
         // ....... Launch 1
         launchPath1 = follower.pathBuilder()
-                .addPath(new BezierCurve(  startPose, startControlPoint, launchPose  ))
-                .setLinearHeadingInterpolation(startPose.getHeading(), launchPose.getHeading()).build();
+                .addPath(new BezierLine(  startPose, launchPose2  ))
+                .setLinearHeadingInterpolation(startPose.getHeading(), launchPose2.getHeading()).build();
 
         // ....... Intake 1
         intakePathReady1 = follower.pathBuilder()
@@ -218,16 +221,16 @@ public class Close3Spikes extends OpMode {
                     outtake.setServoPosition(0.4);
                     follower.followPath(launchPath1,true);
                     pathState = 1;
-                    timer.reset();
                 }
                 break;
             case 1:
                 /* Let the robot get to launch position */
 
-                if (!follower.isBusy() && timer.seconds() > 2) {
+                if (!follower.isBusy()) {
                     // Begin the first launch sequence
                     outtake.fireShots(3);
                     pathState = 2;
+                    timer.reset();
                 }
                 break;
             case 2:
@@ -236,6 +239,9 @@ public class Close3Spikes extends OpMode {
                 if (!outtake.isBusy()) {
                     // drive to the first line of balls
                     follower.followPath(intakePathReady1, true);
+                    if (timer.seconds() > 0.6) {
+                        outtake.setIntakePower(1);
+                    }
                     outtake.setServoPosition(0.48);
                     pathState = 3;
                 }
@@ -267,6 +273,7 @@ public class Close3Spikes extends OpMode {
                     outtake.setIntakePower(0);
                     outtake.fireShots(3);
                     pathState = 7;
+                    timer.reset();
                 }
                 break;
             case 7:
@@ -276,6 +283,9 @@ public class Close3Spikes extends OpMode {
                 {
                     // Drive to the second line of balls of balls
                     outtake.setServoPosition(0.48);
+                    if (timer.seconds() > 0.6) {
+                        outtake.setIntakePower(1);
+                    }
                     follower.followPath(intakePathReady2,true);
                     pathState = 8;
                 }
@@ -337,15 +347,13 @@ public class Close3Spikes extends OpMode {
             case 103:
                 /* Let the intake sequence play out */
 
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() && timer.seconds() > 3) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 2) {
-                        outtake.setIntakePower(-0.3);
-                        outtake.setServoPosition(0.4);
-                        outtake.setOuttakeVelocity(false);
-                        follower.followPath(launchPathRamp, true);
-                        pathState = 104;
-                    }
+                    outtake.setIntakePower(-0.3);
+                    outtake.setServoPosition(0.4);
+                    outtake.setOuttakeVelocity(false);
+                    follower.followPath(launchPathRamp, true);
+                    pathState = 104;
                 }
                 break;
             case 104:
@@ -356,6 +364,7 @@ public class Close3Spikes extends OpMode {
                     outtake.setIntakePower(0);
                     outtake.fireShots(3);
                     pathState = 11;
+                    timer.reset();
                 }
                 break;
             case 11:
@@ -363,10 +372,14 @@ public class Close3Spikes extends OpMode {
 
                 if (!outtake.isBusy()) {
                     outtake.setServoPosition(0.48);
+                    if (timer.seconds() > 0.4) {
+                        outtake.setIntakePower(1);
+                    }
                     follower.followPath(intakePathReady3, true);
                     pathState = 12;
                 }
                 break;
+            //TODO add thingy to not drag balls
             case 12:
                 /* Let the intake sequence play out */
 

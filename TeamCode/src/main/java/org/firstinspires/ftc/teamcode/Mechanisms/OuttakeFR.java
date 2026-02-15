@@ -61,7 +61,7 @@ public class OuttakeFR {
             case LAUNCH:
                 if (shotsRemaining > 0) {
                     if (!isFar) {
-                        if (stateTimer.seconds() < 0.28) {
+                        if (stateTimer.seconds() < 0.27) {
                             motorRamp1.setPower(1);
                             motorRamp2.setPower(-1);
                             motorIntake.setPower(1);

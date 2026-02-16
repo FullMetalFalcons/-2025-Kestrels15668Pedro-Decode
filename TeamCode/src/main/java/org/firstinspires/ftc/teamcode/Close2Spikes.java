@@ -47,7 +47,7 @@ public class Close2Spikes extends OpMode {
 
     private Pose intakeRampControlPoint = new Pose(48, 52);
     private Pose intakeRampReadyPose =  new Pose(18, 55, Math.toRadians(145));
-    private Pose intakeRampFinishPose = new Pose(10, 53.5, Math.toRadians(145));
+    private Pose intakeRampFinishPose = new Pose(11.5, 53.5, Math.toRadians(145));
 
 
     private Pose intake3ControlPoint = new Pose(56, 30);
@@ -353,7 +353,7 @@ public class Close2Spikes extends OpMode {
             case 103:
                 /* Let the intake sequence play out */
 
-                if (!follower.isBusy() && timer.seconds() > 3) {
+                if (/*!follower.isBusy() && */timer.seconds() > 3) {
                     // Stop the intake and drive back to launch position
                     outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);
@@ -399,7 +399,7 @@ public class Close2Spikes extends OpMode {
                 }
                 break;
             case 13:
-                if (!follower.isBusy() && timer.seconds() > 3) {
+                if (/*!follower.isBusy() && */timer.seconds() > 3) {
                     // stop intake and goto launch
                     outtake.setIntakePower(-0.3);
                     outtake.setServoPosition(0.4);

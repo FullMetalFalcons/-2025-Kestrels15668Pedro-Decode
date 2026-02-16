@@ -113,8 +113,8 @@ public class FalconsTeleOp extends OpMode {
             if (tag != null) {
                 double x = tag.ftcPose.x;
 
-                if (Math.abs(x) > 2) {
-                    powerAng = (x-7) * 0.012;
+                if (Math.abs(x-4) > 0.5) {
+                    powerAng = (x-4) * 0.012;
                 }
             } else {
                 powerAng = -gamepad1.right_stick_x;
@@ -159,8 +159,9 @@ public class FalconsTeleOp extends OpMode {
         }
 
 
+
         if (gamepad2.b) {
-            motorLaunch.setVelocity(2000);
+            motorLaunch.setVelocity(2020);
         } else if (gamepad2.a) {
             motorLaunch.setVelocity(1720);
         } else if (gamepad2.x) {
@@ -178,8 +179,8 @@ public class FalconsTeleOp extends OpMode {
 
 
         if (gamepad2.right_bumper && gamepad2.b) {
-            motorRamp1.setPower(0.8);
-            motorRamp2.setPower(-0.8);
+            motorRamp1.setPower(0.73);
+            motorRamp2.setPower(-0.73);
             motorIntake.setPower(1);
         } else if (gamepad2.right_bumper) {
             motorRamp1.setPower(1);
@@ -189,6 +190,10 @@ public class FalconsTeleOp extends OpMode {
             motorRamp1.setPower(1);
             motorRamp2.setPower(-1);
             motorIntake.setPower(1);
+        } else if (gamepad1.y) {
+            motorRamp1.setPower(-1);
+            motorRamp2.setPower(1);
+            motorIntake.setPower(-1);
         } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
             motorRamp1.setPower(-0.55);
             motorRamp2.setPower(0.55);
@@ -239,6 +244,7 @@ public class FalconsTeleOp extends OpMode {
 
 
         telemetry.addData("rpm", motorLaunch.getVelocity());
+        telemetry.addData("servoPos", servoTrigger.getPosition());
         telemetry.update();
 
     }

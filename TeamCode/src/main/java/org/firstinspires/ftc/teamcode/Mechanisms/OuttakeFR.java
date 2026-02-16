@@ -61,7 +61,7 @@ public class OuttakeFR {
             case LAUNCH:
                 if (shotsRemaining > 0) {
                     if (!isFar) {
-                        if (stateTimer.seconds() < 0.27) {
+                        if (stateTimer.seconds() < 0.26) {
                             motorRamp1.setPower(1);
                             motorRamp2.setPower(-1);
                             motorIntake.setPower(1);
@@ -70,10 +70,10 @@ public class OuttakeFR {
                             stateTimer.reset();
                         }
                     } else {
-                        if (stateTimer.seconds() < 0.33) {
+                        if (stateTimer.seconds() < 0.35) {
                             motorRamp1.setPower(1);
-                            motorRamp2.setPower(-0.75);
-                            motorIntake.setPower(0.75);
+                            motorRamp2.setPower(-0.71);
+                            motorIntake.setPower(0.71);
                         } else {
                             shotsRemaining -= 1;
                             stateTimer.reset();
@@ -112,32 +112,6 @@ public class OuttakeFR {
         motorIntake.setPower(Math.abs(power*1000000));
         motorRamp1.setPower(power);
         motorRamp2.setPower(-power);
-    }
-
-    boolean intake67;
-    boolean meow;
-
-    public void setIntakePower2(double power, double time) {
-        if (!meow) {
-            intakeTimer.reset();
-            meow = true;
-        }
-        if (intakeTimer.seconds() < time) {
-            motorIntake.setPower(Math.abs(power * 1000000));
-            motorRamp1.setPower(power);
-            motorRamp2.setPower(-power);
-            intake67 = true;
-        } else {
-            motorIntake.setPower(0);
-            motorRamp1.setPower(0);
-            motorRamp2.setPower(0);
-            intakeTimer.reset();
-            intake67 = false;
-            meow = false;
-        }
-    }
-    public boolean isIntakeBusy() {
-        return (intake67);
     }
 
 

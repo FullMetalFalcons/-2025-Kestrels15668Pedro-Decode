@@ -18,6 +18,7 @@ public class Close2Spikes extends OpMode {
 
     public Follower follower;
     private int pathState;
+    private boolean red;
 
     ElapsedTime delayTimer = new ElapsedTime();
     ElapsedTime autoTimer = new ElapsedTime();
@@ -81,9 +82,9 @@ public class Close2Spikes extends OpMode {
             intake3ControlPoint = intake3ControlPoint.mirror();
             intake3FinishPose = intake3FinishPose.mirror();
             leavePose = leavePose.mirror();
-            telemetry.addLine("red");
+            red = true;
         } else {
-            telemetry.addLine("blue");
+            red = false;
         }
         telemetry.update();
 
@@ -100,6 +101,11 @@ public class Close2Spikes extends OpMode {
 
     @Override
     public void init_loop() {
+        if (red) {
+            telemetry.addLine("red");
+        } else {
+            telemetry.addLine("blue");
+        }
 
         // Modify the delay before the autonomous begins
         if (gamepad1.dpadUpWasPressed()) {

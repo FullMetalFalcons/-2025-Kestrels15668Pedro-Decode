@@ -242,7 +242,7 @@ public class Far1Spike extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 0.6) {
+                    if (timer.seconds() > 0.4) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);
@@ -290,7 +290,7 @@ public class Far1Spike extends OpMode {
 
                 if (timer.seconds() > 3.5) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 4.1) {
+                    if (timer.seconds() > 3.9) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);
@@ -317,11 +317,7 @@ public class Far1Spike extends OpMode {
 
                 if (!outtake.isBusy()) {
                     outtake.setServoPosition(0.48);
-                    if (timer.seconds() > 0.6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
+                    outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyTunnel, true);
                     pathState = 12;
                 }
@@ -338,9 +334,9 @@ public class Far1Spike extends OpMode {
                 }
                 break;
             case 13:
-                if (timer.seconds() > 4.5) {
+                if (timer.seconds() > 4) {
                     // stop intake and goto launch
-                    if (timer.seconds() > 5.1) {
+                    if (timer.seconds() > 4.4) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);
@@ -365,11 +361,7 @@ public class Far1Spike extends OpMode {
 
                 if (!outtake.isBusy()) {
                     outtake.setServoPosition(0.48);
-                    if (timer.seconds() > 0.6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
+                    outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyTunnel, true);
                     pathState = 16;
                 }
@@ -386,9 +378,9 @@ public class Far1Spike extends OpMode {
                 }
                 break;
             case 17:
-                if (!follower.isBusy() || timer.seconds() > 4.5) {
+                if (!follower.isBusy() || timer.seconds() > 4) {
                     // stop intake and goto launch
-                    if (timer.seconds() > 5.1) {
+                    if (timer.seconds() > 4.4) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);

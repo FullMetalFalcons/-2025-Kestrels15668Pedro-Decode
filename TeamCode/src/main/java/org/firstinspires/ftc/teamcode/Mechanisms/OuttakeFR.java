@@ -50,7 +50,7 @@ public class OuttakeFR {
     public void update() {
         switch (launchState) {
             case IDLE:
-                if ((motorLaunch.getVelocity() > 1540 && !isFar) || (motorLaunch.getVelocity() > 2000 && isFar)) {
+                if ((motorLaunch.getVelocity() > 1540 && !isFar) || (motorLaunch.getVelocity() > 1960 && isFar)) {
                     if (shotsRemaining > 0) {
                         stateTimer.reset();
                         launchState = LaunchState.LAUNCH;
@@ -69,10 +69,10 @@ public class OuttakeFR {
                             stateTimer.reset();
                         }
                     } else {
-                        if (stateTimer.seconds() < 0.35) {
+                        if (stateTimer.seconds() < 0.36) {
                             motorRamp1.setPower(1);
-                            motorRamp2.setPower(-0.71);
-                            motorIntake.setPower(0.71);
+                            motorRamp2.setPower(-0.72);
+                            motorIntake.setPower(0.72);
                         } else {
                             shotsRemaining -= 1;
                             stateTimer.reset();
@@ -82,7 +82,7 @@ public class OuttakeFR {
                     motorRamp1.setPower(0);
                     motorRamp2.setPower(0);
                     motorIntake.setPower(0);
-                    motorLaunch.setPower(0);
+                    //motorLaunch.setPower(0);
                     stateTimer.reset();
                     launchState = LaunchState.IDLE;
                 }
@@ -103,6 +103,9 @@ public class OuttakeFR {
         } else {
             motorLaunch.setVelocity(1580);
         }
+    }
+    public void setOuttakeVelocity(double velocity) {
+        motorLaunch.setVelocity(velocity);
     }
 
 

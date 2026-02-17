@@ -33,6 +33,8 @@ public class Close3Spikes extends OpMode {
     private Pose startPose = new Pose(22, 122, Math.toRadians(360-45));
     //private Pose startControlPoint = new Pose(60, 110);
     private Pose launchPose = new Pose(54,84,Math.toRadians(310));
+    private Pose launchPose2 = new Pose(54,84,Math.toRadians(310));
+
 
 
 
@@ -47,7 +49,7 @@ public class Close3Spikes extends OpMode {
 
     private Pose intakeRampControlPoint = new Pose(48, 52);
     private Pose intakeRampReadyPose =  new Pose(18, 55, Math.toRadians(145));
-    private Pose intakeRampFinishPose = new Pose(11.5, 53.5, Math.toRadians(145));
+    private Pose intakeRampFinishPose = new Pose(11.5, 55, Math.toRadians(145));
 
 
     private Pose intake3ControlPoint = new Pose(56, 30);
@@ -68,7 +70,8 @@ public class Close3Spikes extends OpMode {
         if (gamepad1.dpad_right) {
             startPose = startPose.mirror();
             //startControlPoint = startControlPoint.mirror();
-            launchPose = new Pose(90, 84, Math.toRadians(224));
+            launchPose = new Pose(90, 84, Math.toRadians(225));
+            launchPose2 = new Pose(90, 84, Math.toRadians(228));
             intake1ReadyPose = intake1ReadyPose.mirror();
             intake1FinishPose = intake1FinishPose.mirror();
             intake2ReadyPose = intake2ReadyPose.mirror();
@@ -141,8 +144,8 @@ public class Close3Spikes extends OpMode {
     public void buildPaths() {
         // ....... Launch 1
         launchPath1 = follower.pathBuilder()
-                .addPath(new BezierLine(  startPose, launchPose  ))
-                .setLinearHeadingInterpolation(startPose.getHeading(), launchPose.getHeading()).build();
+                .addPath(new BezierLine(  startPose, launchPose2  ))
+                .setLinearHeadingInterpolation(startPose.getHeading(), launchPose2.getHeading()).build();
 
         // ....... Intake 1
         intakePathReady1 = follower.pathBuilder()
@@ -262,20 +265,20 @@ public class Close3Spikes extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 0.6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(false);
                     follower.followPath(launchPath2, true);
                     pathState = 6;
+                    timer.reset();
                 }
                 break;
             case 6:
                 /* Let the robot get back to launch position */
-
+                if (timer.seconds() > 0.4) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
                 if (!follower.isBusy()) {
                     // Begin the second launch sequence
                     outtake.setIntakePower(0);
@@ -310,20 +313,20 @@ public class Close3Spikes extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 0.6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(false);
                     follower.followPath(launchPath3, true);
                     pathState = 10;
+                    timer.reset();
                 }
                 break;
             case 10:
                 /* Let the robot get back to launch position */
-
+                if (timer.seconds() > 0.4) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
                 if (!follower.isBusy()) {
                     // Begin the second launch sequence
                     outtake.setIntakePower(0);
@@ -356,22 +359,22 @@ public class Close3Spikes extends OpMode {
             case 103:
                 /* Let the intake sequence play out */
 
-                if (/*!follower.isBusy() && */timer.seconds() > 3) {
+                if (timer.seconds() > 2.2) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 3.6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(false);
                     follower.followPath(launchPathRamp, true);
                     pathState = 104;
+                    timer.reset();
                 }
                 break;
             case 104:
                 /* Let the robot get back to launch position */
-
+                if (timer.seconds() > 0.4) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
                 if (!follower.isBusy()) {
                     // Begin the third launch sequence
                     outtake.setIntakePower(0);
@@ -386,7 +389,7 @@ public class Close3Spikes extends OpMode {
                 if (!outtake.isBusy()) {
                     outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
-                    follower.followPath(intakePathReady3, true);
+                    follower.followPath(intakePathReady3,true);
                     pathState = 12;
                 }
                 break;
@@ -404,18 +407,20 @@ public class Close3Spikes extends OpMode {
             case 13:
                 if (!follower.isBusy()) {
                     // stop intake and goto launch
-                    if (timer.seconds() > 0.6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
+
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(false);
                     follower.followPath(launchPath4, true);
                     pathState = 14;
+                    timer.reset();
                 }
                 break;
             case 14:
+                if (timer.seconds() > 0.4) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
                 if (!follower.isBusy()) {
                     // launch
                     outtake.setIntakePower(0);
@@ -429,9 +434,9 @@ public class Close3Spikes extends OpMode {
                 /* Let the third launch sequence play out */
 
                 // If the launch sequence is finished, or autonomous is about to end, move sideways for the Leave points
-                if (autoTimer.seconds() > AUTO_LENGTH_SECONDS - AUTO_END_BUFFER_SECONDS || !outtake.isBusy()
+                if (!outtake.isBusy()
                 ) {
-
+                    outtake.setOuttakeVelocity(0);
                     // Quit out of the state machine and move off of the Launch line
                     follower.followPath(leavePath, true);
                     pathState = -1;

@@ -269,7 +269,7 @@ public class Far2Spikes extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 0.6) {
+                    if (timer.seconds() > 0.4) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);
@@ -314,7 +314,7 @@ public class Far2Spikes extends OpMode {
             case 63:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 0.6) {
+                    if (timer.seconds() > 0.4) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);
@@ -359,9 +359,9 @@ public class Far2Spikes extends OpMode {
             case 9:
                 /* Let the intake sequence play out */
 
-                if (/*!follower.isBusy()  || */timer.seconds() > 2) {
+                if (/*!follower.isBusy()  || */timer.seconds() > 1.6) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() < 3.2) {
+                    if (timer.seconds() > 2) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);
@@ -408,9 +408,9 @@ public class Far2Spikes extends OpMode {
             case 13:
                 /* Let the intake sequence play out */
 
-                if (timer.seconds() > 3.5) {
+                if (timer.seconds() > 1.6) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 4.1) {
+                    if (timer.seconds() > 2) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);

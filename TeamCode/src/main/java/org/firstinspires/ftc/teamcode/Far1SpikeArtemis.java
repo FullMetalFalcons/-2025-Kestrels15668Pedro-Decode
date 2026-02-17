@@ -42,14 +42,14 @@ public class Far1SpikeArtemis extends OpMode {
     // overflow pickup
     private Pose intakeTunnelControlPoint = new Pose(9, 20);
     private Pose intakeTunnelReadyPose =  new Pose(14, 20, Math.toRadians(135));
-    private Pose intakeTunnelFinishPose = new Pose(9, 38, Math.toRadians(135));
+    private Pose intakeTunnelFinishPose = new Pose(9, 46, Math.toRadians(135));
 
 
     // corner pickup
     private Pose intakeCornerControlPoint = new Pose(7.5, 20);
-    private Pose intakeCornerReadyPose =  new Pose(14, 28, Math.toRadians(225));
-    private Pose intakeCornerFinishPose = new Pose(7.5, 12, Math.toRadians(185));
-    private Pose launchCornerControlPoint = new Pose(30, 20);
+    private Pose intakeCornerReadyPose =  new Pose(14, 36, Math.toRadians(245));
+    private Pose intakeCornerFinishPose = new Pose(8, 9, Math.toRadians(180));
+    private Pose launchCornerControlPoint = new Pose(30, 30);
 
 
     private Pose leavePose = new Pose(36, 12, Math.toRadians(270));
@@ -193,7 +193,6 @@ public class Far1SpikeArtemis extends OpMode {
                 .build();
     }
 
-    //TODO add outtake delay
     public void autonomousPathUpdate() {
 
         // Autonomous state machine
@@ -242,7 +241,7 @@ public class Far1SpikeArtemis extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 0.6) {
+                    if (timer.seconds() > 0.3) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);
@@ -288,22 +287,22 @@ public class Far1SpikeArtemis extends OpMode {
             case 9:
                 /* Let the intake sequence play out */
 
-                if (timer.seconds() > 3.5) {
+                if (timer.seconds() > 2) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 4.1) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 10;
+                    timer.reset();
                 }
                 break;
             case 10:
                 /* Let the robot get back to launch position */
-
+                if (timer.seconds() > 0.5 && follower.isBusy()) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
                 if (!follower.isBusy()) {
                     // Begin the third launch sequence
                     outtake.setIntakePower(0);
@@ -313,47 +312,47 @@ public class Far1SpikeArtemis extends OpMode {
                 }
                 break;
             case 11:
-                /* Let the robot get to the third line of balls */
+                /* Let the second launch sequence play out */
 
                 if (!outtake.isBusy()) {
+                    // Drive to the second line of balls of balls
                     outtake.setServoPosition(0.48);
-                    if (timer.seconds() > 0.6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
-                    follower.followPath(intakePathReadyTunnel, true);
+                    outtake.setIntakePower(1);
+                    follower.followPath(intakePathReadyCorner);
                     pathState = 12;
                 }
                 break;
             case 12:
-                /* Let the intake sequence play out */
+                /* Let the robot get to the second line of balls of balls */
 
                 if (!follower.isBusy()) {
-                    // intake third line of balls
-                    outtake.setServoPosition(0.48);
-                    follower.followPath(intakePathTunnel, 0.65, true);
-                    timer.reset();
+                    // Intake the second line of balls of balls
+                    follower.followPath(intakePathCorner, 0.6, true);
                     pathState = 13;
+                    timer.reset();
                 }
                 break;
             case 13:
-                if (timer.seconds() > 4.5) {
-                    // stop intake and goto launch
-                    if (timer.seconds() > 5.1) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
+                /* Let the intake sequence play out */
+
+                if (timer.seconds() > 2) {
+                    // Stop the intake and drive back to launch position
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
-                    follower.followPath(launchPathTunnel, true);
+                    follower.followPath(launchPathCorner, true);
                     pathState = 14;
+                    timer.reset();
                 }
                 break;
             case 14:
+                /* Let the robot get back to launch position */
+                if (timer.seconds() > 0.5 && follower.isBusy()) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
                 if (!follower.isBusy()) {
-                    // launch
+                    // Begin the third launch sequence
                     outtake.setIntakePower(0);
                     outtake.fireShots(3);
                     pathState = 15;
@@ -361,61 +360,60 @@ public class Far1SpikeArtemis extends OpMode {
                 }
                 break;
             case 15:
-                /* Let the robot get to the third line of balls */
+                /* Let the second launch sequence play out */
 
                 if (!outtake.isBusy()) {
+                    // Drive to the second line of balls of balls
                     outtake.setServoPosition(0.48);
-                    if (timer.seconds() > 0.6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
-                    follower.followPath(intakePathReadyTunnel, true);
+                    outtake.setIntakePower(1);
+                    follower.followPath(intakePathReadyCorner);
                     pathState = 16;
                 }
                 break;
             case 16:
-                /* Let the intake sequence play out */
+                /* Let the robot get to the second line of balls of balls */
 
                 if (!follower.isBusy()) {
-                    // intake third line of balls
-                    outtake.setServoPosition(0.48);
-                    follower.followPath(intakePathTunnel, 0.65, true);
-                    timer.reset();
+                    // Intake the second line of balls of balls
+                    follower.followPath(intakePathCorner, 0.6, true);
                     pathState = 17;
+                    timer.reset();
                 }
                 break;
             case 17:
-                if (!follower.isBusy() || timer.seconds() > 4.5) {
-                    // stop intake and goto launch
-                    if (timer.seconds() > 5.1) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
+                /* Let the intake sequence play out */
+
+                if (timer.seconds() > 2) {
+                    // Stop the intake and drive back to launch position
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
-                    follower.followPath(launchPathTunnel, true);
+                    follower.followPath(launchPathCorner, true);
                     pathState = 18;
+                    timer.reset();
                 }
                 break;
             case 18:
+                /* Let the robot get back to launch position */
+                if (timer.seconds() > 0.5 && follower.isBusy()) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
                 if (!follower.isBusy()) {
-                    // launch
+                    // Begin the third launch sequence
                     outtake.setIntakePower(0);
                     outtake.fireShots(3);
                     pathState = 19;
+                    timer.reset();
                 }
                 break;
-
             case 19:
                 /* Let the third launch sequence play out */
 
                 // If the launch sequence is finished, or autonomous is about to end, move sideways for the Leave points
-                if (/*autoTimer.seconds() > AUTO_LENGTH_SECONDS - AUTO_END_BUFFER_SECONDS ||*/ !outtake.isBusy()
-                ) {
-
+                if (!outtake.isBusy()) {
                     // Quit out of the state machine and move off of the Launch line
+                    outtake.setOuttakeVelocity(0);
                     follower.followPath(leavePath, true);
                     pathState = -1;
                 }

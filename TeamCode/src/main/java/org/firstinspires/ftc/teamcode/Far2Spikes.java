@@ -251,6 +251,7 @@ public class Far2Spikes extends OpMode {
                 if (!outtake.isBusy()) {
                     // drive to the first line of balls
                     follower.followPath(intakePathReady1, true);
+                    outtake.setIntakePower(1);
                     outtake.setServoPosition(0.48);
                     pathState = 3;
                 }
@@ -260,7 +261,6 @@ public class Far2Spikes extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the first line of balls
-                    outtake.setIntakePower(1);
                     follower.followPath(intakePath1, 0.6, true);
                     pathState = 5;
                     timer.reset();
@@ -269,7 +269,11 @@ public class Far2Spikes extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    outtake.setIntakePower(-0.3);
+                    if (timer.seconds() > 0.6) {
+                        outtake.setIntakePower(-0.3);
+                    } else {
+                        outtake.setIntakePower(0);
+                    }
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPath2, true);
@@ -293,16 +297,15 @@ public class Far2Spikes extends OpMode {
                     // drive to the first line of balls
                     follower.followPath(intakePathReady2, true);
                     outtake.setServoPosition(0.48);
+                    outtake.setIntakePower(1);
                     pathState = 62;
-                    timer.reset();
                 }
                 break;
             case 62:
                 /* Let the robot get to the first line of balls */
 
-                if (!follower.isBusy() || timer.seconds() > 1.8) {
+                if (!follower.isBusy()) {
                     // Intake the first line of balls
-                    outtake.setIntakePower(1);
                     follower.followPath(intakePath2, 0.6, true);
                     pathState = 63;
                     timer.reset();
@@ -311,7 +314,11 @@ public class Far2Spikes extends OpMode {
             case 63:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    outtake.setIntakePower(-0.3);
+                    if (timer.seconds() > 0.6) {
+                        outtake.setIntakePower(-0.3);
+                    } else {
+                        outtake.setIntakePower(0);
+                    }
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPath3, true);
@@ -320,7 +327,6 @@ public class Far2Spikes extends OpMode {
                 break;
             case 64:
                 /* Let the robot get back to launch position */
-
                 if (!follower.isBusy()) {
                     // Begin the second launch sequence
                     outtake.setIntakePower(0);
@@ -384,6 +390,7 @@ public class Far2Spikes extends OpMode {
                 {
                     // Drive to the second line of balls of balls
                     outtake.setServoPosition(0.48);
+                    outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyCorner);
                     pathState = 12;
                 }
@@ -393,7 +400,6 @@ public class Far2Spikes extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the second line of balls of balls
-                    outtake.setIntakePower(1);
                     follower.followPath(intakePathCorner, 0.6, true);
                     pathState = 13;
                     timer.reset();
@@ -402,9 +408,9 @@ public class Far2Spikes extends OpMode {
             case 13:
                 /* Let the intake sequence play out */
 
-                if (/*!follower.isBusy()  || */timer.seconds() > 2) {
+                if (timer.seconds() > 3.5) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() < 3.2) {
+                    if (timer.seconds() > 4.1) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);

@@ -12,7 +12,6 @@ public class OuttakeFR {
     private DcMotorEx motorLaunch, motorRamp1, motorRamp2, motorIntake;
 
     private ElapsedTime stateTimer = new ElapsedTime();
-    private ElapsedTime intakeTimer = new ElapsedTime();
 
     public boolean isFar;
 

@@ -66,7 +66,7 @@ public class Far1SpikeArtemis extends OpMode {
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
         if (gamepad1.dpad_right) {
             startPose = startPose.mirror();
-            launchPose = new Pose(144-56,14,Math.toRadians(270-24.1));
+            launchPose = new Pose(144-56,14,Math.toRadians(270-24.6));
             intake1ReadyPose = intake1ReadyPose.mirror();
             intake1ControlPoint = intake1ControlPoint.mirror();
             intake1FinishPose = intake1FinishPose.mirror();
@@ -233,7 +233,7 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the first line of balls
-                    follower.followPath(intakePath1, 0.6, true);
+                    follower.followPath(intakePath1, 0.85, true);
                     pathState = 5;
                     timer.reset();
                 }
@@ -241,7 +241,7 @@ public class Far1SpikeArtemis extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 0.3) {
+                    if (timer.seconds() > 0.4) {
                         outtake.setIntakePower(-0.3);
                     } else {
                         outtake.setIntakePower(0);
@@ -289,7 +289,7 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (timer.seconds() > 2) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
+                    outtake.setServoPosition(0.6);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 10;
@@ -298,7 +298,7 @@ public class Far1SpikeArtemis extends OpMode {
                 break;
             case 10:
                 /* Let the robot get back to launch position */
-                if (timer.seconds() > 0.5 && follower.isBusy()) {
+                if (timer.seconds() > 0.6) {
                     outtake.setIntakePower(-0.3);
                 } else {
                     outtake.setIntakePower(0);
@@ -346,7 +346,7 @@ public class Far1SpikeArtemis extends OpMode {
                 break;
             case 14:
                 /* Let the robot get back to launch position */
-                if (timer.seconds() > 0.5 && follower.isBusy()) {
+                if (timer.seconds() > 0.6) {
                     outtake.setIntakePower(-0.3);
                 } else {
                     outtake.setIntakePower(0);
@@ -394,7 +394,7 @@ public class Far1SpikeArtemis extends OpMode {
                 break;
             case 18:
                 /* Let the robot get back to launch position */
-                if (timer.seconds() > 0.5 && follower.isBusy()) {
+                if (timer.seconds() > 0.6) {
                     outtake.setIntakePower(-0.3);
                 } else {
                     outtake.setIntakePower(0);

@@ -257,7 +257,7 @@ public class Close2Spikes extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the first line of balls
-                    follower.followPath(intakePath1, 0.75, true);
+                    follower.followPath(intakePath1, 0.85, true);
                     pathState = 5;
                     timer.reset();
                 }
@@ -303,7 +303,7 @@ public class Close2Spikes extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the second line of balls of balls
-                    follower.followPath(intakePath2, true);
+                    follower.followPath(intakePath2, 0.85,true);
                     pathState = 9;
                     timer.reset();
                 }
@@ -370,7 +370,7 @@ public class Close2Spikes extends OpMode {
                 break;
             case 104:
                 /* Let the robot get back to launch position */
-                if (timer.seconds() > 0.4) {
+                if (timer.seconds() > 0.6) {
                     outtake.setIntakePower(-0.3);
                 } else {
                     outtake.setIntakePower(0);
@@ -418,7 +418,7 @@ public class Close2Spikes extends OpMode {
                 break;
             case 14:
                 /* Let the robot get back to launch position */
-                if (timer.seconds() > 0.4) {
+                if (timer.seconds() > 0.6) {
                     outtake.setIntakePower(-0.3);
                 } else {
                     outtake.setIntakePower(0);

@@ -60,7 +60,7 @@ public class OuttakeFR {
             case LAUNCH:
                 if (shotsRemaining > 0) {
                     if (!isFar) {
-                        if (stateTimer.seconds() < 0.26) {
+                        if (stateTimer.seconds() < 0.25) {
                             motorRamp1.setPower(1);
                             motorRamp2.setPower(-1);
                             motorIntake.setPower(1);
@@ -69,10 +69,10 @@ public class OuttakeFR {
                             stateTimer.reset();
                         }
                     } else {
-                        if (stateTimer.seconds() < 0.36) {
+                        if (stateTimer.seconds() < 0.34) {
                             motorRamp1.setPower(1);
-                            motorRamp2.setPower(-0.72);
-                            motorIntake.setPower(0.72);
+                            motorRamp2.setPower(-0.7);
+                            motorIntake.setPower(0.7);
                         } else {
                             shotsRemaining -= 1;
                             stateTimer.reset();
@@ -99,9 +99,9 @@ public class OuttakeFR {
     // Outtake Logic
     public void setOuttakeVelocity(boolean launchFar) {
         if (launchFar) {
-            motorLaunch.setVelocity(2040);
+            motorLaunch.setVelocity(2050);
         } else {
-            motorLaunch.setVelocity(1580);
+            motorLaunch.setVelocity(1590);
         }
     }
     public void setOuttakeVelocity(double velocity) {

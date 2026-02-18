@@ -71,7 +71,7 @@ public class Far2Spikes extends OpMode {
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
         if (gamepad1.dpad_right) {
             startPose = startPose.mirror();
-            launchPose = new Pose(144-56,14,Math.toRadians(270-24.1));
+            launchPose = new Pose(144-56,14,Math.toRadians(270-24.6));
             intake1ReadyPose = intake1ReadyPose.mirror();
             intake1ControlPoint = intake1ControlPoint.mirror();
             intake1FinishPose = intake1FinishPose.mirror();
@@ -169,7 +169,7 @@ public class Far2Spikes extends OpMode {
                 .setLinearHeadingInterpolation(launchPose.getHeading(), intake2ReadyPose.getHeading())
                 .build();
         intakePath2 = follower.pathBuilder()
-                .addPath(new BezierCurve(intake2ReadyPose, intake2ControlPoint, intake2FinishPose))
+                .addPath(new BezierLine(intake2ReadyPose, intake2FinishPose))
                 .setLinearHeadingInterpolation(intake2ReadyPose.getHeading(), intake2FinishPose.getHeading())
                 .build();
 
@@ -261,7 +261,7 @@ public class Far2Spikes extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the first line of balls
-                    follower.followPath(intakePath1, 0.6, true);
+                    follower.followPath(intakePath1, 0.85, true);
                     pathState = 5;
                     timer.reset();
                 }
@@ -299,6 +299,7 @@ public class Far2Spikes extends OpMode {
                     outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
                     pathState = 62;
+                    timer.reset();
                 }
                 break;
             case 62:
@@ -306,7 +307,7 @@ public class Far2Spikes extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the first line of balls
-                    follower.followPath(intakePath2, 0.6, true);
+                    follower.followPath(intakePath2, 0.85, true);
                     pathState = 63;
                     timer.reset();
                 }
@@ -359,13 +360,8 @@ public class Far2Spikes extends OpMode {
             case 9:
                 /* Let the intake sequence play out */
 
-                if (/*!follower.isBusy()  || */timer.seconds() > 1.6) {
+                if (timer.seconds() > 1.6) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 2) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
@@ -374,7 +370,11 @@ public class Far2Spikes extends OpMode {
                 break;
             case 10:
                 /* Let the robot get back to launch position */
-
+                if (timer.seconds() > 0.6) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
                 if (!follower.isBusy()) {
                     // Begin the third launch sequence
                     outtake.setIntakePower(0);
@@ -410,11 +410,6 @@ public class Far2Spikes extends OpMode {
 
                 if (timer.seconds() > 1.6) {
                     // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 2) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
@@ -423,6 +418,11 @@ public class Far2Spikes extends OpMode {
                 break;
             case 14:
                 /* Let the robot get back to launch position */
+                if (timer.seconds() > 0.6) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
 
                 if (!follower.isBusy()) {
                     // Begin the third launch sequence
@@ -432,98 +432,6 @@ public class Far2Spikes extends OpMode {
                     timer.reset();
                 }
                 break;
-            /*case 11:
-                // Let the robot get to the third line of balls
-
-                if (!outtake.isBusy()) {
-                    outtake.setServoPosition(0.48);
-                    if (timer.seconds() > 0.6) {
-                        outtake.setIntakePower(1);
-                    }
-                    follower.followPath(intakePathReadyTunnel, true);
-                    pathState = 12;
-                }
-                break;
-            case 12:
-                // Let the intake sequence play out
-
-                if (!follower.isBusy()) {
-                    // intake third line of balls
-                    outtake.setServoPosition(0.48);
-                    follower.followPath(intakePathTunnel, 0.65, true);
-                    timer.reset();
-                    pathState = 13;
-                }
-                break;
-            case 13:
-                if (!follower.isBusy() || timer.seconds() > 4.5) {
-                    // stop intake and goto launch
-                    if (timer.seconds() < 6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
-                    outtake.setServoPosition(0.4);
-                    outtake.setOuttakeVelocity(true);
-                    follower.followPath(launchPathTunnel, true);
-                    pathState = 14;
-                }
-                break;
-            case 14:
-                if (!follower.isBusy()) {
-                    // launch
-                    outtake.setIntakePower(0);
-                    outtake.fireShots(3);
-                    pathState = 15;
-                    timer.reset();
-                }
-                break;
-            case 15:
-                // Let the robot get to the third line of balls
-
-                if (!outtake.isBusy()) {
-                    outtake.setServoPosition(0.48);
-                    if (timer.seconds() > 0.6) {
-                        outtake.setIntakePower(1);
-                    }
-                    follower.followPath(intakePathReadyTunnel, true);
-                    pathState = 16;
-                }
-                break;
-            case 16:
-                // Let the intake sequence play out
-
-                if (!follower.isBusy()) {
-                    // intake third line of balls
-                    outtake.setServoPosition(0.48);
-                    follower.followPath(intakePathTunnel, 0.65, true);
-                    timer.reset();
-                    pathState = 17;
-                }
-                break;
-            case 17:
-                if (!follower.isBusy() || timer.seconds() > 4.5) {
-                    // stop intake and goto launch
-                    if (timer.seconds() < 6) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
-                    outtake.setServoPosition(0.4);
-                    outtake.setOuttakeVelocity(true);
-                    follower.followPath(launchPathTunnel, true);
-                    pathState = 18;
-                }
-                break;
-            case 18:
-                if (!follower.isBusy()) {
-                    // launch
-                    outtake.setIntakePower(0);
-                    outtake.fireShots(3);
-                    pathState = 19;
-                }
-                break;
-            */
             case 19:
                 /* Let the third launch sequence play out */
 

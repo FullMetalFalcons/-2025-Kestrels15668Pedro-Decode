@@ -69,7 +69,7 @@ public class Far2Spikes extends OpMode {
 
 
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
-        if (gamepad1.dpad_right) {
+        if (gamepad1.dpad_right || gamepad2.dpad_right) {
             startPose = startPose.mirror();
             launchPose = new Pose(144-56,14,Math.toRadians(270-24.6));
             intake1ReadyPose = intake1ReadyPose.mirror();

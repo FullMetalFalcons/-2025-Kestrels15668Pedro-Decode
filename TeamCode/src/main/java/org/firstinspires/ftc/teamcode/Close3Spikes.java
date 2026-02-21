@@ -39,12 +39,12 @@ public class Close3Spikes extends OpMode {
 
 
     private Pose intake1ReadyPose =  new Pose(47, 84, Math.toRadians(180));
-    private Pose intake1FinishPose = new Pose(22, 84, Math.toRadians(180));
+    private Pose intake1FinishPose = new Pose(20, 84, Math.toRadians(180));
 
 
     private Pose intake2ControlPoint = new Pose(64, 56);
     private Pose intake2ReadyPose =  new Pose(48, 60, Math.toRadians(180));
-    private Pose intake2FinishPose = new Pose(20, 60, Math.toRadians(180));
+    private Pose intake2FinishPose = new Pose(18, 60, Math.toRadians(180));
 
 
     private Pose intakeRampControlPoint = new Pose(48, 52);
@@ -54,7 +54,7 @@ public class Close3Spikes extends OpMode {
 
     private Pose intake3ControlPoint = new Pose(56, 30);
     private Pose intake3ReadyPose =  new Pose(48, 36, Math.toRadians(180));
-    private Pose intake3FinishPose = new Pose(18, 36, Math.toRadians(180));
+    private Pose intake3FinishPose = new Pose(17, 36, Math.toRadians(180));
 
     private Pose leavePose = new Pose(44, 80, Math.toRadians(310));
 
@@ -67,7 +67,7 @@ public class Close3Spikes extends OpMode {
 
 
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
-        if (gamepad1.dpad_right) {
+        if (gamepad1.dpad_right || gamepad2.dpad_right) {
             startPose = startPose.mirror();
             //startControlPoint = startControlPoint.mirror();
             launchPose = new Pose(90, 84, Math.toRadians(225));

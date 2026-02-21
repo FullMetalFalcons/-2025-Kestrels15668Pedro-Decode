@@ -49,12 +49,13 @@ public class Far1SpikeArtemis extends OpMode {
     private Pose intakeCornerControlPoint = new Pose(7.5, 20);
     private Pose intakeCornerReadyPose =  new Pose(14, 36, Math.toRadians(245));
     private Pose intakeCornerFinishPose = new Pose(8, 9, Math.toRadians(180));
+    private Pose intakeCornerSomethingPose = new Pose (32, 14, Math.toRadians (235));
     private Pose launchCornerControlPoint = new Pose(30, 30);
 
 
     private Pose leavePose = new Pose(36, 12, Math.toRadians(270));
 
-    private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReadyTunnel, intakePathTunnel, launchPathTunnel, intakePathReadyCorner, intakePathCorner, launchPathCorner, leavePath, hitLever1;
+    private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReadyTunnel, intakePathTunnel, launchPathTunnel, intakePathReadyCorner, intakePathCorner, intakePathSomething, launchPathCorner, leavePath, hitLever1;
 
     private ElapsedTime timer = new ElapsedTime();
 
@@ -64,7 +65,7 @@ public class Far1SpikeArtemis extends OpMode {
 
 
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
-        if (gamepad1.dpad_right) {
+        if (gamepad1.dpad_right || gamepad2.dpad_right) {
             startPose = startPose.mirror();
             launchPose = new Pose(144-56,14,Math.toRadians(270-24.6));
             intake1ReadyPose = intake1ReadyPose.mirror();
@@ -77,6 +78,7 @@ public class Far1SpikeArtemis extends OpMode {
             launchCornerControlPoint = launchCornerControlPoint.mirror();
             intakeCornerControlPoint = intakeCornerControlPoint.mirror();
             intakeCornerFinishPose = intakeCornerFinishPose.mirror();
+            intakeCornerSomethingPose = intakeCornerSomethingPose.mirror();
             leavePose = leavePose.mirror();
             red = true;
         } else {
@@ -179,11 +181,15 @@ public class Far1SpikeArtemis extends OpMode {
                 .addPath(new BezierCurve(intakeCornerReadyPose, intakeCornerControlPoint, intakeCornerFinishPose))
                 .setLinearHeadingInterpolation(intakeCornerReadyPose.getHeading(), intakeCornerFinishPose.getHeading())
                 .build();
+        intakePathSomething = follower.pathBuilder()
+                .addPath(new BezierLine(intakeCornerFinishPose, intakeCornerSomethingPose))
+                .setLinearHeadingInterpolation(intakeCornerFinishPose.getHeading(), intakeCornerSomethingPose.getHeading())
+                .build();
 
         // ....... Launch 4
         launchPathCorner = follower.pathBuilder()
-                .addPath(new BezierCurve(intakeCornerFinishPose, launchCornerControlPoint, launchPose))
-                .setLinearHeadingInterpolation(intakeCornerFinishPose.getHeading(), launchPose.getHeading())
+                .addPath(new BezierLine(/*intakeCornerFinishPose*/intakeCornerSomethingPose,/* launchCornerControlPoint, */launchPose))
+                .setLinearHeadingInterpolation(/*intakeCornerFinishPose*/intakeCornerSomethingPose.getHeading(), launchPose.getHeading())
                 .build();
 
         // ....... Leave Points
@@ -289,7 +295,7 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (timer.seconds() > 2) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.6);
+                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 10;

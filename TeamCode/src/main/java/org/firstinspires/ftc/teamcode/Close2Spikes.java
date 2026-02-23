@@ -44,17 +44,17 @@ public class Close2Spikes extends OpMode {
 
     private Pose intake2ControlPoint = new Pose(64, 56);
     private Pose intake2ReadyPose =  new Pose(48, 60, Math.toRadians(180));
-    private Pose intake2FinishPose = new Pose(18, 60, Math.toRadians(180));
+    private Pose intake2FinishPose = new Pose(16, 60, Math.toRadians(180));
 
 
     private Pose intakeRampControlPoint = new Pose(48, 52);
     private Pose intakeRampReadyPose =  new Pose(18, 55, Math.toRadians(145));
-    private Pose intakeRampFinishPose = new Pose(11.5, 55, Math.toRadians(145));
+    private Pose intakeRampFinishPose = new Pose(10, 56, Math.toRadians(145));
 
 
     private Pose intake3ControlPoint = new Pose(56, 30);
-    private Pose intake3ReadyPose =  new Pose(49, 36, Math.toRadians(180));
-    private Pose intake3FinishPose = new Pose(17, 36, Math.toRadians(180));
+    private Pose intake3ReadyPose =  new Pose(50, 36, Math.toRadians(180));
+    private Pose intake3FinishPose = new Pose(16, 36, Math.toRadians(180));
 
     private Pose leavePose = new Pose(44, 80, Math.toRadians(310));
 
@@ -436,8 +436,7 @@ public class Close2Spikes extends OpMode {
                 /* Let the third launch sequence play out */
 
                 // If the launch sequence is finished, or autonomous is about to end, move sideways for the Leave points
-                if (!outtake.isBusy()
-                ) {
+                if (!outtake.isBusy()) {
                     outtake.setOuttakeVelocity(0);
                     // Quit out of the state machine and move off of the Launch line
                     follower.followPath(leavePath, true);

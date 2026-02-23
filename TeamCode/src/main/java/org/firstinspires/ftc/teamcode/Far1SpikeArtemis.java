@@ -46,16 +46,15 @@ public class Far1SpikeArtemis extends OpMode {
 
 
     // corner pickup
-    private Pose intakeCornerControlPoint = new Pose(7.5, 20);
-    private Pose intakeCornerReadyPose =  new Pose(14, 36, Math.toRadians(245));
-    private Pose intakeCornerFinishPose = new Pose(8, 9, Math.toRadians(180));
-    private Pose intakeCornerSomethingPose = new Pose (32, 14, Math.toRadians (235));
+    private Pose intakeCornerControlPoint = new Pose(9, 20);
+    private Pose intakeCornerReadyPose =  new Pose(14, 33, Math.toRadians(220));
+    private Pose intakeCornerFinishPose = new Pose(8, 8.2, Math.toRadians(270));
     private Pose launchCornerControlPoint = new Pose(30, 30);
 
 
     private Pose leavePose = new Pose(36, 12, Math.toRadians(270));
 
-    private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReadyTunnel, intakePathTunnel, launchPathTunnel, intakePathReadyCorner, intakePathCorner, intakePathSomething, launchPathCorner, leavePath, hitLever1;
+    private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReadyTunnel, intakePathTunnel, launchPathTunnel, intakePathReadyCorner, intakePathCorner, launchPathCorner, leavePath, hitLever1;
 
     private ElapsedTime timer = new ElapsedTime();
 
@@ -67,7 +66,7 @@ public class Far1SpikeArtemis extends OpMode {
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
         if (gamepad1.dpad_right || gamepad2.dpad_right) {
             startPose = startPose.mirror();
-            launchPose = new Pose(144-56,14,Math.toRadians(270-24.6));
+            launchPose = new Pose(144-56,14,Math.toRadians(270-24.5));
             intake1ReadyPose = intake1ReadyPose.mirror();
             intake1ControlPoint = intake1ControlPoint.mirror();
             intake1FinishPose = intake1FinishPose.mirror();
@@ -78,7 +77,6 @@ public class Far1SpikeArtemis extends OpMode {
             launchCornerControlPoint = launchCornerControlPoint.mirror();
             intakeCornerControlPoint = intakeCornerControlPoint.mirror();
             intakeCornerFinishPose = intakeCornerFinishPose.mirror();
-            intakeCornerSomethingPose = intakeCornerSomethingPose.mirror();
             leavePose = leavePose.mirror();
             red = true;
         } else {
@@ -181,15 +179,13 @@ public class Far1SpikeArtemis extends OpMode {
                 .addPath(new BezierCurve(intakeCornerReadyPose, intakeCornerControlPoint, intakeCornerFinishPose))
                 .setLinearHeadingInterpolation(intakeCornerReadyPose.getHeading(), intakeCornerFinishPose.getHeading())
                 .build();
-        intakePathSomething = follower.pathBuilder()
-                .addPath(new BezierLine(intakeCornerFinishPose, intakeCornerSomethingPose))
-                .setLinearHeadingInterpolation(intakeCornerFinishPose.getHeading(), intakeCornerSomethingPose.getHeading())
-                .build();
 
         // ....... Launch 4
         launchPathCorner = follower.pathBuilder()
-                .addPath(new BezierLine(/*intakeCornerFinishPose*/intakeCornerSomethingPose,/* launchCornerControlPoint, */launchPose))
-                .setLinearHeadingInterpolation(/*intakeCornerFinishPose*/intakeCornerSomethingPose.getHeading(), launchPose.getHeading())
+                .addPath(new BezierCurve(intakeCornerFinishPose, launchCornerControlPoint, launchPose))
+                .setLinearHeadingInterpolation(intakeCornerFinishPose.getHeading(), launchPose.getHeading())
+                .setHeadingConstraint(0.002)
+                .setTimeoutConstraint(200)
                 .build();
 
         // ....... Leave Points
@@ -285,7 +281,7 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the second line of balls of balls
-                    follower.followPath(intakePathCorner, 0.6, true);
+                    follower.followPath(intakePathCorner, 0.7, true);
                     pathState = 9;
                     timer.reset();
                 }
@@ -333,7 +329,7 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the second line of balls of balls
-                    follower.followPath(intakePathCorner, 0.6, true);
+                    follower.followPath(intakePathCorner, 0.7, true);
                     pathState = 13;
                     timer.reset();
                 }
@@ -381,7 +377,7 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the second line of balls of balls
-                    follower.followPath(intakePathCorner, 0.6, true);
+                    follower.followPath(intakePathCorner, 0.7, true);
                     pathState = 17;
                     timer.reset();
                 }

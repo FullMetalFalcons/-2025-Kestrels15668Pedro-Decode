@@ -78,6 +78,9 @@ public class FalconsTeleOp extends OpMode {
 
         tarBlue = new Point(10,140);
         tarRed = new Point(134,140);
+
+        double headingError = 0;
+        double targetHeading = 0;
     }
 
     // This code runs repeatedly until the Stop button is pressed on the Driver Station
@@ -98,12 +101,11 @@ public class FalconsTeleOp extends OpMode {
         powerY = applyExpo(-gamepad1.left_stick_y, 0.5);
 
         // Calculate target heading
-        double targetHeading = Math.atan2(
+        targetHeading = Math.atan2(
                 tarBlue.y - currentPose.getY(),
                 tarBlue.x - currentPose.getX()
         );
-
-        double headingError = 0;
+        
         // Turn on heading track if trigger
         if (gamepad1.left_trigger > 0.2 || gamepad2.left_trigger > 0.2) {
             headingError = normalizeAngle(targetHeading - currentPose.getHeading());
@@ -112,7 +114,6 @@ public class FalconsTeleOp extends OpMode {
         } else {
             powerAng = applyExpo(-gamepad1.right_stick_x, 0.6);
         }
-
 
         // Perform vector math to determine the desired powers for each wheel
         double powerLF = powerX + powerY - powerAng;

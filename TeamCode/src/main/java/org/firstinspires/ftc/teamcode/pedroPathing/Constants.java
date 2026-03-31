@@ -19,9 +19,10 @@ public class Constants {
     // XAVIER NOTE:  While tuning for Autonomous, the Pedro Pathing documentation will tell you to copy and paste over a "MecanumConstants" declaration statement.
     //   We already did that below, so just add on to it or modify it as necessary. You will still need to copy and paste certain things over, though,
     //   such as a localizerConstants declaration statement
+    // TODO Update constants
 
     final static double lbPerKg = 2.205;
-    final static double robotWeightInPounds = 28; //
+    final static double robotWeightInPounds = 22; //
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(robotWeightInPounds / lbPerKg)
             .forwardZeroPowerAcceleration(-34.036282596)
@@ -34,13 +35,13 @@ public class Constants {
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
-            .rightFrontMotorName("front_right")
-            .rightRearMotorName("back_right")
-            .leftRearMotorName("back_left")
-            .leftFrontMotorName("front_left")
+            .rightFrontMotorName("rf")
+            .rightRearMotorName("rb")
+            .leftRearMotorName("lb")
+            .leftFrontMotorName("lf")
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
 
             .xVelocity(60.773636)

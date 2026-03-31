@@ -1,5 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+import static com.pedropathing.math.MathFunctions.normalizeAngle;
+
+import android.graphics.Point;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,8 +19,10 @@ public class FalconsTeleOp extends OpMode {
     //Initialize motors, servos, sensors, imus, etc.
     DcMotorEx motorLF, motorRF, motorLB, motorRB, motorIntake, motorLaunch1, motorLaunch2;
     Servo servoTrigger;
+    Follower follower;
 
-    int closeVel, farVel, launchVel;
+    Point tarBlue, tarRed;
+    Pose currentPose;
     Boolean close, far;
 
     // The following code will run as soon as "INIT" is pressed on the Driver Station
@@ -63,14 +71,19 @@ public class FalconsTeleOp extends OpMode {
         motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(250,0,0,0));
 
 
-        closeVel = 1500;
-        farVel = 1800;
+        // *************    FOLLOWER STUFF    *************
+        follower = new Follower(hardwareMap);
+        follower.setStartingPose(new Pose(0,0,0));
+
+        tarBlue = new Point(10,140);
+        tarRed = new Point(134,140);
     }
 
     // This code runs repeatedly until the Stop button is pressed on the Driver Station
     // Replaces the old  while(OpModeIsActive())  loop
     @Override
     public void loop() {
+        currentPose = follower.getPose();
 
         // Mecanum drive code
         double powerX = 0.0;  // Desired power for strafing           (-1 to 1)
@@ -78,9 +91,25 @@ public class FalconsTeleOp extends OpMode {
         double powerAng = 0.0;  // Desired power for turning          (-1 to 1)
 
         // Set the desired powers based on joystick inputs (-1 to 1)
-        powerX = applyExpo(gamepad1.left_stick_x, 0.4);
-        powerY = applyExpo(-gamepad1.left_stick_y, 0.4);
-        powerAng = applyExpo(-gamepad1.right_stick_x, 0.6);
+        powerX = applyExpo(gamepad1.left_stick_x, 0.5);
+        powerY = applyExpo(-gamepad1.left_stick_y, 0.5);
+
+        // Calculate target heading
+        double targetHeading = Math.atan2(
+                tarBlue.y - currentPose.getY(),
+                tarBlue.x - currentPose.getX()
+        );
+
+        double headingError = 0;
+        // Turn on heading track if trigger
+        if (gamepad1.left_trigger > 0.2 || gamepad2.left_trigger > 0.2) {
+            headingError = normalizeAngle(targetHeading - currentPose.getHeading());
+            powerAng = headingError * 2.0; // kP TODO create PID tuner
+            powerAng = Math.max(-1.0, Math.min(1.0,powerAng));
+        } else {
+            powerAng = applyExpo(-gamepad1.right_stick_x, 0.6);
+        }
+
 
         // Perform vector math to determine the desired powers for each wheel
         double powerLF = powerX + powerY - powerAng;
@@ -128,6 +157,10 @@ public class FalconsTeleOp extends OpMode {
 
 
         // *************    LAUNCHER LOGIC    *************
+        int closeVel = 1800;
+        int farVel = 2100;
+        int launchVel;
+
         if (gamepad2.a) {
             launchVel = closeVel;
         } else if (gamepad2.b) {
@@ -160,6 +193,9 @@ public class FalconsTeleOp extends OpMode {
         telemetry.addData("closeVel", closeVel);
         telemetry.addData("farVel", farVel);
 
+        telemetry.addData("currentPos", follower.getPose());
+        telemetry.addData("targetHeading", targetHeading);
+        telemetry.addData("errorHeading", headingError);
     }
 
 

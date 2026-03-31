@@ -19,9 +19,10 @@ public class FalconsTeleOp extends OpMode {
     //Initialize motors, servos, sensors, imus, etc.
     DcMotorEx motorLF, motorRF, motorLB, motorRB, motorIntake, motorLaunch1, motorLaunch2;
     Servo servoTrigger;
+    GoBildaPinpointDriver pinpoint;
+    
     Follower follower;
 
-    Point tarBlue, tarRed;
     Pose currentPose;
     Boolean close, far;
 
@@ -73,7 +74,7 @@ public class FalconsTeleOp extends OpMode {
 
         // *************    FOLLOWER STUFF    *************
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(0,0,0));
+        follower.setStartingPose(new Pose(72,72,0));
 
         tarBlue = new Point(10,140);
         tarRed = new Point(134,140);
@@ -83,6 +84,8 @@ public class FalconsTeleOp extends OpMode {
     // Replaces the old  while(OpModeIsActive())  loop
     @Override
     public void loop() {
+
+        readFromPinpoint();
         currentPose = follower.getPose();
 
         // Mecanum drive code

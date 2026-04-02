@@ -4,8 +4,9 @@ import static com.pedropathing.math.MathFunctions.normalizeAngle;
 
 import android.graphics.Point;
 
-import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
+import com.bylazar.configurables.annotations.Configurable;
+import com.pedropathing.control.PIDFController;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,18 +14,38 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 @TeleOp
+@Configurable
 public class FalconsTeleOp extends OpMode {
     //Initialize motors, servos, sensors, imus, etc.
     DcMotorEx motorLF, motorRF, motorLB, motorRB, motorIntake, motorLaunch1, motorLaunch2;
     Servo servoTrigger;
     GoBildaPinpointDriver pinpoint;
     
-    Follower follower;
 
-    Pose currentPose;
-    Boolean close, far;
+    double currentX, currentY;
+    double currentHeading, targetHeading, headingError;
+    boolean close, far;
+    boolean blue;
+
+    public static int closeVel = 1800;
+    public static int farVel = 2140;
+    public static double SERVO_MIN = 0.25;
+    public static double SERVO_MAX = 0.52;
+
+    PIDFCoefficients  launcherPIDF;
+    com.pedropathing.control.PIDFCoefficients headingPIDF;
+    public static double launch_p = 60, launch_f = 13.2, heading_p = 1.7, heading_d = 0.2;
+    PIDFController headingPIDF_Controller = new PIDFController(new com.pedropathing.control.PIDFCoefficients(0,0,0,0));
+
+    Point tarBlue, tarRed, tarCurrent;
 
     // The following code will run as soon as "INIT" is pressed on the Driver Station
     @Override
@@ -68,19 +89,44 @@ public class FalconsTeleOp extends OpMode {
         motorLaunch1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLaunch2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        motorLaunch1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(250,0,0,0));
-        motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(250,0,0,0));
+        launcherPIDF = new PIDFCoefficients(250,0.000001,0,0);
+        headingPIDF = new com.pedropathing.control.PIDFCoefficients(0.5,0.000001,0,0);
+        headingPIDF_Controller.setCoefficients(headingPIDF);
+
+        motorLaunch1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
+        motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
 
 
         // *************    FOLLOWER STUFF    *************
-        follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(72,72,0));
+        // Pinpoint setup
+        String pinpointName = Constants.localizerConstants.hardwareMapName;
+        GoBildaPinpointDriver.EncoderDirection forwardDirection = Constants.localizerConstants.forwardEncoderDirection;
+        GoBildaPinpointDriver.EncoderDirection strafeDirection = Constants.localizerConstants.strafeEncoderDirection;
+        GoBildaPinpointDriver.GoBildaOdometryPods resolution = Constants.localizerConstants.encoderResolution;
+        //  "xOffset" means the offset (Y) of the X (forward) pod   "forwardPodY" means the Y offset of the forward (X) pod
+        double xOffset = Constants.localizerConstants.forwardPodY;
+        //  "yOffset" means the offset (X) of the Y (strafe) pod   "strafePodX" means the X offset of the strafe (Y) pod
+        double yOffset = Constants.localizerConstants.strafePodX;
+        /*
+                  +X
+                   ^           Offsets are perpendicular to the tracking direction of the pod
+             +Y <--|--> -Y          X is forward and Y is strafe
+                   V                +X is up and +Y is left
+                  -X
+         */
+
+        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, pinpointName);
+        pinpoint.setEncoderDirections(forwardDirection, strafeDirection);
+        pinpoint.setOffsets(xOffset, yOffset, DistanceUnit.INCH);
+        pinpoint.setEncoderResolution(resolution);
+
+        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH,72,72,AngleUnit.DEGREES,0));
 
         tarBlue = new Point(10,140);
         tarRed = new Point(134,140);
 
-        double headingError = 0;
-        double targetHeading = 0;
+        double headingError = 0.0;
+        double targetHeading = 0.0;
     }
 
     // This code runs repeatedly until the Stop button is pressed on the Driver Station
@@ -88,8 +134,12 @@ public class FalconsTeleOp extends OpMode {
     @Override
     public void loop() {
 
-        readFromPinpoint();
-        currentPose = follower.getPose();
+        pinpoint.update();
+
+        currentX = pinpoint.getPosX(DistanceUnit.INCH);
+        currentY = pinpoint.getPosY(DistanceUnit.INCH);
+
+        currentHeading = pinpoint.getHeading(AngleUnit.DEGREES);
 
         // Mecanum drive code
         double powerX = 0.0;  // Desired power for strafing           (-1 to 1)
@@ -97,22 +147,25 @@ public class FalconsTeleOp extends OpMode {
         double powerAng = 0.0;  // Desired power for turning          (-1 to 1)
 
         // Set the desired powers based on joystick inputs (-1 to 1)
-        powerX = applyExpo(gamepad1.left_stick_x, 0.5);
-        powerY = applyExpo(-gamepad1.left_stick_y, 0.5);
+        powerX = applyExpo(gamepad1.left_stick_x, 0.3);
+        powerY = applyExpo(-gamepad1.left_stick_y, 0.3);
 
         // Calculate target heading
-        targetHeading = Math.atan2(
-                tarBlue.y - currentPose.getY(),
-                tarBlue.x - currentPose.getX()
+        double targetHeading = Math.atan2(
+                tarCurrent.y - currentY,
+                tarCurrent.x - currentX
         );
+
+
         
         // Turn on heading track if trigger
         if (gamepad1.left_trigger > 0.2 || gamepad2.left_trigger > 0.2) {
-            headingError = normalizeAngle(targetHeading - currentPose.getHeading());
-            powerAng = headingError * 2.0; // kP TODO create PID tuner
+            headingError = determineRotationDirection(pinpoint.getHeading(AngleUnit.RADIANS), targetHeading);
+            headingPIDF_Controller.updateError(headingError);
+            powerAng = headingPIDF_Controller.run();
             powerAng = Math.max(-1.0, Math.min(1.0,powerAng));
         } else {
-            powerAng = applyExpo(-gamepad1.right_stick_x, 0.6);
+            powerAng = applyExpo(-gamepad1.right_stick_x, 0.5);
         }
 
         // Perform vector math to determine the desired powers for each wheel
@@ -143,7 +196,7 @@ public class FalconsTeleOp extends OpMode {
         // *************    INTAKE LOGIC    *************
         if (gamepad1.right_bumper || gamepad2.right_bumper) {
             motorIntake.setPower(1);
-        } else if (gamepad1.y) {
+        } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
             motorIntake.setPower(-1);
         } else {
             motorIntake.setPower(0);
@@ -153,22 +206,29 @@ public class FalconsTeleOp extends OpMode {
 
         // *************    TRIGGER LOGIC    *************
         if (gamepad2.right_trigger > 0.2) {
-            servoTrigger.setPosition(0.5);
+            servoTrigger.setPosition(SERVO_MAX);
         } else {
-            servoTrigger.setPosition(0.4);
+            servoTrigger.setPosition(SERVO_MIN);
         }
 
 
 
         // *************    LAUNCHER LOGIC    *************
-        int closeVel = 1800;
-        int farVel = 2100;
         int launchVel;
+
+        launcherPIDF = new PIDFCoefficients(launch_p,0.000001,0,launch_f);
+        headingPIDF = new com.pedropathing.control.PIDFCoefficients(heading_p,0.000001,heading_d,0);
+        headingPIDF_Controller.setCoefficients(headingPIDF);
+
+        motorLaunch1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
+        motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
 
         if (gamepad2.a) {
             launchVel = closeVel;
         } else if (gamepad2.b) {
             launchVel = farVel;
+        } else if (gamepad2.x){
+            launchVel = -1000;
         } else {
             launchVel = 0;
         }
@@ -176,36 +236,77 @@ public class FalconsTeleOp extends OpMode {
         motorLaunch1.setVelocity(launchVel);
         motorLaunch2.setVelocity(launchVel);
 
-        if (gamepad2.dpad_up) {
-            closeVel += 20;
+
+
+        // *************    TARGET LOGIC    *************
+        if (gamepad1.dpadDownWasPressed() || gamepad2.dpadDownWasPressed()) {
+            blue = !blue;
         }
-        if (gamepad2.dpad_down) {
-            closeVel -=20;
+
+        if (blue) {
+            tarCurrent = tarBlue;
+        } else {
+            tarCurrent = tarRed;
         }
-        if (gamepad2.dpad_right) {
-            farVel += 20;
-        }
-        if (gamepad2.dpad_left) {
-            farVel -=20;
-        }
+
+        double distance;
+        distance = calculateDistance(currentX, currentY, tarCurrent.x, tarCurrent.y);
 
 
 
         // *************    TELEMETRY    *************
-        telemetry.addData("launchVel1", motorLaunch1.getVelocity());
-        telemetry.addData("launchVel2", motorLaunch2.getVelocity());
+        telemetry.addData("launchVel1", "launchVel2", motorLaunch1.getVelocity(), motorLaunch2.getVelocity());
+        telemetry.addData("launchPow1", "launchPow2", motorLaunch1.getPower(),  motorLaunch2.getPower());
         telemetry.addData("closeVel", closeVel);
         telemetry.addData("farVel", farVel);
 
-        telemetry.addData("currentPos", follower.getPose());
-        telemetry.addData("targetHeading", targetHeading);
-        telemetry.addData("errorHeading", headingError);
+        telemetry.addData("X:", "Y:", "H:", currentX, currentY, pinpoint.getHeading(AngleUnit.DEGREES));
+        telemetry.addData("targetHeading", Math.toDegrees(targetHeading));
+        telemetry.addData("errorHeading", Math.toDegrees(headingError));
+
+        telemetry.addData("distance", distance);
     }
 
+    // Any additional methods go here
 
     private double applyExpo(double input, double expo) {
         return input * (1 - expo) + Math.pow(input, 3) * expo;
     }
-    // Any additional methods go here
+    public double determineRotationDirection(double current, double target) {
+        double currentCircularHeading = normalizeAngle(current);
+        double targetHeading = normalizeAngle(target);
+        double clockwiseRadians;
+        double counterclockwiseRadians;
+
+        // Determine the larger of the two headings
+        if (targetHeading > currentCircularHeading) {
+            // Subtract the smaller (current) heading from the larger (target) heading
+            //   to find the radians needed to turn to get to the target going counterclockwise
+            counterclockwiseRadians = targetHeading - currentCircularHeading;
+            // Find the alternative
+            clockwiseRadians = 2*Math.PI - counterclockwiseRadians;
+        } else {
+            // Subtract the smaller (target) heading from the larger (current) heading
+            //   to find the radians needed to turn to get to the target doing clockwise
+            clockwiseRadians = currentCircularHeading - targetHeading;
+            // Find the alternative
+            counterclockwiseRadians = 2*Math.PI - clockwiseRadians;
+        }
+        // Determine the most efficient direction and return the proper multiplier
+        if (clockwiseRadians < counterclockwiseRadians) {
+            return -clockwiseRadians;
+        } else {
+            return counterclockwiseRadians;
+        }
+    }
+
+    /** Performs a mod operation that can only return positive results */
+    public double modPositive(double number, double divisor) {
+        return ((number % divisor) + divisor) % divisor;
+    }
+
+    public static double calculateDistance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
 
 }

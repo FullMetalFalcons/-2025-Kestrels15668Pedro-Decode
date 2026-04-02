@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
 import org.firstinspires.ftc.teamcode.Mechanisms.Webcam;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Far2Spikes", group = "Auto")
-public class Far2Spikes extends OpMode {
+@Autonomous(name = "Far1SpikeArtemis", group = "Auto")
+public class Far1SpikeArtemis extends OpMode {
 
     public Follower follower;
     private int pathState;
@@ -38,28 +38,23 @@ public class Far2Spikes extends OpMode {
     private Pose intake1ReadyPose =  new Pose(48, 36, Math.toRadians(180));
     private Pose intake1FinishPose = new Pose(18, 36, Math.toRadians(180));
 
-    // 2nd spike mark
-    private Pose intake2ControlPoint = new Pose(58, 52);
-    private Pose intake2ReadyPose =  new Pose(48, 55, Math.toRadians(170));
-    private Pose intake2FinishPose = new Pose(17, 62, Math.toRadians(170));
-
 
     // overflow pickup
     private Pose intakeTunnelControlPoint = new Pose(9, 20);
     private Pose intakeTunnelReadyPose =  new Pose(14, 20, Math.toRadians(135));
-    private Pose intakeTunnelFinishPose = new Pose(9, 38, Math.toRadians(135));
+    private Pose intakeTunnelFinishPose = new Pose(9, 46, Math.toRadians(135));
 
 
     // corner pickup
-    private Pose intakeCornerControlPoint = new Pose(7.5, 20);
-    private Pose intakeCornerReadyPose =  new Pose(14, 28, Math.toRadians(225));
-    private Pose intakeCornerFinishPose = new Pose(7.5, 12, Math.toRadians(185));
-    private Pose launchCornerControlPoint = new Pose(30, 20);
+    private Pose intakeCornerControlPoint = new Pose(9, 20);
+    private Pose intakeCornerReadyPose =  new Pose(14, 33, Math.toRadians(220));
+    private Pose intakeCornerFinishPose = new Pose(8, 8.2, Math.toRadians(270));
+    private Pose launchCornerControlPoint = new Pose(30, 30);
 
 
     private Pose leavePose = new Pose(36, 12, Math.toRadians(270));
 
-    private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReady2, intakePath2, launchPath3, intakePathReadyTunnel, intakePathTunnel, launchPathTunnel, intakePathReadyCorner, intakePathCorner, launchPathCorner, leavePath, hitLever1;
+    private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReadyTunnel, intakePathTunnel, launchPathTunnel, intakePathReadyCorner, intakePathCorner, launchPathCorner, leavePath, hitLever1;
 
     private ElapsedTime timer = new ElapsedTime();
 
@@ -71,13 +66,10 @@ public class Far2Spikes extends OpMode {
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
         if (gamepad1.dpad_right || gamepad2.dpad_right) {
             startPose = startPose.mirror();
-            launchPose = new Pose(144-56,14,Math.toRadians(270-24.6));
+            launchPose = new Pose(144-56,14,Math.toRadians(270-24.5));
             intake1ReadyPose = intake1ReadyPose.mirror();
             intake1ControlPoint = intake1ControlPoint.mirror();
             intake1FinishPose = intake1FinishPose.mirror();
-            intake2ReadyPose = intake2ReadyPose.mirror();
-            intake2ControlPoint = intake2ControlPoint.mirror();
-            intake2FinishPose = intake2FinishPose.mirror();
             intakeTunnelReadyPose = intakeTunnelReadyPose.mirror();
             intakeTunnelControlPoint = intakeTunnelControlPoint.mirror();
             intakeTunnelFinishPose = intakeTunnelFinishPose.mirror();
@@ -139,7 +131,6 @@ public class Far2Spikes extends OpMode {
         telemetry.addData("busyfollower?", follower.isBusy());
         telemetry.addData("path?",pathState);
         telemetry.addData("rpm?",outtake.getFlywheelVelocity());
-        telemetry.addData("timer", timer.seconds());
         telemetry.update();
     }
 
@@ -164,23 +155,6 @@ public class Far2Spikes extends OpMode {
                 .build();
 
         // ....... Intake 2
-        intakePathReady2 = follower.pathBuilder()
-                .addPath(new BezierLine(  launchPose, intake2ReadyPose))
-                .setLinearHeadingInterpolation(launchPose.getHeading(), intake2ReadyPose.getHeading())
-                .build();
-        intakePath2 = follower.pathBuilder()
-                .addPath(new BezierLine(intake2ReadyPose, intake2FinishPose))
-                .setLinearHeadingInterpolation(intake2ReadyPose.getHeading(), intake2FinishPose.getHeading())
-                .build();
-
-        // ....... Launch 3
-        launchPath3 = follower.pathBuilder()
-                .addPath(new BezierLine(intake2FinishPose, launchPose  ))
-                .setLinearHeadingInterpolation(intake2FinishPose.getHeading(), launchPose.getHeading())
-                .build();
-
-
-        // ....... Intake Tunnel
         intakePathReadyTunnel = follower.pathBuilder()
                 .addPath(new BezierLine(  launchPose, intakeTunnelReadyPose))
                 .setLinearHeadingInterpolation(launchPose.getHeading(), intakeTunnelReadyPose.getHeading())
@@ -190,14 +164,13 @@ public class Far2Spikes extends OpMode {
                 .setLinearHeadingInterpolation(intakeTunnelReadyPose.getHeading(), intakeTunnelFinishPose.getHeading())
                 .build();
 
-        // ....... Launch Tunnel
+        // ....... Launch 3
         launchPathTunnel = follower.pathBuilder()
                 .addPath(new BezierLine(intakeTunnelFinishPose, launchPose  ))
                 .setLinearHeadingInterpolation(intakeTunnelFinishPose.getHeading(), launchPose.getHeading())
                 .build();
 
-
-        // ....... Intake Corner
+        // ....... Intake 3
         intakePathReadyCorner = follower.pathBuilder()
                 .addPath(new BezierLine(launchPose, intakeCornerReadyPose))
                 .setLinearHeadingInterpolation(launchPose.getHeading(), intakeCornerReadyPose.getHeading())
@@ -207,10 +180,12 @@ public class Far2Spikes extends OpMode {
                 .setLinearHeadingInterpolation(intakeCornerReadyPose.getHeading(), intakeCornerFinishPose.getHeading())
                 .build();
 
-        // ....... Launch Corner
+        // ....... Launch 4
         launchPathCorner = follower.pathBuilder()
                 .addPath(new BezierCurve(intakeCornerFinishPose, launchCornerControlPoint, launchPose))
                 .setLinearHeadingInterpolation(intakeCornerFinishPose.getHeading(), launchPose.getHeading())
+                .setHeadingConstraint(0.002)
+                .setTimeoutConstraint(200)
                 .build();
 
         // ....... Leave Points
@@ -220,7 +195,6 @@ public class Far2Spikes extends OpMode {
                 .build();
     }
 
-    //TODO add outtake delay
     public void autonomousPathUpdate() {
 
         // Autonomous state machine
@@ -287,51 +261,6 @@ public class Far2Spikes extends OpMode {
                     // Begin the second launch sequence
                     outtake.setIntakePower(0);
                     outtake.fireShots(3);
-                    pathState = 61;
-                }
-                break;
-            case 61:
-                /* Let the first launch sequence play out */
-
-                if (!outtake.isBusy()) {
-                    // drive to the first line of balls
-                    follower.followPath(intakePathReady2, true);
-                    outtake.setServoPosition(0.48);
-                    outtake.setIntakePower(1);
-                    pathState = 62;
-                    timer.reset();
-                }
-                break;
-            case 62:
-                /* Let the robot get to the first line of balls */
-
-                if (!follower.isBusy()) {
-                    // Intake the first line of balls
-                    follower.followPath(intakePath2, 0.85, true);
-                    pathState = 63;
-                    timer.reset();
-                }
-                break;
-            case 63:
-                if (!follower.isBusy()) {
-                    // Stop the intake and drive back to launch position
-                    if (timer.seconds() > 0.4) {
-                        outtake.setIntakePower(-0.3);
-                    } else {
-                        outtake.setIntakePower(0);
-                    }
-                    outtake.setServoPosition(0.4);
-                    outtake.setOuttakeVelocity(true);
-                    follower.followPath(launchPath3, true);
-                    pathState = 64;
-                }
-                break;
-            case 64:
-                /* Let the robot get back to launch position */
-                if (!follower.isBusy()) {
-                    // Begin the second launch sequence
-                    outtake.setIntakePower(0);
-                    outtake.fireShots(3);
                     pathState = 7;
                 }
                 break;
@@ -342,6 +271,7 @@ public class Far2Spikes extends OpMode {
                 {
                     // Drive to the second line of balls of balls
                     outtake.setServoPosition(0.48);
+                    outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyCorner);
                     pathState = 8;
                 }
@@ -351,8 +281,7 @@ public class Far2Spikes extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the second line of balls of balls
-                    outtake.setIntakePower(1);
-                    follower.followPath(intakePathCorner, 0.6, true);
+                    follower.followPath(intakePathCorner, 0.7, true);
                     pathState = 9;
                     timer.reset();
                 }
@@ -360,12 +289,13 @@ public class Far2Spikes extends OpMode {
             case 9:
                 /* Let the intake sequence play out */
 
-                if (timer.seconds() > 1.6) {
+                if (timer.seconds() > 2) {
                     // Stop the intake and drive back to launch position
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 10;
+                    timer.reset();
                 }
                 break;
             case 10:
@@ -386,8 +316,7 @@ public class Far2Spikes extends OpMode {
             case 11:
                 /* Let the second launch sequence play out */
 
-                if (!outtake.isBusy())
-                {
+                if (!outtake.isBusy()) {
                     // Drive to the second line of balls of balls
                     outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
@@ -400,7 +329,7 @@ public class Far2Spikes extends OpMode {
 
                 if (!follower.isBusy()) {
                     // Intake the second line of balls of balls
-                    follower.followPath(intakePathCorner, 0.6, true);
+                    follower.followPath(intakePathCorner, 0.7, true);
                     pathState = 13;
                     timer.reset();
                 }
@@ -408,12 +337,13 @@ public class Far2Spikes extends OpMode {
             case 13:
                 /* Let the intake sequence play out */
 
-                if (timer.seconds() > 1.6) {
+                if (timer.seconds() > 2) {
                     // Stop the intake and drive back to launch position
                     outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 14;
+                    timer.reset();
                 }
                 break;
             case 14:
@@ -423,7 +353,54 @@ public class Far2Spikes extends OpMode {
                 } else {
                     outtake.setIntakePower(0);
                 }
+                if (!follower.isBusy()) {
+                    // Begin the third launch sequence
+                    outtake.setIntakePower(0);
+                    outtake.fireShots(3);
+                    pathState = 15;
+                    timer.reset();
+                }
+                break;
+            case 15:
+                /* Let the second launch sequence play out */
 
+                if (!outtake.isBusy()) {
+                    // Drive to the second line of balls of balls
+                    outtake.setServoPosition(0.48);
+                    outtake.setIntakePower(1);
+                    follower.followPath(intakePathReadyCorner);
+                    pathState = 16;
+                }
+                break;
+            case 16:
+                /* Let the robot get to the second line of balls of balls */
+
+                if (!follower.isBusy()) {
+                    // Intake the second line of balls of balls
+                    follower.followPath(intakePathCorner, 0.7, true);
+                    pathState = 17;
+                    timer.reset();
+                }
+                break;
+            case 17:
+                /* Let the intake sequence play out */
+
+                if (timer.seconds() > 2) {
+                    // Stop the intake and drive back to launch position
+                    outtake.setServoPosition(0.4);
+                    outtake.setOuttakeVelocity(true);
+                    follower.followPath(launchPathCorner, true);
+                    pathState = 18;
+                    timer.reset();
+                }
+                break;
+            case 18:
+                /* Let the robot get back to launch position */
+                if (timer.seconds() > 0.6) {
+                    outtake.setIntakePower(-0.3);
+                } else {
+                    outtake.setIntakePower(0);
+                }
                 if (!follower.isBusy()) {
                     // Begin the third launch sequence
                     outtake.setIntakePower(0);
@@ -436,10 +413,9 @@ public class Far2Spikes extends OpMode {
                 /* Let the third launch sequence play out */
 
                 // If the launch sequence is finished, or autonomous is about to end, move sideways for the Leave points
-                if (autoTimer.seconds() > AUTO_LENGTH_SECONDS - AUTO_END_BUFFER_SECONDS || !outtake.isBusy()
-                ) {
-
+                if (!outtake.isBusy()) {
                     // Quit out of the state machine and move off of the Launch line
+                    outtake.setOuttakeVelocity(0);
                     follower.followPath(leavePath, true);
                     pathState = -1;
                 }

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autos;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
 import org.firstinspires.ftc.teamcode.Mechanisms.Webcam;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Close2Spikes", group = "Auto")
+@Autonomous(name = "Close2Spikes18", group = "Auto")
 public class Close2Spikes18 extends OpMode {
 
     public Follower follower;
@@ -30,6 +30,8 @@ public class Close2Spikes18 extends OpMode {
     // Define important coordinate locations for the Blue side of the field
     private Pose startPose = new Pose(22, 122, Math.toRadians(360-45));
     private Pose launchPose = new Pose(54,84,Math.toRadians(310));
+    private Pose launchPose2 = new Pose(54,84,Math.toRadians(310));
+
 
 
     private Pose intake1ReadyPose =  new Pose(48, 84, Math.toRadians(180));
@@ -47,7 +49,7 @@ public class Close2Spikes18 extends OpMode {
     private Pose launchRampControlPoint = new Pose(61,45);
 
 
-    private Pose launchLeavePose = new Pose(54, 104, Math.toRadians(320));
+    private Pose launchLeavePose = new Pose(54, 104, Math.toRadians(330));
 
     private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePath2, launchPathRamp, intakePathReadyRamp, intakePathRamp;
 
@@ -61,6 +63,7 @@ public class Close2Spikes18 extends OpMode {
         if (gamepad1.dpad_right || gamepad2.dpad_right) {
             startPose = startPose.mirror();
             launchPose = new Pose(90, 84, Math.toRadians(225));
+            launchPose2 = new Pose(90, 84, Math.toRadians(228));
             intake1ReadyPose = intake1ReadyPose.mirror();
             intake1FinishPose = intake1FinishPose.mirror();
             intake2ControlPoint = intake2ControlPoint.mirror();
@@ -131,8 +134,8 @@ public class Close2Spikes18 extends OpMode {
     public void buildPaths() {
         // ....... Launch 1
         launchPath1 = follower.pathBuilder()
-                .addPath(new BezierLine(  startPose, launchPose  ))
-                .setLinearHeadingInterpolation(startPose.getHeading(), launchPose.getHeading()).build();
+                .addPath(new BezierLine(  startPose, launchPose2  ))
+                .setLinearHeadingInterpolation(startPose.getHeading(), launchPose2.getHeading()).build();
 
         // ....... Intake 2
         intakePath2 = follower.pathBuilder()

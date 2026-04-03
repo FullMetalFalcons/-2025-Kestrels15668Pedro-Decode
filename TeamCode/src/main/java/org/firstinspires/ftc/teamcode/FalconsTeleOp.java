@@ -30,19 +30,17 @@ public class FalconsTeleOp extends OpMode {
     GoBildaPinpointDriver pinpoint;
     
 
-    double currentX, currentY;
+    double currentX, currentY, distance;
     double currentHeading, targetHeading, headingError;
-    boolean close, far;
-    boolean blue;
+    boolean blue, launchRun = false;
 
-    public static int closeVel = 1800;
-    public static int farVel = 2140;
-    public static double SERVO_MIN = 0.25;
-    public static double SERVO_MAX = 0.52;
+    public static double closeVel =  1800, farVel = 2140;
+    public static double SERVO_MIN = 0.25, SERVO_MAX = 0.52;
+    public static double expoX = 0.5, expoY = 0.5, expoAng = 0.7;
 
     PIDFCoefficients  launcherPIDF;
     com.pedropathing.control.PIDFCoefficients headingPIDF;
-    public static double launch_p = 60, launch_f = 13.2, heading_p = 1.7, heading_d = 0.2;
+    public static double launch_p = 60, launch_f = 13.2, heading_p = 1.7, heading_d = 0.2, heading_f = 0.0;
     PIDFController headingPIDF_Controller = new PIDFController(new com.pedropathing.control.PIDFCoefficients(0,0,0,0));
 
     Point tarBlue, tarRed, tarCurrent;
@@ -124,6 +122,7 @@ public class FalconsTeleOp extends OpMode {
 
         tarBlue = new Point(10,140);
         tarRed = new Point(134,140);
+        tarCurrent = new Point(10, 140);
 
         double headingError = 0.0;
         double targetHeading = 0.0;
@@ -134,21 +133,13 @@ public class FalconsTeleOp extends OpMode {
     @Override
     public void loop() {
 
+        // *************    ODOMETRY    *************
         pinpoint.update();
 
         currentX = pinpoint.getPosX(DistanceUnit.INCH);
         currentY = pinpoint.getPosY(DistanceUnit.INCH);
-
         currentHeading = pinpoint.getHeading(AngleUnit.DEGREES);
 
-        // Mecanum drive code
-        double powerX = 0.0;  // Desired power for strafing           (-1 to 1)
-        double powerY = 0.0;  // Desired power for forward/backward   (-1 to 1)
-        double powerAng = 0.0;  // Desired power for turning          (-1 to 1)
-
-        // Set the desired powers based on joystick inputs (-1 to 1)
-        powerX = applyExpo(gamepad1.left_stick_x, 0.3);
-        powerY = applyExpo(-gamepad1.left_stick_y, 0.3);
 
         // Calculate target heading
         double targetHeading = Math.atan2(
@@ -156,16 +147,32 @@ public class FalconsTeleOp extends OpMode {
                 tarCurrent.x - currentX
         );
 
+        if (gamepad1.dpadUpWasPressed()) {
+            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 72, 72, AngleUnit.DEGREES, 0));
+        }
 
-        
+
+        // *************    MECANUM DRIVE CODE    *************
+        double powerX = 0.0;  // Desired power for strafing           (-1 to 1)
+        double powerY = 0.0;  // Desired power for forward/backward   (-1 to 1)
+        double powerAng = 0.0;  // Desired power for turning          (-1 to 1)
+
+        headingPIDF = new com.pedropathing.control.PIDFCoefficients(heading_p, 0.000001, heading_d, heading_f);
+        headingPIDF_Controller.setCoefficients(headingPIDF);
+
+
+        powerX = applyExpo(gamepad1.left_stick_x, expoX);
+        powerY = applyExpo(-gamepad1.left_stick_y, expoY);
+
         // Turn on heading track if trigger
         if (gamepad1.left_trigger > 0.2 || gamepad2.left_trigger > 0.2) {
             headingError = determineRotationDirection(pinpoint.getHeading(AngleUnit.RADIANS), targetHeading);
             headingPIDF_Controller.updateError(headingError);
             powerAng = headingPIDF_Controller.run();
-            powerAng = Math.max(-1.0, Math.min(1.0,powerAng));
+            powerAng = Math.max(-1.0, Math.min(1.0, powerAng));
+
         } else {
-            powerAng = applyExpo(-gamepad1.right_stick_x, 0.5);
+            powerAng = applyExpo(-gamepad1.right_stick_x, expoAng);
         }
 
         // Perform vector math to determine the desired powers for each wheel
@@ -192,7 +199,6 @@ public class FalconsTeleOp extends OpMode {
         motorRB.setPower(powerRB);
 
 
-
         // *************    INTAKE LOGIC    *************
         if (gamepad1.right_bumper || gamepad2.right_bumper) {
             motorIntake.setPower(1);
@@ -203,27 +209,29 @@ public class FalconsTeleOp extends OpMode {
         }
 
 
-
         // *************    TRIGGER LOGIC    *************
-        if (gamepad2.right_trigger > 0.2) {
+        if (gamepad2.right_trigger > 0.2 || gamepad1.right_trigger > 0.2) {
             servoTrigger.setPosition(SERVO_MAX);
         } else {
             servoTrigger.setPosition(SERVO_MIN);
         }
 
 
-
         // *************    LAUNCHER LOGIC    *************
-        int launchVel;
+        double launchVel;
 
-        launcherPIDF = new PIDFCoefficients(launch_p,0.000001,0,launch_f);
-        headingPIDF = new com.pedropathing.control.PIDFCoefficients(heading_p,0.000001,heading_d,0);
-        headingPIDF_Controller.setCoefficients(headingPIDF);
+        launcherPIDF = new PIDFCoefficients(launch_p, 0.000001, 0, launch_f);
 
         motorLaunch1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
         motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
 
-        if (gamepad2.a) {
+        if (gamepad2.yWasPressed() || gamepad1.yWasPressed()) {
+            launchRun = !launchRun;
+        }
+
+        if (launchRun) {
+            launchVel = 0.08945*Math.pow(distance,2) - 10.85*distance + 1873.23;
+        } else if (gamepad2.a) {
             launchVel = closeVel;
         } else if (gamepad2.b) {
             launchVel = farVel;
@@ -249,25 +257,30 @@ public class FalconsTeleOp extends OpMode {
             tarCurrent = tarRed;
         }
 
-        double distance;
         distance = calculateDistance(currentX, currentY, tarCurrent.x, tarCurrent.y);
 
 
 
         // *************    TELEMETRY    *************
-        telemetry.addData("launchVel1", "launchVel2", motorLaunch1.getVelocity(), motorLaunch2.getVelocity());
-        telemetry.addData("launchPow1", "launchPow2", motorLaunch1.getPower(),  motorLaunch2.getPower());
+        telemetry.addData("launchVel1",  motorLaunch1.getVelocity());
+        telemetry.addData("launchVel2", motorLaunch2.getVelocity());
+        telemetry.addData("launchPow1",  motorLaunch1.getPower());
+        telemetry.addData("launchPow2", motorLaunch2.getPower());
         telemetry.addData("closeVel", closeVel);
         telemetry.addData("farVel", farVel);
 
-        telemetry.addData("X:", "Y:", "H:", currentX, currentY, pinpoint.getHeading(AngleUnit.DEGREES));
+        telemetry.addData("X:", currentX);
+        telemetry.addData("Y:", currentY);
+        telemetry.addData("H:", pinpoint.getHeading(AngleUnit.DEGREES));
         telemetry.addData("targetHeading", Math.toDegrees(targetHeading));
         telemetry.addData("errorHeading", Math.toDegrees(headingError));
 
         telemetry.addData("distance", distance);
     }
 
-    // Any additional methods go here
+
+
+    // *************    Any additional methods go here   *************
 
     private double applyExpo(double input, double expo) {
         return input * (1 - expo) + Math.pow(input, 3) * expo;

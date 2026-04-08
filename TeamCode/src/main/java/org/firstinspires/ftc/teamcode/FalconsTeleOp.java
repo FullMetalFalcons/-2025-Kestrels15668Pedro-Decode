@@ -35,8 +35,8 @@ public class FalconsTeleOp extends OpMode {
     boolean blue, launchRun = false;
 
     public static double closeVel =  1800, farVel = 2140;
-    public static double SERVO_MIN = 0.25, SERVO_MAX = 0.52;
-    public static double expoX = 0.5, expoY = 0.5, expoAng = 0.7;
+    public static double SERVO_MIN = 0.27, SERVO_MAX = 0.45;
+    public static double expoX = 0.4, expoY = 0.4, expoAng = 0.5;
 
     PIDFCoefficients  launcherPIDF;
     com.pedropathing.control.PIDFCoefficients headingPIDF;
@@ -81,14 +81,14 @@ public class FalconsTeleOp extends OpMode {
 
         // This lets you look at encoder values while the OpMode is active
         // If you have a STOP_AND_RESET_ENCODER, make sure to put this below it
-        motorLaunch1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorLaunch2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         motorLaunch1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLaunch2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        launcherPIDF = new PIDFCoefficients(250,0.000001,0,0);
-        headingPIDF = new com.pedropathing.control.PIDFCoefficients(0.5,0.000001,0,0);
+        motorLaunch1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLaunch2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        launcherPIDF = new PIDFCoefficients(250,0,0,0);
+        headingPIDF = new com.pedropathing.control.PIDFCoefficients(0.5,0,0,0);
         headingPIDF_Controller.setCoefficients(headingPIDF);
 
         motorLaunch1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
@@ -101,17 +101,9 @@ public class FalconsTeleOp extends OpMode {
         GoBildaPinpointDriver.EncoderDirection forwardDirection = Constants.localizerConstants.forwardEncoderDirection;
         GoBildaPinpointDriver.EncoderDirection strafeDirection = Constants.localizerConstants.strafeEncoderDirection;
         GoBildaPinpointDriver.GoBildaOdometryPods resolution = Constants.localizerConstants.encoderResolution;
-        //  "xOffset" means the offset (Y) of the X (forward) pod   "forwardPodY" means the Y offset of the forward (X) pod
+
         double xOffset = Constants.localizerConstants.forwardPodY;
-        //  "yOffset" means the offset (X) of the Y (strafe) pod   "strafePodX" means the X offset of the strafe (Y) pod
         double yOffset = Constants.localizerConstants.strafePodX;
-        /*
-                  +X
-                   ^           Offsets are perpendicular to the tracking direction of the pod
-             +Y <--|--> -Y          X is forward and Y is strafe
-                   V                +X is up and +Y is left
-                  -X
-         */
 
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, pinpointName);
         pinpoint.setEncoderDirections(forwardDirection, strafeDirection);
@@ -220,7 +212,7 @@ public class FalconsTeleOp extends OpMode {
         // *************    LAUNCHER LOGIC    *************
         double launchVel;
 
-        launcherPIDF = new PIDFCoefficients(launch_p, 0.000001, 0, launch_f);
+        launcherPIDF = new PIDFCoefficients(launch_p, 0, 0, launch_f);
 
         motorLaunch1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
         motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
@@ -229,8 +221,9 @@ public class FalconsTeleOp extends OpMode {
             launchRun = !launchRun;
         }
 
+
         if (launchRun) {
-            launchVel = 0.08945*Math.pow(distance,2) - 10.85*distance + 1873.23;
+            launchVel = 0.08945 * Math.pow(distance, 2) - 10.85 * distance + 1873.23;
         } else if (gamepad2.a) {
             launchVel = closeVel;
         } else if (gamepad2.b) {

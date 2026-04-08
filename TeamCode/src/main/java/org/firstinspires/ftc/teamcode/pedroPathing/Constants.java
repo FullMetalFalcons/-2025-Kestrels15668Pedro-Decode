@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
@@ -14,6 +15,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Configurable
 public class Constants {
 
     // XAVIER NOTE:  While tuning for Autonomous, the Pedro Pathing documentation will tell you to copy and paste over a "MecanumConstants" declaration statement.
@@ -25,12 +27,12 @@ public class Constants {
     final static double robotWeightInPounds = 22; //
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(robotWeightInPounds / lbPerKg)
-            .forwardZeroPowerAcceleration(-34.036282596)
-            .lateralZeroPowerAcceleration(-60.040102549)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.058, 0, 0.006, 0.02))
-            .headingPIDFCoefficients(new PIDFCoefficients(1,0,0.08,0.02))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.014,0,0.0002,0,0.03))
-            .centripetalScaling(0.005)
+            .forwardZeroPowerAcceleration(77.25213094395916)
+            .lateralZeroPowerAcceleration(57.2398710476132)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.08, 0, 0.01, 0.08))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.8,0,0.08,0.015))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.004,0,0.0006,0,0.024))
+            .centripetalScaling(0.0009)
             ;
 
     public static MecanumConstants driveConstants = new MecanumConstants()
@@ -64,7 +66,7 @@ public class Constants {
     }
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(2.8)
+            .forwardPodY(-2.8)
             .strafePodX(-6)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")

@@ -30,10 +30,10 @@ public class Close3Spikes extends OpMode {
     Webcam webcam = new Webcam(hardwareMap);
 
     // Define important coordinate locations for the Blue side of the field
-    private Pose startPose = new Pose(22, 122, Math.toRadians(360-45));
+    private Pose startPose = new Pose(22, 122, Math.toRadians(360-45-180));
     //private Pose startControlPoint = new Pose(60, 110);
-    private Pose launchPose = new Pose(54,84,Math.toRadians(310));
-    private Pose launchPose2 = new Pose(54,84,Math.toRadians(310));
+    private Pose launchPose = new Pose(54,84,Math.toRadians(310-180));
+    private Pose launchPose2 = new Pose(54,84,Math.toRadians(310-180));
 
 
 
@@ -70,8 +70,8 @@ public class Close3Spikes extends OpMode {
         if (gamepad1.dpad_right || gamepad2.dpad_right) {
             startPose = startPose.mirror();
             //startControlPoint = startControlPoint.mirror();
-            launchPose = new Pose(90, 84, Math.toRadians(225));
-            launchPose2 = new Pose(90, 84, Math.toRadians(228));
+            launchPose = new Pose(90, 84, Math.toRadians(225-180));
+            launchPose2 = new Pose(90, 84, Math.toRadians(228-180));
             intake1ReadyPose = intake1ReadyPose.mirror();
             intake1FinishPose = intake1FinishPose.mirror();
             intake2ReadyPose = intake2ReadyPose.mirror();

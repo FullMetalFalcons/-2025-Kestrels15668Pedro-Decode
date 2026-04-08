@@ -27,7 +27,6 @@ public class Close3Spikes extends OpMode {
     final double AUTO_END_BUFFER_SECONDS = 1.0;
 
     OuttakeFR outtake = new OuttakeFR();
-    Webcam webcam = new Webcam(hardwareMap);
 
     // Define important coordinate locations for the Blue side of the field
     private Pose startPose = new Pose(22, 122, Math.toRadians(360-45-180));
@@ -56,7 +55,7 @@ public class Close3Spikes extends OpMode {
     private Pose intake3ReadyPose =  new Pose(50, 36, Math.toRadians(180));
     private Pose intake3FinishPose = new Pose(16, 36, Math.toRadians(180));
 
-    private Pose leavePose = new Pose(44, 80, Math.toRadians(310));
+    private Pose leavePose = new Pose(44, 80, Math.toRadians(310-180));
 
     private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReady2,intakePath2,  launchPath3, launchPathRamp, intakePathReadyRamp,intakePathRamp, intakePathReady3, intakePath3, launchPath4, leavePath, hitLever1;
 
@@ -95,8 +94,6 @@ public class Close3Spikes extends OpMode {
         follower.setStartingPose(startPose);
 
         // Initialize external systems
-        webcam = new Webcam(hardwareMap);
-        webcam.init(hardwareMap, telemetry);
         outtake.init(hardwareMap);
         telemetry.update();
     }

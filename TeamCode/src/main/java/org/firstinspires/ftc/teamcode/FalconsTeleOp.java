@@ -35,7 +35,7 @@ public class FalconsTeleOp extends OpMode {
     boolean blue, launchRun = false;
 
     public static double closeVel =  1800, farVel = 2140;
-    public static double SERVO_MIN = 0.27, SERVO_MAX = 0.45;
+    public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
     public static double expoX = 0.4, expoY = 0.4, expoAng = 0.5;
 
     PIDFCoefficients  launcherPIDF;
@@ -95,7 +95,7 @@ public class FalconsTeleOp extends OpMode {
         motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
 
 
-        // *************    FOLLOWER STUFF    *************
+        // *************    PINPOINT STUFF    *************
         // Pinpoint setup
         String pinpointName = Constants.localizerConstants.hardwareMapName;
         GoBildaPinpointDriver.EncoderDirection forwardDirection = Constants.localizerConstants.forwardEncoderDirection;
@@ -203,9 +203,9 @@ public class FalconsTeleOp extends OpMode {
 
         // *************    TRIGGER LOGIC    *************
         if (gamepad2.right_trigger > 0.2 || gamepad1.right_trigger > 0.2) {
-            servoTrigger.setPosition(SERVO_MAX);
+            servoTrigger.setPosition(SERVO_OPEN);
         } else {
-            servoTrigger.setPosition(SERVO_MIN);
+            servoTrigger.setPosition(SERVO_CLOSE);
         }
 
 

@@ -229,9 +229,7 @@ public class Far2Spikes extends OpMode {
                 // Wait for the starting delay to expire
                 if (delayTimer.seconds() > delaySeconds) {
                     // Begin the whole route
-                    outtake.isFar = true;
                     outtake.setOuttakeVelocity(true);
-                    outtake.setServoPosition(0.4);
                     follower.followPath(launchPath1, true);
                     pathState = 1;
                 }
@@ -252,7 +250,6 @@ public class Far2Spikes extends OpMode {
                     // drive to the first line of balls
                     follower.followPath(intakePathReady1, true);
                     outtake.setIntakePower(1);
-                    outtake.setServoPosition(0.48);
                     pathState = 3;
                 }
                 break;
@@ -274,7 +271,6 @@ public class Far2Spikes extends OpMode {
                     } else {
                         outtake.setIntakePower(0);
                     }
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPath2, true);
                     pathState = 6;
@@ -296,7 +292,6 @@ public class Far2Spikes extends OpMode {
                 if (!outtake.isBusy()) {
                     // drive to the first line of balls
                     follower.followPath(intakePathReady2, true);
-                    outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
                     pathState = 62;
                     timer.reset();
@@ -320,7 +315,6 @@ public class Far2Spikes extends OpMode {
                     } else {
                         outtake.setIntakePower(0);
                     }
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPath3, true);
                     pathState = 64;
@@ -341,7 +335,6 @@ public class Far2Spikes extends OpMode {
                 if (!outtake.isBusy())
                 {
                     // Drive to the second line of balls of balls
-                    outtake.setServoPosition(0.48);
                     follower.followPath(intakePathReadyCorner);
                     pathState = 8;
                 }
@@ -362,7 +355,6 @@ public class Far2Spikes extends OpMode {
 
                 if (timer.seconds() > 1.6) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 10;
@@ -389,7 +381,6 @@ public class Far2Spikes extends OpMode {
                 if (!outtake.isBusy())
                 {
                     // Drive to the second line of balls of balls
-                    outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyCorner);
                     pathState = 12;
@@ -410,7 +401,6 @@ public class Far2Spikes extends OpMode {
 
                 if (timer.seconds() > 1.6) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 14;

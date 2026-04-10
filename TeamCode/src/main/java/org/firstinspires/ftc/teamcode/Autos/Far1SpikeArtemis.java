@@ -203,9 +203,7 @@ public class Far1SpikeArtemis extends OpMode {
                 // Wait for the starting delay to expire
                 if (delayTimer.seconds() > delaySeconds) {
                     // Begin the whole route
-                    outtake.isFar = true;
                     outtake.setOuttakeVelocity(true);
-                    outtake.setServoPosition(0.4);
                     follower.followPath(launchPath1, true);
                     pathState = 1;
                 }
@@ -226,7 +224,6 @@ public class Far1SpikeArtemis extends OpMode {
                     // drive to the first line of balls
                     follower.followPath(intakePathReady1, true);
                     outtake.setIntakePower(1);
-                    outtake.setServoPosition(0.48);
                     pathState = 3;
                 }
                 break;
@@ -248,7 +245,6 @@ public class Far1SpikeArtemis extends OpMode {
                     } else {
                         outtake.setIntakePower(0);
                     }
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPath2, true);
                     pathState = 6;
@@ -270,7 +266,6 @@ public class Far1SpikeArtemis extends OpMode {
                 if (!outtake.isBusy())
                 {
                     // Drive to the second line of balls of balls
-                    outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyCorner);
                     pathState = 8;
@@ -291,7 +286,6 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (timer.seconds() > 2) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 10;
@@ -318,7 +312,6 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (!outtake.isBusy()) {
                     // Drive to the second line of balls of balls
-                    outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyCorner);
                     pathState = 12;
@@ -339,7 +332,6 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (timer.seconds() > 2) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 14;
@@ -366,7 +358,6 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (!outtake.isBusy()) {
                     // Drive to the second line of balls of balls
-                    outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyCorner);
                     pathState = 16;
@@ -387,7 +378,6 @@ public class Far1SpikeArtemis extends OpMode {
 
                 if (timer.seconds() > 2) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 18;

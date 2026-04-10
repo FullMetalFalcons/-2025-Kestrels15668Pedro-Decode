@@ -189,9 +189,8 @@ public class Close2Spikes18 extends OpMode {
                 // Wait for the starting delay to expire
                 if (delayTimer.seconds() > delaySeconds) {
                     // Begin the whole route
-                    outtake.isFar = false;
                     outtake.setOuttakeVelocity(false);
-                    outtake.setServoPosition(0.4);
+
                     follower.followPath(launchPath1,true);
                     outtake.fireShots(3);
                     pathState = 1;
@@ -204,14 +203,13 @@ public class Close2Spikes18 extends OpMode {
                     // drive to the first line of balls
                     follower.followPath(intakePath2, true);
                     outtake.setIntakePower(1);
-                    outtake.setServoPosition(0.48);
                     pathState = 2;
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
+
                     follower.followPath(launchPath2, true);
                     pathState = 3;
                     timer.reset();
@@ -237,7 +235,6 @@ public class Close2Spikes18 extends OpMode {
 
                 if (!outtake.isBusy()) {
                     // Drive to the ramp of balls
-                    outtake.setServoPosition(0.48);
                     follower.followPath(intakePathReadyRamp,true);
                     pathState = 5;
                 }
@@ -258,7 +255,7 @@ public class Close2Spikes18 extends OpMode {
 
                 if (timer.seconds() > 2.2) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
+
                     follower.followPath(launchPathRamp, true);
                     pathState = 7;
                     timer.reset();
@@ -284,7 +281,6 @@ public class Close2Spikes18 extends OpMode {
 
                 if (!outtake.isBusy()) {
                     // Drive to the ramp of balls
-                    outtake.setServoPosition(0.48);
                     follower.followPath(intakePathReadyRamp,true);
                     pathState = 9;
                 }
@@ -305,7 +301,7 @@ public class Close2Spikes18 extends OpMode {
 
                 if (timer.seconds() > 2.2) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
+
                     follower.followPath(launchPathRamp, true);
                     pathState = 11;
                     timer.reset();
@@ -331,7 +327,6 @@ public class Close2Spikes18 extends OpMode {
 
                 if (!outtake.isBusy()) {
                     // Drive to the ramp of balls
-                    outtake.setServoPosition(0.48);
                     follower.followPath(intakePathReadyRamp,true);
                     pathState = 13;
                 }
@@ -352,7 +347,7 @@ public class Close2Spikes18 extends OpMode {
 
                 if (timer.seconds() > 2.2) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
+
                     follower.followPath(launchPathRamp, true);
                     pathState = 15;
                     timer.reset();
@@ -378,7 +373,6 @@ public class Close2Spikes18 extends OpMode {
 
                 if (!outtake.isBusy()) {
                     // Drive to the ramp of balls
-                    outtake.setServoPosition(0.48);
                     follower.followPath(intakePathReady1,true);
                     pathState = 17;
                 }
@@ -399,7 +393,7 @@ public class Close2Spikes18 extends OpMode {
 
                 if (timer.seconds() > 2.2) {
                     // Stop the intake and drive back to launch position
-                    outtake.setServoPosition(0.4);
+
                     follower.followPath(launchPath1, true);
                     pathState = 19;
                     timer.reset();

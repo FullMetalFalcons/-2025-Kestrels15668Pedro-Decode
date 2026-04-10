@@ -50,6 +50,8 @@ public class OuttakeFR {
         motorLaunch1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorLaunch2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        launcherPIDF = new PIDFCoefficients(60,0,0,13.8);
+
         motorLaunch1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
         motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
 
@@ -59,7 +61,6 @@ public class OuttakeFR {
         motorLaunch2.setPower(0);
         motorIntake.setPower(0);
 
-        launcherPIDF = new PIDFCoefficients(0.15,0,0,14.1);
     }
 
     public void update() {
@@ -68,6 +69,7 @@ public class OuttakeFR {
                 if (motorLaunch1.getVelocity() > launchVel - 100) {
                     if (shotsRemaining > 0) {
                         stateTimer.reset();
+                        servoTrigger.setPosition(SERVO_OPEN);
                         launchState = LaunchState.LAUNCH;
                     }
                 }
@@ -75,7 +77,7 @@ public class OuttakeFR {
             case LAUNCH:
                 if (shotsRemaining > 0) {
                     if (motorLaunch1.getVelocity() > launchVel - 100) {
-                        if (stateTimer.seconds() < 0.30) {
+                        if (stateTimer.seconds() < 0.145) {
                             motorIntake.setPower(1);
                         } else {
                             shotsRemaining -= 1;
@@ -85,6 +87,8 @@ public class OuttakeFR {
                 } else {
                     motorIntake.setPower(0);
                     servoTrigger.setPosition(SERVO_CLOSE);
+                    motorLaunch1.setVelocity(0);
+                    motorLaunch2.setVelocity(0);
                     stateTimer.reset();
                     launchState = LaunchState.IDLE;
                 }
@@ -101,13 +105,13 @@ public class OuttakeFR {
     // Outtake Logic
     public void setOuttakeVelocity(boolean launchFar) {
         if (launchFar) {
-            motorLaunch1.setVelocity(2050);
-            motorLaunch2.setVelocity(2050);
-            launchVel = 2050;
+            motorLaunch1.setVelocity(2060);
+            motorLaunch2.setVelocity(2060);
+            launchVel = 2060;
         } else {
-            motorLaunch1.setVelocity(1590);
-            motorLaunch2.setVelocity(1590);
-            launchVel = 1590;
+            motorLaunch1.setVelocity(1480);
+            motorLaunch2.setVelocity(1480);
+            launchVel = 1480;
         }
     }
 

@@ -202,9 +202,7 @@ public class Far1Spike extends OpMode {
                 // Wait for the starting delay to expire
                 if (delayTimer.seconds() > delaySeconds) {
                     // Begin the whole route
-                    outtake.isFar = true;
                     outtake.setOuttakeVelocity(true);
-                    outtake.setServoPosition(0.4);
                     follower.followPath(launchPath1, true);
                     pathState = 1;
                 }
@@ -225,7 +223,6 @@ public class Far1Spike extends OpMode {
                     // drive to the first line of balls
                     follower.followPath(intakePathReady1, true);
                     outtake.setIntakePower(1);
-                    outtake.setServoPosition(0.48);
                     pathState = 3;
                 }
                 break;
@@ -247,7 +244,6 @@ public class Far1Spike extends OpMode {
                     } else {
                         outtake.setIntakePower(0);
                     }
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPath2, true);
                     pathState = 6;
@@ -269,7 +265,6 @@ public class Far1Spike extends OpMode {
                 if (!outtake.isBusy())
                 {
                     // Drive to the second line of balls of balls
-                    outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyCorner);
                     pathState = 8;
@@ -295,7 +290,6 @@ public class Far1Spike extends OpMode {
                     } else {
                         outtake.setIntakePower(0);
                     }
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathCorner, true);
                     pathState = 10;
@@ -316,7 +310,6 @@ public class Far1Spike extends OpMode {
                 /* Let the robot get to the third line of balls */
 
                 if (!outtake.isBusy()) {
-                    outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyTunnel, true);
                     pathState = 12;
@@ -327,7 +320,6 @@ public class Far1Spike extends OpMode {
 
                 if (!follower.isBusy()) {
                     // intake third line of balls
-                    outtake.setServoPosition(0.48);
                     follower.followPath(intakePathTunnel, 0.65, true);
                     timer.reset();
                     pathState = 13;
@@ -341,7 +333,6 @@ public class Far1Spike extends OpMode {
                     } else {
                         outtake.setIntakePower(0);
                     }
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathTunnel, true);
                     pathState = 14;
@@ -360,7 +351,6 @@ public class Far1Spike extends OpMode {
                 /* Let the robot get to the third line of balls */
 
                 if (!outtake.isBusy()) {
-                    outtake.setServoPosition(0.48);
                     outtake.setIntakePower(1);
                     follower.followPath(intakePathReadyTunnel, true);
                     pathState = 16;
@@ -371,7 +361,6 @@ public class Far1Spike extends OpMode {
 
                 if (!follower.isBusy()) {
                     // intake third line of balls
-                    outtake.setServoPosition(0.48);
                     follower.followPath(intakePathTunnel, 0.65, true);
                     timer.reset();
                     pathState = 17;
@@ -385,7 +374,6 @@ public class Far1Spike extends OpMode {
                     } else {
                         outtake.setIntakePower(0);
                     }
-                    outtake.setServoPosition(0.4);
                     outtake.setOuttakeVelocity(true);
                     follower.followPath(launchPathTunnel, true);
                     pathState = 18;

@@ -40,7 +40,7 @@ public class FalconsTeleOp extends OpMode {
 
     PIDFCoefficients  launcherPIDF;
     com.pedropathing.control.PIDFCoefficients headingPIDF;
-    public static double launch_p = 60, launch_f = 13.2, heading_p = 1.7, heading_d = 0.2, heading_f = 0.0;
+    public static double launch_p = 60, launch_f = 13.8, heading_p = 1.7, heading_d = 0.2, heading_f = 0.0;
     PIDFController headingPIDF_Controller = new PIDFController(new com.pedropathing.control.PIDFCoefficients(0,0,0,0));
 
     Point tarBlue, tarRed, tarCurrent;

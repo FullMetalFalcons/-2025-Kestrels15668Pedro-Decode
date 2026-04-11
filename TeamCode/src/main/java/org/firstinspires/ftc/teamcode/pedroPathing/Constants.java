@@ -25,6 +25,7 @@ public class Constants {
 
     final static double lbPerKg = 2.205;
     final static double robotWeightInPounds = 22; //
+    public static double offsetX = -2.8, offsetY = -6;
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(robotWeightInPounds / lbPerKg)
             .forwardZeroPowerAcceleration(77.25213094395916)
@@ -66,8 +67,8 @@ public class Constants {
     }
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-2.8)
-            .strafePodX(-6)
+            .forwardPodY(offsetY)
+            .strafePodX(offsetX)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)

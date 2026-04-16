@@ -40,7 +40,7 @@ public class Close3Spikes extends OpMode {
 
 
     private Pose intake1ControlPoint =  new Pose(36, 76);
-    private Pose intake1Pose = new Pose(22, 84, Math.toRadians(180));
+    private Pose intake1Pose = new Pose(24, 84, Math.toRadians(180));
     private Pose launch1ControlPoint =  new Pose(45, 78);
     private Pose launchPose1 = new Pose(61,84,Math.toRadians(137));
 

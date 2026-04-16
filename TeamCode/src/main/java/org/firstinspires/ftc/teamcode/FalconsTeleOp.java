@@ -101,7 +101,6 @@ public class FalconsTeleOp extends OpMode {
 
 
         // *************    PINPOINT STUFF    *************
-        // Pinpoint setup
         String pinpointName = Constants.localizerConstants.hardwareMapName;
         GoBildaPinpointDriver.EncoderDirection forwardDirection = Constants.localizerConstants.forwardEncoderDirection;
         GoBildaPinpointDriver.EncoderDirection strafeDirection = Constants.localizerConstants.strafeEncoderDirection;
@@ -130,8 +129,7 @@ public class FalconsTeleOp extends OpMode {
         telemetryManager = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
-    // This code runs repeatedly until the Stop button is pressed on the Driver Station
-    // Replaces the old  while(OpModeIsActive())  loop
+
     @Override
     public void loop() {
 
@@ -163,14 +161,14 @@ public class FalconsTeleOp extends OpMode {
         headingPIDF_Controller.setCoefficients(headingPIDF);
 
         if (gamepad1.left_stick_x > 0) {
-            powerX = 0.12 + applyExpo(gamepad1.left_stick_x, expoAng);
+            powerX = 0.12 + applyExpo(gamepad1.left_stick_x, expoX);
         } else if (gamepad1.left_stick_x < 0) {
-            powerX = -0.12 + applyExpo(gamepad1.left_stick_x, expoAng);
+            powerX = -0.12 + applyExpo(gamepad1.left_stick_x, expoX);
         }
         if (-gamepad1.left_stick_y > 0) {
-            powerY = 0.05 + applyExpo(-gamepad1.left_stick_y, expoAng);
+            powerY = 0.05 + applyExpo(-gamepad1.left_stick_y, expoY);
         } else if (-gamepad1.left_stick_y < 0) {
-            powerY = -0.05 + applyExpo(-gamepad1.left_stick_y, expoAng);
+            powerY = -0.05 + applyExpo(-gamepad1.left_stick_y, expoY);
         }
 
         // Turn on heading track if trigger

@@ -34,7 +34,7 @@ public class FalconsTeleOp extends OpMode {
     double currentHeading, targetHeading, headingError;
     boolean blue, launchRun = false;
 
-    public static double closeVel =  1800, farVel = 2140;
+    public static double closeVel =  1800, farVel = 2040;
     public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
     public static double expoX = 0.4, expoY = 0.4, expoAng = 0.5;
 

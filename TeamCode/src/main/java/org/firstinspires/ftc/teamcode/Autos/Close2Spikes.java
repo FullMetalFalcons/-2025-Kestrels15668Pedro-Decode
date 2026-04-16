@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Autos;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -10,9 +11,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
-import org.firstinspires.ftc.teamcode.Mechanisms.Webcam;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+@Configurable
 @Autonomous(name = "Close2Spikes", group = "Auto")
 public class Close2Spikes extends OpMode {
 
@@ -21,45 +22,47 @@ public class Close2Spikes extends OpMode {
     private boolean red;
 
     ElapsedTime delayTimer = new ElapsedTime();
-    ElapsedTime autoTimer = new ElapsedTime();
     double delaySeconds = 0.0;
     final double AUTO_LENGTH_SECONDS = 30.0;
     final double AUTO_END_BUFFER_SECONDS = 1.0;
+    public static int INTAKE_FROM_GATE = 3;
+    int intakeFromGate = INTAKE_FROM_GATE;
+
 
     OuttakeFR outtake = new OuttakeFR();
-    Webcam webcam = new Webcam(hardwareMap);
-
-    // Define important coordinate locations for the Blue side of the field
-    private Pose startPose = new Pose(22, 122, Math.toRadians(360-45));
-    private Pose launchPose = new Pose(54,84,Math.toRadians(310));
-    private Pose launchPose2 = new Pose(54,84,Math.toRadians(310));
-
-
-
-
-    private Pose intake1ReadyPose =  new Pose(47, 84, Math.toRadians(180));
-    private Pose intake1FinishPose = new Pose(21, 84, Math.toRadians(180));
-
-
-    private Pose intake2ControlPoint = new Pose(64, 56);
-    private Pose intake2ReadyPose =  new Pose(48, 60, Math.toRadians(180));
-    private Pose intake2FinishPose = new Pose(16, 60, Math.toRadians(180));
-
-
-    private Pose intakeRampControlPoint = new Pose(48, 52);
-    private Pose intakeRampReadyPose =  new Pose(18, 55, Math.toRadians(145));
-    private Pose intakeRampFinishPose = new Pose(10, 56, Math.toRadians(145));
-
-
-    private Pose intake3ControlPoint = new Pose(56, 30);
-    private Pose intake3ReadyPose =  new Pose(50, 36, Math.toRadians(180));
-    private Pose intake3FinishPose = new Pose(16, 36, Math.toRadians(180));
-
-    private Pose leavePose = new Pose(44, 80, Math.toRadians(310));
-
-    private PathChain launchPath1, intakePathReady1,intakePath1, launchPath2, intakePathReady2,intakePath2,  launchPath3, launchPathRamp, intakePathReadyRamp,intakePathRamp, intakePathReady3, intakePath3, launchPath4, leavePath, hitLever1;
-
     private ElapsedTime timer = new ElapsedTime();
+
+
+    // *************     POSES    *************
+    private Pose startPose = new Pose(22, 122.6, Math.toRadians(145)); //TODO find real value
+    private Pose startControlPoint = new Pose(53, 92);
+    private Pose launchPosePreload = new Pose(58,78,Math.toRadians(137));
+
+
+    private Pose intake1ControlPoint =  new Pose(36, 76);
+    private Pose intake1Pose = new Pose(22, 84, Math.toRadians(180));
+    private Pose launch1ControlPoint =  new Pose(45, 78);
+    private Pose launchPose1 = new Pose(61,84,Math.toRadians(137));
+
+
+    private Pose intake2ControlPoint = new Pose(50, 55);
+    private Pose intake2Pose =  new Pose(22, 60, Math.toRadians(190));
+    private Pose launch2ControlPoint = new Pose(42, 63);
+    private Pose launchPose2 = new Pose(58,80.5,Math.toRadians(137));
+
+
+    private Pose intakeRampControlPoint = new Pose(28, 48);
+    private Pose intakeRampPose = new Pose(13, 60, Math.toRadians(145)); //TODO find real value
+    private Pose launchRampControlPoint = new Pose(25.5, 53);
+    private Pose launchPoseRamp = new Pose(58,80.5,Math.toRadians(137));
+
+
+    private Pose leavePose = new Pose(44, 80, Math.toRadians(140));
+
+
+    private PathChain launchPathPreload, intakeSpike1, launchPath1, intakeSpike2, launchPath2, intakeRamp, launchPathRamp, leavePath;
+
+
 
     @Override
     public void init() {
@@ -67,21 +70,26 @@ public class Close2Spikes extends OpMode {
 
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
         if (gamepad1.dpad_right || gamepad2.dpad_right) {
+
             startPose = startPose.mirror();
-            //startControlPoint = startControlPoint.mirror();
-            launchPose = new Pose(90, 84, Math.toRadians(225));
-            launchPose2 = new Pose(90, 84, Math.toRadians(228));
-            intake1ReadyPose = intake1ReadyPose.mirror();
-            intake1FinishPose = intake1FinishPose.mirror();
-            intake2ReadyPose = intake2ReadyPose.mirror();
+            startControlPoint = startControlPoint.mirror();
+            launchPosePreload = launchPosePreload.mirror();
+
+            intake1ControlPoint = intake1ControlPoint.mirror();
+            intake1Pose = intake1Pose.mirror();
+            launch1ControlPoint = launch1ControlPoint.mirror();
+            launchPose1 = launchPose1.mirror();
+
             intake2ControlPoint = intake2ControlPoint.mirror();
-            intake2FinishPose = intake2FinishPose.mirror();
-            intakeRampReadyPose = intakeRampReadyPose.mirror();
+            intake2Pose = intake2Pose.mirror();
+            launch2ControlPoint = launch2ControlPoint.mirror();
+            launchPose2 = launchPose2.mirror();
+
             intakeRampControlPoint = intakeRampControlPoint.mirror();
-            intakeRampFinishPose = intakeRampFinishPose.mirror();
-            intake3ReadyPose = intake3ReadyPose.mirror();
-            intake3ControlPoint = intake3ControlPoint.mirror();
-            intake3FinishPose = intake3FinishPose.mirror();
+            intakeRampPose = intakeRampPose.mirror();
+            launchRampControlPoint = launchRampControlPoint.mirror();
+            launchPoseRamp = launchPoseRamp.mirror();
+
             leavePose = leavePose.mirror();
             red = true;
         } else {
@@ -94,8 +102,6 @@ public class Close2Spikes extends OpMode {
         follower.setStartingPose(startPose);
 
         // Initialize external systems
-        webcam = new Webcam(hardwareMap);
-        webcam.init(hardwareMap, telemetry);
         outtake.init(hardwareMap);
         telemetry.update();
     }
@@ -124,8 +130,6 @@ public class Close2Spikes extends OpMode {
     public void start() {
         // Reset any timers
         delayTimer.reset();
-        autoTimer.reset();
-
     }
 
     @Override
@@ -141,78 +145,39 @@ public class Close2Spikes extends OpMode {
     }
 
     public void buildPaths() {
-        // ....... Launch 1
+        // ....... Launch Preload
+        launchPathPreload = follower.pathBuilder()
+                .addPath(new BezierCurve(  startPose, startControlPoint, launchPosePreload  ))
+                .setLinearHeadingInterpolation(startPose.getHeading(), launchPosePreload.getHeading()).build();
+
+        // ....... Intake/Launch 1
+        intakeSpike1 = follower.pathBuilder()
+                .addPath(new BezierCurve(  launchPosePreload, intake1ControlPoint, intake1Pose  ))
+                .setLinearHeadingInterpolation(launchPosePreload.getHeading(), intake1Pose.getHeading()).build();
         launchPath1 = follower.pathBuilder()
-                .addPath(new BezierLine(  startPose, launchPose2  ))
-                .setLinearHeadingInterpolation(startPose.getHeading(), launchPose2.getHeading()).build();
+                .addPath(new BezierCurve(  intake1Pose, launch1ControlPoint, launchPose1  ))
+                .setLinearHeadingInterpolation(intake1Pose.getHeading(), launchPose1.getHeading()).build();
 
-        // ....... Intake 1
-        intakePathReady1 = follower.pathBuilder()
-                .addPath(new BezierLine(  launchPose, intake1ReadyPose  ))
-                .setLinearHeadingInterpolation(launchPose.getHeading(), intake1ReadyPose.getHeading()).build();
-        intakePath1 = follower.pathBuilder()
-                .addPath(new BezierLine(  intake1ReadyPose, intake1FinishPose  ))
-                .setTangentHeadingInterpolation().build();
-
-        // ....... Launch 2
+        // ....... Intake/Launch 2
+        intakeSpike2 = follower.pathBuilder()
+                .addPath(new BezierCurve(  launchPose1, intake2ControlPoint, intake2Pose  ))
+                .setLinearHeadingInterpolation(launchPose1.getHeading(), intake2Pose.getHeading()).build();
         launchPath2 = follower.pathBuilder()
-                .addPath(new BezierLine(  intake1FinishPose, launchPose  ))
-                .setLinearHeadingInterpolation(intake1FinishPose.getHeading(), launchPose.getHeading())
-                .build();
+                .addPath(new BezierCurve(  intake2Pose, launch2ControlPoint, launchPose2  ))
+                .setLinearHeadingInterpolation(intake2Pose.getHeading(), launchPose2.getHeading()).build();
 
-        // ....... Intake 2
-        intakePathReady2 = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPose, intake2ControlPoint, intake2ReadyPose  ))
-                .setLinearHeadingInterpolation(launchPose.getHeading(), intake2ReadyPose.getHeading())
-                .build();
-        intakePath2 = follower.pathBuilder()
-                .addPath(new BezierLine(  intake2ReadyPose, intake2FinishPose  ))
-                .setTangentHeadingInterpolation()
-                .build();
-
-        // ....... Launch 3
-        launchPath3 = follower.pathBuilder()
-                .addPath(new BezierLine(  intake2FinishPose, launchPose  ))
-                .setLinearHeadingInterpolation(intake2FinishPose.getHeading(), launchPose.getHeading())
-                .build();
-
-        // ....... Intake Ramp
-        intakePathReadyRamp = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPose, intakeRampControlPoint, intakeRampReadyPose  ))
-                .setLinearHeadingInterpolation(launchPose.getHeading(), intakeRampReadyPose.getHeading())
-                .build();
-        intakePathRamp = follower.pathBuilder()
-                .addPath(new BezierLine(  intakeRampReadyPose, intakeRampFinishPose  ))
-                .setLinearHeadingInterpolation(intakeRampReadyPose.getHeading(), intakeRampFinishPose.getHeading())
-                .build();
-
-        // ....... Launch Ramp
+        // ....... Intake/Launch Ramp
+        intakeRamp = follower.pathBuilder()
+                .addPath(new BezierCurve(  launchPose2, intakeRampControlPoint, intakeRampPose  ))
+                .setLinearHeadingInterpolation(launchPose2.getHeading(), intakeRampPose.getHeading()).build();
         launchPathRamp = follower.pathBuilder()
-                .addPath(new BezierLine(  intakeRampFinishPose, launchPose  ))
-                .setLinearHeadingInterpolation(intakeRampFinishPose.getHeading(), launchPose.getHeading())
-                .build();
-
-        // ....... Intake 3
-        intakePathReady3 = follower.pathBuilder()
-                .addPath(new BezierCurve(launchPose, intake3ControlPoint, intake3ReadyPose))
-                .setLinearHeadingInterpolation(launchPose.getHeading(), intake3ReadyPose.getHeading())
-                .build();
-        intakePath3 = follower.pathBuilder()
-                .addPath(new BezierLine(intake3ReadyPose, intake3FinishPose))
-                .setTangentHeadingInterpolation()
-                .build();
-
-        // ....... Launch 4
-        launchPath4 = follower.pathBuilder()
-                .addPath(new BezierLine(intake3FinishPose, launchPose))
-                .setLinearHeadingInterpolation(intake3FinishPose.getHeading(), launchPose.getHeading())
-                .build();
+                .addPath(new BezierCurve(  intakeRampPose, launchRampControlPoint, launchPoseRamp  ))
+                .setLinearHeadingInterpolation(intakeRampPose.getHeading(), launchPoseRamp.getHeading()).build();
 
         // ....... Leave Points
         leavePath = follower.pathBuilder()
-                .addPath(new BezierLine(  launchPose, leavePose  ))
-                .setConstantHeadingInterpolation(leavePose.getHeading())
-                .build();
+                .addPath(new BezierLine(  launchPoseRamp, leavePose  ))
+                .setLinearHeadingInterpolation(launchPoseRamp.getHeading(), leavePose.getHeading()).build();
     }
 
     public void autonomousPathUpdate() {
@@ -220,214 +185,110 @@ public class Close2Spikes extends OpMode {
         // Autonomous state machine
         switch (pathState) {
             case 0:
-                // Wait for the starting delay to expire
                 if (delayTimer.seconds() > delaySeconds) {
-                    // Begin the whole route
                     outtake.setOuttakeVelocity(false);
-                    follower.followPath(launchPath1,true);
+                    follower.followPath(launchPathPreload,true);
                     pathState = 1;
                 }
                 break;
-            case 1:
-                /* Let the robot get to launch position */
 
+            case 1:
                 if (!follower.isBusy()) {
-                    // Begin the first launch sequence
                     outtake.fireShots(3);
                     pathState = 2;
-                    timer.reset();
                 }
                 break;
-            case 2:
-                /* Let the first launch sequence play out */
 
+            case 2:
                 if (!outtake.isBusy()) {
-                    // drive to the first line of balls
-                    follower.followPath(intakePathReady1, true);
-                    outtake.setIntakePower(1);
+                    follower.followPath(intakeSpike1, true);
+                    outtake.setIntakePower(true);
                     pathState = 3;
                 }
                 break;
-            case 3:
-                /* Let the robot get to the first line of balls */
 
+            case 3:
                 if (!follower.isBusy()) {
-                    // Intake the first line of balls
-                    follower.followPath(intakePath1, 0.85, true);
+                    follower.followPath(launchPath1, true);
+                    outtake.setOuttakeVelocity(false);
+                    pathState = 4;
+                    timer.reset();
+                }
+                break;
+
+            case 4:
+                if (timer.seconds() > 0.5) {
+                    outtake.setIntakePower(false);
+                }
+                if (!follower.isBusy()) {
+                    outtake.fireShots(3);
                     pathState = 5;
                     timer.reset();
                 }
                 break;
+
             case 5:
-                if (!follower.isBusy()) {
-                    // Stop the intake and drive back to launch position
-                    outtake.setOuttakeVelocity(false);
-                    follower.followPath(launchPath2, true);
+                if (!outtake.isBusy()) {
+                    follower.followPath(intakeSpike2,true);
+                    outtake.setIntakePower(true);
                     pathState = 6;
-                    timer.reset();
                 }
                 break;
+
             case 6:
-                /* Let the robot get back to launch position */
-                if (timer.seconds() > 0.4) {
-                    outtake.setIntakePower(-0.3);
-                } else {
-                    outtake.setIntakePower(0);
-                }
                 if (!follower.isBusy()) {
-                    // Begin the second launch sequence
-                    outtake.setIntakePower(0);
-                    outtake.fireShots(3);
+                    follower.followPath(launchPath2, true);
+                    outtake.setOuttakeVelocity(false);
                     pathState = 7;
-                    timer.reset();
                 }
                 break;
+
             case 7:
-                /* Let the second launch sequence play out */
-
-                if (!outtake.isBusy()) {
-                    // Drive to the second line of balls of balls
-                    outtake.setIntakePower(1);
-                    follower.followPath(intakePathReady2,true);
-                    pathState = 8;
+                if (timer.seconds() > 0.5) {
+                    outtake.setIntakePower(false);
                 }
-                break;
-            case 8:
-                /* Let the robot get to the second line of balls of balls */
-
                 if (!follower.isBusy()) {
-                    // Intake the second line of balls of balls
-                    follower.followPath(intakePath2, 0.85,true);
-                    pathState = 9;
+                    outtake.fireShots(3);
+                    pathState = 81;
                     timer.reset();
                 }
                 break;
+
+            case 81:
+                if (!outtake.isBusy()) {
+                    follower.followPath(intakeRamp,true);
+                    outtake.setIntakePower(true);
+                    pathState = 82;
+                }
+                break;
+
+            case 82:
+                if (!follower.isBusy() && timer.seconds() > 1.6) {
+                    follower.followPath(launchPathRamp, true);
+                    outtake.setOuttakeVelocity(false);
+                    pathState = 83;
+                    timer.reset();
+                }
+                break;
+
+            case 83:
+                if (timer.seconds() > 0.8) {
+                    outtake.setIntakePower(false);
+                }
+                if (!follower.isBusy()) {
+                    outtake.fireShots(3);
+                    if (intakeFromGate == 0) {
+                        pathState = 9;
+                    } else {
+                        intakeFromGate -= intakeFromGate;
+                        pathState = 81;
+                    }
+                }
+                break;
+
             case 9:
-                /* Let the intake sequence play out */
-
-                if (!follower.isBusy()) {
-                    // Stop the intake and drive back to launch position
-                    outtake.setOuttakeVelocity(false);
-                    follower.followPath(launchPath3, true);
-                    pathState = 10;
-                    timer.reset();
-                }
-                break;
-            case 10:
-                /* Let the robot get back to launch position */
-                if (timer.seconds() > 0.4) {
-                    outtake.setIntakePower(-0.3);
-                } else {
-                    outtake.setIntakePower(0);
-                }
-                if (!follower.isBusy()) {
-                    // Begin the second launch sequence
-                    outtake.setIntakePower(0);
-                    outtake.fireShots(3);
-                    pathState = 101;
-                    timer.reset();
-                }
-                break;
-            case 101:
-                /* Let the second launch sequence play out */
-
-                if (!outtake.isBusy()) {
-                    // Drive to the ramp of balls
-                    follower.followPath(intakePathReadyRamp,true);
-                    pathState = 102;
-                }
-                break;
-            case 102:
-                /* Let the robot get to the ramp of balls */
-
-                if (!follower.isBusy()) {
-                    // Intake the ramp of balls
-                    outtake.setIntakePower(1);
-                    follower.followPath(intakePathRamp,0.8, true);
-                    pathState = 103;
-                    timer.reset();
-                }
-                break;
-            case 103:
-                /* Let the intake sequence play out */
-
-                if (timer.seconds() > 2.2) {
-                    // Stop the intake and drive back to launch position
-                    outtake.setOuttakeVelocity(false);
-                    follower.followPath(launchPathRamp, true);
-                    pathState = 104;
-                    timer.reset();
-                }
-                break;
-            case 104:
-                /* Let the robot get back to launch position */
-                if (timer.seconds() > 0.6) {
-                    outtake.setIntakePower(-0.3);
-                } else {
-                    outtake.setIntakePower(0);
-                }
-                if (!follower.isBusy()) {
-                    // Begin the third launch sequence
-                    outtake.setIntakePower(0);
-                    outtake.fireShots(3);
-                    pathState = 11;
-                    timer.reset();
-                }
-                break;
-            case 11:
-                /* Let the second launch sequence play out */
-
-                if (!outtake.isBusy()) {
-                    // Drive to the ramp of balls
-                    follower.followPath(intakePathReadyRamp,true);
-                    pathState = 12;
-                }
-                break;
-            case 12:
-                /* Let the robot get to the ramp of balls */
-
-                if (!follower.isBusy()) {
-                    // Intake the ramp of balls
-                    outtake.setIntakePower(1);
-                    follower.followPath(intakePathRamp,0.8, true);
-                    pathState = 13;
-                    timer.reset();
-                }
-                break;
-            case 13:
-                /* Let the intake sequence play out */
-
-                if (timer.seconds() > 2.2) {
-                    // Stop the intake and drive back to launch position
-                    outtake.setOuttakeVelocity(false);
-                    follower.followPath(launchPathRamp, true);
-                    pathState = 14;
-                    timer.reset();
-                }
-                break;
-            case 14:
-                /* Let the robot get back to launch position */
-                if (timer.seconds() > 0.6) {
-                    outtake.setIntakePower(-0.3);
-                } else {
-                    outtake.setIntakePower(0);
-                }
-                if (!follower.isBusy()) {
-                    // Begin the third launch sequence
-                    outtake.setIntakePower(0);
-                    outtake.fireShots(3);
-                    pathState = 15;
-                    timer.reset();
-                }
-                break;
-
-            case 15:
-                /* Let the third launch sequence play out */
-
-                // If the launch sequence is finished, or autonomous is about to end, move sideways for the Leave points
                 if (!outtake.isBusy()) {
                     outtake.setOuttakeVelocity(0);
-                    // Quit out of the state machine and move off of the Launch line
                     follower.followPath(leavePath, true);
                     pathState = -1;
                 }

@@ -77,10 +77,10 @@ public class OuttakeFR {
             case LAUNCH:
                 if (shotsRemaining > 0) {
                     if (motorLaunch1.getVelocity() > launchVel - 100) {
-                        if (stateTimer.seconds() < 0.145) {
+                        if (stateTimer.seconds() < 0.40) {
                             motorIntake.setPower(1);
                         } else {
-                            shotsRemaining -= 1;
+                            shotsRemaining -= 3;
                             stateTimer.reset();
                         }
                     }
@@ -105,9 +105,9 @@ public class OuttakeFR {
     // Outtake Logic
     public void setOuttakeVelocity(boolean launchFar) {
         if (launchFar) {
-            motorLaunch1.setVelocity(2060);
-            motorLaunch2.setVelocity(2060);
-            launchVel = 2060;
+            motorLaunch1.setVelocity(2040);
+            motorLaunch2.setVelocity(2040);
+            launchVel = 2040;
         } else {
             motorLaunch1.setVelocity(1480);
             motorLaunch2.setVelocity(1480);

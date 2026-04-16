@@ -34,7 +34,7 @@ public class Close3Spikes extends OpMode {
 
 
     // *************     POSES    *************
-    private Pose startPose = new Pose(22, 122.6, Math.toRadians(145)); //TODO find real value
+    private Pose startPose = new Pose(26, 122.6, Math.toRadians(145)); //TODO find real value
     private Pose startControlPoint = new Pose(53, 92);
     private Pose launchPosePreload = new Pose(58,78,Math.toRadians(137));
 

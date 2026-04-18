@@ -66,7 +66,6 @@ public class FalconsTeleOp extends OpMode {
         servoTrigger = (Servo) hardwareMap.servo.get("trigga");
 
         // Reverse certain drive motors so that positive power to all motors makes the robot move forwards
-        // TODO: Update "Constants" with the proper directions of your drive motors
         motorLF.setDirection(DcMotorSimple.Direction.REVERSE);
         motorLB.setDirection(DcMotorSimple.Direction.REVERSE);
         motorRF.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -172,19 +171,17 @@ public class FalconsTeleOp extends OpMode {
         }
 
         // Turn on heading track if trigger
+        boolean targetTrack;
+
         if (gamepad1.left_trigger > 0.2 || gamepad2.left_trigger > 0.2) {
             headingError = determineRotationDirection(pinpoint.getHeading(AngleUnit.RADIANS), targetHeading);
             headingPIDF_Controller.updateError(headingError);
             powerAng = headingPIDF_Controller.run();
             powerAng = Math.max(-1.0, Math.min(1.0, powerAng));
-
+            targetTrack = true;
         } else {
-                    /*if (-gamepad1.right_stick_x > 0) {
-                        powerAng = 0.09 + applyExpo(-gamepad1.right_stick_x, expoAng);
-                    } else if (-gamepad1.right_stick_x < 0) {
-                        powerAng = -0.09 + applyExpo(-gamepad1.right_stick_x, expoAng);
-                    }*/
             powerAng = applyExpo(-gamepad1.right_stick_x, expoAng);
+            targetTrack = false;
         }
 
         // Perform vector math to determine the desired powers for each wheel
@@ -211,22 +208,65 @@ public class FalconsTeleOp extends OpMode {
         motorRB.setPower(powerRB);
 
 
+
+        // *************    LAUNCH ZONE    **************
+        // Find 4 corners pos
+        double cosH = Math.cos(currentHeading);
+        double sinH = Math.sin(currentHeading);
+        double axX = cosH * 9;
+        double axY = sinH * 9;
+        double ayX = -sinH * 8;
+        double ayY = cosH * 8;
+
+        double[][] corners = {
+                { currentX + axX + ayX, currentY + axY + ayY},  // front left
+                { currentX + axX - ayX, currentY + axY - ayY},  // front right
+                { currentX - axX + ayX, currentY - axY + ayY},  // back left
+                { currentX - axX - ayX, currentY - axY - ayY},  // back right
+        };
+
+
+        boolean inFar = false, inClose = false;
+
+        // Check to see if corners are within zones
+        for (double[] p : corners) {
+            double px = p[0], py = p[1];
+
+            double nd1 = (144-0) * (py-144) - (144-144) * (px-144);
+            double nd2 = (72-144) * (py-144) - (72-144) * (px-144);
+            double nd3 = (0-72) * (py-72) - (144-72) * (px-72);
+            if ((nd1 >= 0 && nd2 >= 0 && nd3 >=0) || (nd1 <= 0 && nd2 <= 0 && nd3 <=0)) {
+                inClose = true;
+            }
+
+            double fd1 = (96-48) * (py-0) - (0-0) * (px-48);
+            double fd2 = (72-96) * (py-0) - (24-0) * (px-96);
+            double fd3 = (48-72) * (py-24) - (0-24) * (px-72);
+            if ((fd1 >= 0 && fd2 >= 0 && fd3 >=0) || (fd1 <= 0 && fd2 <= 0 && fd3 <=0)) {
+                inFar = true;
+            }
+        }
+
+
+
         // *************    INTAKE LOGIC    *************
         if (gamepad1.right_bumper || gamepad2.right_bumper) {
             motorIntake.setPower(1);
+            servoTrigger.setPosition(SERVO_CLOSE);
         } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
             motorIntake.setPower(-1);
         } else {
             motorIntake.setPower(0);
+            servoTrigger.setPosition(SERVO_OPEN);
         }
 
 
-        // *************    TRIGGER LOGIC    *************
+        /*// *************    TRIGGER LOGIC    *************
         if (gamepad2.right_trigger > 0.2 || gamepad1.right_trigger > 0.2) {
             servoTrigger.setPosition(SERVO_OPEN);
         } else {
             servoTrigger.setPosition(SERVO_CLOSE);
-        }
+        }*/
 
 
         // *************    LAUNCHER LOGIC    *************
@@ -240,7 +280,6 @@ public class FalconsTeleOp extends OpMode {
         if (gamepad2.yWasPressed() || gamepad1.yWasPressed()) {
             launchRun = !launchRun;
         }
-
 
         if (launchRun) {
             launchVel = 0.08945 * Math.pow(distance, 2) - 10.85 * distance + 1873.23;
@@ -256,6 +295,26 @@ public class FalconsTeleOp extends OpMode {
 
         motorLaunch1.setVelocity(launchVel);
         motorLaunch2.setVelocity(launchVel);
+
+
+
+        // *************    AUTO LAUNCH    *************
+        boolean autoLaunchToggle = false;
+        boolean goingSlow = false;
+
+        if (pinpoint.getVelX(DistanceUnit.INCH) < 2 && pinpoint.getVelY(DistanceUnit.INCH) < 2) {
+            goingSlow = true;
+        } else {
+            goingSlow = false;
+        }
+
+        if (gamepad1.dpadRightWasPressed() || gamepad2.dpadRightWasPressed()) {
+            autoLaunchToggle = !autoLaunchToggle;
+        }
+
+        if (autoLaunchToggle && (inClose || inFar) && targetTrack && (motorLaunch1.getVelocity() > launchVel - 100) && goingSlow) {
+            motorIntake.setPower(1);
+        }
 
 
 
@@ -286,6 +345,14 @@ public class FalconsTeleOp extends OpMode {
             telemetry.addLine("BLUE BLUE BLUE = yes");
         } else {
             telemetry.addLine("RED RED RED = meow");
+        }
+        telemetry.addLine();
+        if (inFar) {
+            telemetry.addLine("IN FAR ZONE");
+        } else if (inClose) {
+            telemetry.addLine("IN CLOSE ZONE");
+        } else {
+            telemetry.addLine("OUTSIDE ZONES");
         }
         telemetry.addLine();
         telemetry.addData("targetHeading", Math.toDegrees(targetHeading));
@@ -354,5 +421,4 @@ public class FalconsTeleOp extends OpMode {
     public static double calculateDistance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
-
 }

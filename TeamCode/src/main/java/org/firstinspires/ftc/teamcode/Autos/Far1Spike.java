@@ -25,8 +25,6 @@ public class Far1Spike extends OpMode {
     double delaySeconds = 0.0;
     final double AUTO_LENGTH_SECONDS = 30.0;
     final double AUTO_END_BUFFER_SECONDS = 1.0;
-    public static int INTAKE_FROM_GATE = 2;
-    int intakeFromGate = INTAKE_FROM_GATE;
 
 
     OuttakeFR outtake = new OuttakeFR();
@@ -43,13 +41,13 @@ public class Far1Spike extends OpMode {
     private Pose launchPose3 = new Pose(53.5,17,Math.toRadians(110));
 
 
-    private Pose intakeCornerControlPoint = new Pose(28, 48);
-    private Pose intakeCornerPose = new Pose(13, 60, Math.toRadians(145));
-    private Pose launchCornerControlPoint = new Pose(25.5, 53);
-    private Pose launchPoseCorner = new Pose(58,80.5,Math.toRadians(137));
+    private Pose intakeCornerControlPoint = new Pose(25.5, 23);
+    private Pose intakeCornerPose = new Pose(10, 12, Math.toRadians(190));
+    private Pose launchCornerControlPoint = new Pose(25.5, 24);
+    private Pose launchPoseCorner = new Pose(53.5,17,Math.toRadians(110));
 
 
-    private Pose leavePose = new Pose(44, 80, Math.toRadians(140));
+    private Pose leavePose = new Pose(50, 20, Math.toRadians(135));
 
 
     private PathChain intakeSpike3, launchPath3, intakeCorner, launchPathCorner, leavePath;
@@ -189,44 +187,38 @@ public class Far1Spike extends OpMode {
             case 3:
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
-                    pathState = 81;
+                    pathState = 41;
                 }
                 break;
 
-            case 81:
+            case 41:
                 if (!outtake.isBusy()) {
                     follower.followPath(intakeCorner,true);
                     outtake.setIntakePower(true);
-                    pathState = 82;
+                    pathState = 42;
                 }
                 break;
 
-            case 82:
+            case 42:
                 if (!follower.isBusy() && timer.seconds() > 1.6) {
                     follower.followPath(launchPathCorner, true);
                     outtake.setOuttakeVelocity(false);
-                    pathState = 83;
+                    pathState = 43;
                     timer.reset();
                 }
                 break;
 
-            case 83:
+            case 43:
                 if (timer.seconds() > 0.8) {
                     outtake.setIntakePower(false);
                 }
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
-                    /*if (intakeFromGate == 0) {
-                        pathState = 9;
-                    } else {
-                        intakeFromGate -= intakeFromGate;
-                        pathState = 81;
-                    }*/
-                    pathState = 9;
+                    pathState = 5;
                 }
                 break;
 
-            case 9:
+            case 5:
                 if (!outtake.isBusy()) {
                     outtake.setOuttakeVelocity(0);
                     follower.followPath(leavePath, true);

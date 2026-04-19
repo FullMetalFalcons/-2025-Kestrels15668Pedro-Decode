@@ -9,6 +9,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.control.PIDFController;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -42,6 +43,8 @@ public class FalconsTeleOp extends OpMode {
     public static double closeVel =  1800, farVel = 2040;
     public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
     public static double expoX = 0.4, expoY = 0.4, expoAng = 0.5;
+
+    public static Pose2D startingPose = new Pose2D(DistanceUnit.INCH, 72,72,AngleUnit.DEGREES, 0);
 
     PIDFCoefficients  launcherPIDF;
     com.pedropathing.control.PIDFCoefficients headingPIDF;
@@ -113,7 +116,7 @@ public class FalconsTeleOp extends OpMode {
         pinpoint.setOffsets(xOffset, yOffset, DistanceUnit.INCH);
         pinpoint.setEncoderResolution(resolution);
 
-        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH,72,72,AngleUnit.DEGREES,0));
+        pinpoint.setPosition(startingPose);
 
         tarBlue = new Point(10,140);
         tarRed = new Point(134,140);

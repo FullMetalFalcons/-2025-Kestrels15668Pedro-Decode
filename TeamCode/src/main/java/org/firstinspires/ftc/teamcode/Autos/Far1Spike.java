@@ -10,6 +10,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.FalconsTeleOp;
 import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -124,7 +128,10 @@ public class Far1Spike extends OpMode {
         telemetry.addData("busyfollower?", follower.isBusy());
         telemetry.addData("path?",pathState);
         telemetry.addData("rpm?",outtake.getFlywheelVelocity());
+        telemetry.addData("pose?", follower.getPose());
         telemetry.update();
+
+        FalconsTeleOp.startingPose = new Pose2D(DistanceUnit.INCH, follower.getPose().getX(), follower.getPose().getY(), AngleUnit.DEGREES, Math.toDegrees(follower.getHeading()));
     }
 
     public void buildPaths() {

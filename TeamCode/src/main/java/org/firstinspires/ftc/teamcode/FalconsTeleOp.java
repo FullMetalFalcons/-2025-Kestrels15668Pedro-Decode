@@ -9,7 +9,6 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.control.PIDFController;
-import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -40,7 +39,7 @@ public class FalconsTeleOp extends OpMode {
     double currentHeading, targetHeading, headingError;
     boolean blue, launchRun = false;
 
-    public static double closeVel =  1800, farVel = 2040;
+    public static double launcherVel =  1800;
     public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
     public static double expoX = 0.4, expoY = 0.4, expoAng = 0.5;
 
@@ -126,8 +125,6 @@ public class FalconsTeleOp extends OpMode {
         double targetHeading = 0.0;
 
 
-
-        // *************    PANELS    *************
         telemetryManager = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
@@ -136,6 +133,10 @@ public class FalconsTeleOp extends OpMode {
     public void loop() {
 
         // *************    ODOMETRY    *************
+        if (gamepad1.dpadUpWasPressed()) {
+            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 72, 72, AngleUnit.DEGREES, 0));
+        }
+
         pinpoint.update();
 
         currentX = pinpoint.getPosX(DistanceUnit.INCH);
@@ -148,10 +149,6 @@ public class FalconsTeleOp extends OpMode {
                 tarCurrent.y - currentY,
                 tarCurrent.x - currentX
         );
-
-        if (gamepad1.dpadUpWasPressed()) {
-            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 72, 72, AngleUnit.DEGREES, 0));
-        }
 
 
         // *************    MECANUM    *************
@@ -176,9 +173,10 @@ public class FalconsTeleOp extends OpMode {
         // Turn on heading track if trigger
         boolean targetTrack;
 
+        headingError = determineRotationDirection(pinpoint.getHeading(AngleUnit.RADIANS), targetHeading);
+        headingPIDF_Controller.updateError(headingError);
+
         if (gamepad1.left_trigger > 0.2 || gamepad2.left_trigger > 0.2) {
-            headingError = determineRotationDirection(pinpoint.getHeading(AngleUnit.RADIANS), targetHeading);
-            headingPIDF_Controller.updateError(headingError);
             powerAng = headingPIDF_Controller.run();
             powerAng = Math.max(-1.0, Math.min(1.0, powerAng));
             targetTrack = true;
@@ -238,14 +236,14 @@ public class FalconsTeleOp extends OpMode {
             double nd1 = (144-0) * (py-144) - (144-144) * (px-144);
             double nd2 = (72-144) * (py-144) - (72-144) * (px-144);
             double nd3 = (0-72) * (py-72) - (144-72) * (px-72);
-            if ((nd1 >= 0 && nd2 >= 0 && nd3 >=0) || (nd1 <= 0 && nd2 <= 0 && nd3 <=0)) {
+            if ((nd1 >= 0 && nd2 >= 0 && nd3 >=0 ) || (nd1 <= 0 && nd2 <= 0 && nd3 <=0 )) {
                 inClose = true;
             }
 
             double fd1 = (96-48) * (py-0) - (0-0) * (px-48);
             double fd2 = (72-96) * (py-0) - (24-0) * (px-96);
             double fd3 = (48-72) * (py-24) - (0-24) * (px-72);
-            if ((fd1 >= 0 && fd2 >= 0 && fd3 >=0) || (fd1 <= 0 && fd2 <= 0 && fd3 <=0)) {
+            if ((fd1 >= 0 && fd2 >= 0 && fd3 >=0 ) || (fd1 <= 0 && fd2 <= 0 && fd3 <=0 )) {
                 inFar = true;
             }
         }
@@ -253,9 +251,12 @@ public class FalconsTeleOp extends OpMode {
 
 
         // *************    INTAKE LOGIC    *************
-        if (gamepad1.right_bumper || gamepad2.right_bumper) {
+        if (gamepad1.right_bumper) {
             motorIntake.setPower(1);
             servoTrigger.setPosition(SERVO_CLOSE);
+        } else if (gamepad2.right_bumper) {
+            motorIntake.setPower(1);
+            servoTrigger.setPosition(SERVO_OPEN);
         } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
             motorIntake.setPower(-1);
         } else {
@@ -264,12 +265,10 @@ public class FalconsTeleOp extends OpMode {
         }
 
 
-        /*// *************    TRIGGER LOGIC    *************
+        // *************    TRIGGER LOGIC    *************
         if (gamepad2.right_trigger > 0.2 || gamepad1.right_trigger > 0.2) {
             servoTrigger.setPosition(SERVO_OPEN);
-        } else {
-            servoTrigger.setPosition(SERVO_CLOSE);
-        }*/
+        }
 
 
         // *************    LAUNCHER LOGIC    *************
@@ -285,11 +284,9 @@ public class FalconsTeleOp extends OpMode {
         }
 
         if (launchRun) {
-            launchVel = 0.08945 * Math.pow(distance, 2) - 10.85 * distance + 1873.23;
+            launchVel = runLaunchFormula(distance);
         } else if (gamepad2.a) {
-            launchVel = closeVel;
-        } else if (gamepad2.b) {
-            launchVel = farVel;
+            launchVel = launcherVel;
         } else if (gamepad2.x){
             launchVel = -1000;
         } else {
@@ -307,8 +304,6 @@ public class FalconsTeleOp extends OpMode {
 
         if (pinpoint.getVelX(DistanceUnit.INCH) < 2 && pinpoint.getVelY(DistanceUnit.INCH) < 2) {
             goingSlow = true;
-        } else {
-            goingSlow = false;
         }
 
         if (gamepad1.dpadRightWasPressed() || gamepad2.dpadRightWasPressed()) {
@@ -344,6 +339,12 @@ public class FalconsTeleOp extends OpMode {
         telemetry.addData("Y", currentY);
         telemetry.addData("H", pinpoint.getHeading(AngleUnit.DEGREES));
         telemetry.addLine();
+        if (autoLaunchToggle) {
+            telemetry.addLine("AUTO LAUNCH");
+        } else {
+            telemetry.addLine("NO LAUNCH FOR YOU");
+        }
+        telemetry.addLine();
         if (blue) {
             telemetry.addLine("BLUE BLUE BLUE = yes");
         } else {
@@ -356,6 +357,12 @@ public class FalconsTeleOp extends OpMode {
             telemetry.addLine("IN CLOSE ZONE");
         } else {
             telemetry.addLine("OUTSIDE ZONES");
+        }
+        telemetry.addLine();
+        if (goingSlow) {
+            telemetry.addLine("SLOW SLOW SLOW");
+        } else {
+            telemetry.addLine("SUPER FAST VROOM VROOM");
         }
         telemetry.addLine();
         telemetry.addData("targetHeading", Math.toDegrees(targetHeading));
@@ -423,5 +430,9 @@ public class FalconsTeleOp extends OpMode {
 
     public static double calculateDistance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+
+    public static double runLaunchFormula(double distance) {
+        return 0.08945 * Math.pow(distance, 2) - 10.85 * distance + 1873.23;
     }
 }

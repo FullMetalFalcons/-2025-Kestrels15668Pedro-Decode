@@ -164,7 +164,7 @@ public class Far1Spike extends OpMode {
         switch (pathState) {
             case 0:
                 if (delayTimer.seconds() > delaySeconds) {
-                    outtake.setOuttakeVelocity(false);
+                    outtake.setOuttakeVelocity(true);
                     outtake.fireShots(3);
                     pathState = 1;
                 }
@@ -185,7 +185,7 @@ public class Far1Spike extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     follower.followPath(launchPath3, true);
-                    outtake.setOuttakeVelocity(false);
+                    outtake.setOuttakeVelocity(true);
                     pathState = 3;
                     timer.reset();
                 }
@@ -209,7 +209,7 @@ public class Far1Spike extends OpMode {
             case 42:
                 if (!follower.isBusy() && timer.seconds() > 1.6) {
                     follower.followPath(launchPathCorner, true);
-                    outtake.setOuttakeVelocity(false);
+                    outtake.setOuttakeVelocity(true);
                     pathState = 43;
                     timer.reset();
                 }

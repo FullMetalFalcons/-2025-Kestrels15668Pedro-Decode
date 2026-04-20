@@ -25,7 +25,7 @@ public class Constants {
 
     final static double lbPerKg = 2.205;
     final static double robotWeightInPounds = 22; //
-    public static double offsetX = -2.8, offsetY = -6;
+    public static double offsetX = -5.38077863558, offsetY = 2.20494452;
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(robotWeightInPounds / lbPerKg)
             .forwardZeroPowerAcceleration(77.25213094395916)

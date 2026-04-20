@@ -9,12 +9,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class OuttakeFR {
-    private Servo servoTrigger;
+    private Servo servoGayte;
     private DcMotorEx motorLaunch1, motorLaunch2, motorIntake;
     PIDFCoefficients  launcherPIDF;
     private ElapsedTime stateTimer = new ElapsedTime();
 
     public double launchVel;
+    boolean far, close;
 
 
     private enum LaunchState {
@@ -34,7 +35,7 @@ public class OuttakeFR {
         motorLaunch1 = (DcMotorEx) hwMap.dcMotor.get("launch1");
         motorLaunch2 = (DcMotorEx) hwMap.dcMotor.get("launch2");
 
-        servoTrigger = (Servo) hwMap.servo.get("trigga");
+        servoGayte = (Servo) hwMap.servo.get("gayte");
 
         motorIntake.setDirection(DcMotorSimple.Direction.FORWARD);
         motorLaunch1.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -56,7 +57,7 @@ public class OuttakeFR {
         motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
 
 
-        servoTrigger.setPosition(0.4);
+        servoGayte.setPosition(0.4);
         motorLaunch1.setPower(0);
         motorLaunch2.setPower(0);
         motorIntake.setPower(0);
@@ -69,14 +70,14 @@ public class OuttakeFR {
                 if (motorLaunch1.getVelocity() > launchVel - 100) {
                     if (shotsRemaining > 0) {
                         stateTimer.reset();
-                        servoTrigger.setPosition(SERVO_OPEN);
+                        servoGayte.setPosition(SERVO_OPEN);
                         launchState = LaunchState.LAUNCH;
                     }
                 }
                 break;
             case LAUNCH:
                 if (shotsRemaining > 0) {
-                    if (motorLaunch1.getVelocity() > launchVel - 100) {
+                    if (motorLaunch1.getVelocity() > launchVel - 100 && close) {
                         if (stateTimer.seconds() < 0.40) {
                             motorIntake.setPower(1);
                         } else {
@@ -84,9 +85,17 @@ public class OuttakeFR {
                             stateTimer.reset();
                         }
                     }
+                    if (motorLaunch1.getVelocity() > launchVel - 100 && far) {
+                        if (stateTimer.seconds() < 0.80) {
+                            motorIntake.setPower(0.9);
+                        } else {
+                            shotsRemaining -= 3;
+                            stateTimer.reset();
+                        }
+                    }
                 } else {
                     motorIntake.setPower(0);
-                    servoTrigger.setPosition(SERVO_CLOSE);
+                    servoGayte.setPosition(SERVO_CLOSE);
                     motorLaunch1.setVelocity(0);
                     motorLaunch2.setVelocity(0);
                     stateTimer.reset();
@@ -105,13 +114,17 @@ public class OuttakeFR {
     // Outtake Logic
     public void setOuttakeVelocity(boolean launchFar) {
         if (launchFar) {
-            motorLaunch1.setVelocity(2040);
-            motorLaunch2.setVelocity(2040);
-            launchVel = 2040;
+            motorLaunch1.setVelocity(2000);
+            motorLaunch2.setVelocity(2000);
+            launchVel = 2000;
+            far = true;
+            close = false;
         } else {
             motorLaunch1.setVelocity(1480);
             motorLaunch2.setVelocity(1480);
             launchVel = 1480;
+            far = false;
+            close = true;
         }
     }
 
@@ -130,10 +143,10 @@ public class OuttakeFR {
     public void setIntakePower(boolean intaking) {
         if (intaking) {
             motorIntake.setPower(1);
-            servoTrigger.setPosition(SERVO_CLOSE);
+            servoGayte.setPosition(SERVO_CLOSE);
         } else {
             motorIntake.setPower(0);
-            servoTrigger.setPosition(SERVO_OPEN);
+            servoGayte.setPosition(SERVO_OPEN);
         }
     }
 
@@ -141,9 +154,9 @@ public class OuttakeFR {
 
     public void setServoPosition(boolean open) {
         if (open) {
-            servoTrigger.setPosition(SERVO_OPEN);
+            servoGayte.setPosition(SERVO_OPEN);
         } else {
-            servoTrigger.setPosition(SERVO_CLOSE);
+            servoGayte.setPosition(SERVO_CLOSE);
         }
     }
 

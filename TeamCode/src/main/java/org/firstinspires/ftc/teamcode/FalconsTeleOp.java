@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.UtilityOctoQuadConfigMenu;
 import org.firstinspires.ftc.teamcode.Mechanisms.ColorSensor;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -49,6 +50,7 @@ public class FalconsTeleOp extends OpMode {
     public static double expoX = 0.4, expoY = 0.4, expoAng = 0.3;
     public static double launch_p = 60, launch_d = 0, launch_f = 13.88;
     public static double heading_p = 1.7, heading_d = 0.2, heading_f = 0;
+    public static double timeOfFlight;
 
     double headingError;
 
@@ -120,21 +122,22 @@ public class FalconsTeleOp extends OpMode {
             targetCurrentY = targetRedY;
         }
 
-        double targetHeading = Math.atan2(
-                targetCurrentY - currentY,
-                targetCurrentX - currentX
-        );
         double distance = calculateDistance(currentX, currentY, targetCurrentX, targetCurrentY);
 
         double[] targetCurrentAdjusted = getAdjustedTarget(
                 targetCurrentX, targetCurrentY,
-                currentX, currentY,
-                distance / 320
+                velX, velY,
+                timeOfFlight = calculateTimeOfFlight(1.7142857143*launcherVel, distance)
         );
         if (correctedTargetToggle) {
             targetCurrentX = targetCurrentAdjusted[0];
             targetCurrentY = targetCurrentAdjusted[1];
         }
+
+        double targetHeading = Math.atan2(
+                targetCurrentY - currentY,
+                targetCurrentX - currentX
+        );
 
         distance = calculateDistance(currentX, currentY, targetCurrentX, targetCurrentY);
 
@@ -254,6 +257,11 @@ public class FalconsTeleOp extends OpMode {
         motorLaunch1.setVelocity(launchVel * 0.95);
         motorLaunch2.setVelocity(launchVel * 0.95);
 
+        if (inFar) {
+            motorLaunch1.setVelocity(launchVel * 0.97);
+            motorLaunch2.setVelocity(launchVel * 0.97);
+        }
+
 
         // *************    AUTO LAUNCH    *************
         boolean goingSlow = Math.hypot(velX, velY) < 2;
@@ -286,11 +294,13 @@ public class FalconsTeleOp extends OpMode {
 
         // *************    TELEMETRY    *************
         telemetry.addData("launchVel",  motorLaunch1.getVelocity());
-        telemetry.addData("launchPow",  motorLaunch1.getPower());
+        telemetry.addData("timeOfFlight", timeOfFlight);
         telemetry.addLine();
         telemetry.addData("X", currentX);
         telemetry.addData("Y", currentY);
         telemetry.addData("H", pinpoint.getHeading(AngleUnit.DEGREES));
+        telemetry.addLine();
+        telemetry.addData("move-n-shoot", correctedTargetToggle);
         telemetry.addLine();
         if (autoLaunchToggle) {
             telemetry.addLine("AUTO LAUNCH");
@@ -319,6 +329,9 @@ public class FalconsTeleOp extends OpMode {
         telemetry.addData("targetHeading", Math.toDegrees(targetHeading));
         telemetry.addData("distance", distance);
         telemetry.addData("balls Counted", counter.getCount());
+        telemetry.addLine();
+        telemetry.addData("targetX", targetCurrentX);
+        telemetry.addData("targetY", targetCurrentY);
 
         telemetry.update();
 
@@ -425,6 +438,26 @@ public class FalconsTeleOp extends OpMode {
         motorRB.setPower(powerRB /max * speedPercent);
     }
 
+    public static double calculateTimeOfFlight(double inputRPM, double distanceInches) {
+        // Ball and gear constants
+        double diameterIn = 96.0 / 25.4;
+        double circumferenceIn = Math.PI * diameterIn;
+        double launchSpeed = (inputRPM * (8.0 / 10.0) * circumferenceIn) / 60.0;
+
+        // Velocity components at 38 degrees
+        double vx = launchSpeed * Math.cos(Math.toRadians(38.0));
+        double vy = launchSpeed * Math.sin(Math.toRadians(38.0));
+
+        // Time to reach target horizontally: t = distance / vx
+        double t = distanceInches / vx;
+
+        // Verify ball is still airborne (above 36in goal height) at that time
+        // y(t) = vy*t - 0.5*g*t²
+        double height = vy * t - 0.5 * 386.09 * t * t;
+        if (height < 36.0) return -1; // ball lands short of goal height
+
+        return t;
+    }
 
 
     private double applyExpo(double input, double expo) {

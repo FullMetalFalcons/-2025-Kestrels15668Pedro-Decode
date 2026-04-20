@@ -120,16 +120,6 @@ public class FalconsTeleOp extends OpMode {
             targetCurrentY = targetRedY;
         }
 
-        double velLateral = getVLateral(
-                velX, velY,
-                currentX, currentY,
-                targetCurrentX, targetCurrentY
-        );
-        double velAlong = getVAlong(
-                velX, velY,
-                currentX, currentY,
-                targetCurrentX, targetCurrentY
-        );
         double targetHeading = Math.atan2(
                 targetCurrentY - currentY,
                 targetCurrentX - currentX
@@ -139,7 +129,6 @@ public class FalconsTeleOp extends OpMode {
         double[] targetCurrentAdjusted = getAdjustedTarget(
                 targetCurrentX, targetCurrentY,
                 currentX, currentY,
-                velAlong, velLateral,
                 distance / 320
         );
         if (correctedTargetToggle) {
@@ -493,60 +482,16 @@ public class FalconsTeleOp extends OpMode {
         return 0.08945 * Math.pow(distance, 2) - 10.85 * distance + 1873.23;
     }
 
-    public static double getVAlong(
-            double velX, double velY,
-            double robotX, double robotY,
-            double targetX, double targetY) {
+    public static double[] getAdjustedTarget( 
+        double targetX, double targetY,
+        double velX,    double velY,
+        double timeOfFlight) 
+    {
 
-        double dx = targetX - robotX;
-        double dy = targetY - robotY;
-        double dist = Math.hypot(dx, dy);
+    double adjustedX = targetX - velX * timeOfFlight;
+    double adjustedY = targetY - velY * timeOfFlight;
 
-        double alongX = dx / dist;
-        double alongY = dy / dist;
+    return new double[] { adjustedX, adjustedY };
 
-        return velX * alongX + velY * alongY;
-    }
-
-    public static double getVLateral(
-            double velX, double velY,
-            double robotX, double robotY,
-            double targetX, double targetY) {
-
-        double dx = targetX - robotX;
-        double dy = targetY - robotY;
-        double dist = Math.hypot(dx, dy);
-
-        double lateralX = -dy / dist;
-        double lateralY =  dx / dist;
-
-        return velX * lateralX + velY * lateralY;
-    }
-
-    public static double[] getAdjustedTarget(
-            double targetX, double targetY,
-            double robotX,  double robotY,
-            double vAlong,  double vLateral,
-            double timeOfFlight) {
-
-        double dx   = targetX - robotX;
-        double dy   = targetY - robotY;
-        double dist = Math.hypot(dx, dy);
-
-        // Unit vectors
-        double alongX   =  dx / dist;
-        double alongY   =  dy / dist;
-        double lateralX = -alongY;
-        double lateralY =  alongX;
-
-        // How far the robot moves in each direction during flight
-        double shiftAlong   = vAlong   * timeOfFlight;
-        double shiftLateral = vLateral * timeOfFlight;
-
-        // Shift the target in the opposite direction to compensate
-        double adjustedX = targetX - shiftAlong * alongX - shiftLateral * lateralX;
-        double adjustedY = targetY - shiftAlong * alongY - shiftLateral * lateralY;
-
-        return new double[] { adjustedX, adjustedY };
     }
 }

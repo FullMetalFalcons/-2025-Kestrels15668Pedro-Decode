@@ -131,14 +131,15 @@ public class FalconsTeleOp extends OpMode {
         if (correctedTargetToggle) {
             targetCurrentX = targetCurrentAdjusted[0];
             targetCurrentY = targetCurrentAdjusted[1];
+            distance = Math.max(calculateDistance(currentX, currentY, targetCurrentX, targetCurrentY), 1);
         }
 
-        double targetHeading = Math.atan2(
-                targetCurrentY - currentY,
-                targetCurrentX - currentX
-        );
-
-        distance = calculateDistance(currentX, currentY, targetCurrentX, targetCurrentY);
+        if (distance > 1.0) {
+            double targetHeading = Math.atan2(
+                    targetCurrentY - currentY,
+                    targetCurrentX - currentX
+            );
+        };
 
 
         // *************    MECANUM    *************

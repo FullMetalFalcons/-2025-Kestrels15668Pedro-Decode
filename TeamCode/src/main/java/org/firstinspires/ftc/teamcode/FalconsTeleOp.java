@@ -36,10 +36,10 @@ public class FalconsTeleOp extends OpMode {
     ColorRangeSensor colorSensor;
     ColorSensor counter = new ColorSensor();
     TelemetryManager telemetryManager;
+    public static double heading_p = 1.6, heading_d = 0.2, heading_f = 0;
     PIDFCoefficients  launcherPIDF;
-    com.pedropathing.control.PIDFCoefficients headingPIDF;
-    PIDFController headingPIDF_Controller = new PIDFController(new com.pedropathing.control.PIDFCoefficients(1.7,0,0.2,0));
-
+    com.pedropathing.control.PIDFCoefficients headingPIDF = new com.pedropathing.control.PIDFCoefficients(heading_p, 0, heading_d, heading_f);
+    PIDFController headingPIDF_Controller = new PIDFController(headingPIDF);
 
     // Set toggles
     boolean blue = false, launchRun = false, autoLaunchToggle = true, correctedTargetToggle = false;
@@ -47,16 +47,15 @@ public class FalconsTeleOp extends OpMode {
     // Configurables
     public static double launcherVel =  1800;
     public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
-    public static double expoX = 0.4, expoY = 0.4, expoAng = 0.3;
+    public static double expoX = 0.3, expoY = 0.3, expoAng = 0.3;
     public static double launch_p = 60, launch_d = 0, launch_f = 13.88;
-    public static double heading_p = 1.7, heading_d = 0.2, heading_f = 0;
     public static double timeOfFlight;
 
     double headingError;
 
     double targetBlueX = 10, targetBlueY = 140;
-    double targetRedX = 134, targetRedY = 140;
-    double targetCurrentX = 134, targetCurrentY = 140;
+    double targetRedX = 140, targetRedY = 140;
+    double targetCurrentX = 140, targetCurrentY = 140;
 
     public static Pose2D startingPose = new Pose2D(DistanceUnit.INCH, 72,72,AngleUnit.DEGREES, 0);
 
@@ -165,8 +164,8 @@ public class FalconsTeleOp extends OpMode {
             targetTrack = false;
         }
 
-        powerX = applyDeadZone(gamepad1.left_stick_x, 0.11);
-        powerY = applyDeadZone(-gamepad1.left_stick_y, 0.045);
+        powerX = applyDeadZone(applyExpo(gamepad1.left_stick_x,expoX), 0.11);
+        powerY = applyDeadZone(applyExpo(-gamepad1.left_stick_y,expoY), 0.045);
         powerAng = powerAngle;
 
         mecanumDriveCode(powerY, powerX, powerAng, 1.0);
@@ -176,8 +175,8 @@ public class FalconsTeleOp extends OpMode {
         // Find 4 corners pos
         double cosH = Math.cos(currentHeading);
         double sinH = Math.sin(currentHeading);
-        double axX = cosH * 11;
-        double axY = sinH * 7;
+        double axX = cosH * 9;
+        double axY = sinH * 9;
         double ayX = -sinH * 8;
         double ayY = cosH * 8;
 
@@ -295,6 +294,8 @@ public class FalconsTeleOp extends OpMode {
         // *************    TELEMETRY    *************
         telemetry.addData("launchVel",  motorLaunch1.getVelocity());
         telemetry.addData("timeOfFlight", timeOfFlight);
+        telemetry.addData("headingPIDF", headingPIDF);
+        telemetry.addData("headingPIDFController", headingPIDF_Controller.getCoefficients());
         telemetry.addLine();
         telemetry.addData("X", currentX);
         telemetry.addData("Y", currentY);

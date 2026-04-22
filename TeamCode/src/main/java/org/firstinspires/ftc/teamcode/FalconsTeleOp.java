@@ -36,10 +36,9 @@ public class FalconsTeleOp extends OpMode {
     ColorRangeSensor colorSensor;
     ColorSensor counter = new ColorSensor();
     TelemetryManager telemetryManager;
-    public static double heading_p = 1.6, heading_d = 0.2, heading_f = 0;
+    public static double heading_p = 1.7, heading_d = 0.2, heading_f = 0;
     PIDFCoefficients  launcherPIDF;
-    com.pedropathing.control.PIDFCoefficients headingPIDF = new com.pedropathing.control.PIDFCoefficients(heading_p, 0, heading_d, heading_f);
-    PIDFController headingPIDF_Controller = new PIDFController(headingPIDF);
+    PIDFController headingPIDF_Controller = new PIDFController(new com.pedropathing.control.PIDFCoefficients(1.5, 0, 0.1, 0));
 
     // Set toggles
     boolean blue = false, launchRun = false, autoLaunchToggle = true, correctedTargetToggle = false;
@@ -76,8 +75,7 @@ public class FalconsTeleOp extends OpMode {
         colorSensor = hardwareMap.get(ColorRangeSensor.class, "sensorColorRange");
         counter.init(colorSensor);
 
-        headingPIDF = new com.pedropathing.control.PIDFCoefficients(heading_p,0,heading_d,heading_f);
-        headingPIDF_Controller.setCoefficients(headingPIDF);
+        //headingPIDF_Controller.setCoefficients(new com.pedropathing.control.PIDFCoefficients(heading_p, 0, heading_d, heading_f));
 
         telemetryManager = PanelsTelemetry.INSTANCE.getTelemetry();
     }
@@ -131,15 +129,13 @@ public class FalconsTeleOp extends OpMode {
         if (correctedTargetToggle) {
             targetCurrentX = targetCurrentAdjusted[0];
             targetCurrentY = targetCurrentAdjusted[1];
-            distance = Math.max(calculateDistance(currentX, currentY, targetCurrentX, targetCurrentY), 1);
+            distance = calculateDistance(currentX, currentY, targetCurrentX, targetCurrentY);
         }
 
-        if (distance > 1.0) {
-            double targetHeading = Math.atan2(
-                    targetCurrentY - currentY,
-                    targetCurrentX - currentX
-            );
-        };
+        double targetHeading = Math.atan2(
+                targetCurrentY - currentY,
+                targetCurrentX - currentX
+        );
 
 
         // *************    MECANUM    *************
@@ -150,8 +146,10 @@ public class FalconsTeleOp extends OpMode {
         boolean targetTrack;
         double powerAngle;
 
-        headingPIDF = new com.pedropathing.control.PIDFCoefficients(heading_p, 0, heading_d, heading_f);
-        headingPIDF_Controller.setCoefficients(headingPIDF);
+        /*headingPIDF_Controller.setCoefficients(new com.pedropathing.control.PIDFCoefficients(heading_p, 0, heading_d, heading_f));
+        headingPIDF_Controller.setP(heading_p);
+        headingPIDF_Controller.setD(heading_d);
+        headingPIDF_Controller.setF(heading_f);*/
 
         headingError = determineRotationDirection(pinpoint.getHeading(AngleUnit.RADIANS), targetHeading);
         headingPIDF_Controller.updateError(headingError);
@@ -295,7 +293,6 @@ public class FalconsTeleOp extends OpMode {
         // *************    TELEMETRY    *************
         telemetry.addData("launchVel",  motorLaunch1.getVelocity());
         telemetry.addData("timeOfFlight", timeOfFlight);
-        telemetry.addData("headingPIDF", headingPIDF);
         telemetry.addData("headingPIDFController", headingPIDF_Controller.getCoefficients());
         telemetry.addLine();
         telemetry.addData("X", currentX);
@@ -456,7 +453,7 @@ public class FalconsTeleOp extends OpMode {
         // Verify ball is still airborne (above 36in goal height) at that time
         // y(t) = vy*t - 0.5*g*t²
         double height = vy * t - 0.5 * 386.09 * t * t;
-        if (height < 36.0) return -1; // ball lands short of goal height
+        if (distanceInches < 50.8) return 0.12; // ball lands short of goal height
 
         return t;
     }

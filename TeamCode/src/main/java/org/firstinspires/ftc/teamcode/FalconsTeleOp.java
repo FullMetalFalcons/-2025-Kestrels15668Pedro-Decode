@@ -6,7 +6,6 @@ import static com.pedropathing.math.MathFunctions.normalizeAngle;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-import com.pedropathing.control.PIDFController;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -17,8 +16,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.UtilityOctoQuadConfigMenu;
 import org.firstinspires.ftc.teamcode.Mechanisms.ColorSensor;
+import org.firstinspires.ftc.teamcode.Mechanisms.HeadingPIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
@@ -36,9 +35,8 @@ public class FalconsTeleOp extends OpMode {
     ColorRangeSensor colorSensor;
     ColorSensor counter = new ColorSensor();
     TelemetryManager telemetryManager;
-    public static double heading_p = 1.7, heading_d = 0.2, heading_f = 0;
     PIDFCoefficients  launcherPIDF;
-    PIDFController headingPIDF_Controller = new PIDFController(new com.pedropathing.control.PIDFCoefficients(1.5, 0, 0.1, 0));
+    HeadingPIDFController headingPIDFController = new HeadingPIDFController();
 
     // Set toggles
     boolean blue = false, launchRun = false, autoLaunchToggle = true, correctedTargetToggle = false;
@@ -47,6 +45,7 @@ public class FalconsTeleOp extends OpMode {
     public static double launcherVel =  1800;
     public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
     public static double expoX = 0.3, expoY = 0.3, expoAng = 0.3;
+    public static double heading_p = 1.7, heading_d = 0.2, heading_f = 0;
     public static double launch_p = 60, launch_d = 0, launch_f = 13.88;
     public static double timeOfFlight;
 
@@ -75,7 +74,7 @@ public class FalconsTeleOp extends OpMode {
         colorSensor = hardwareMap.get(ColorRangeSensor.class, "sensorColorRange");
         counter.init(colorSensor);
 
-        //headingPIDF_Controller.setCoefficients(new com.pedropathing.control.PIDFCoefficients(heading_p, 0, heading_d, heading_f));
+        headingPIDFController.PIDFController(heading_p, 0 ,heading_d, heading_f);
 
         telemetryManager = PanelsTelemetry.INSTANCE.getTelemetry();
     }
@@ -121,6 +120,8 @@ public class FalconsTeleOp extends OpMode {
 
         double distance = calculateDistance(currentX, currentY, targetCurrentX, targetCurrentY);
 
+
+        //    *************    SHOOT AND MOVE    *************
         double[] targetCurrentAdjusted = getAdjustedTarget(
                 targetCurrentX, targetCurrentY,
                 velX, velY,
@@ -146,16 +147,12 @@ public class FalconsTeleOp extends OpMode {
         boolean targetTrack;
         double powerAngle;
 
-        /*headingPIDF_Controller.setCoefficients(new com.pedropathing.control.PIDFCoefficients(heading_p, 0, heading_d, heading_f));
-        headingPIDF_Controller.setP(heading_p);
-        headingPIDF_Controller.setD(heading_d);
-        headingPIDF_Controller.setF(heading_f);*/
+        headingPIDFController.PIDFController(heading_p, 0, heading_d, heading_f);
 
         headingError = determineRotationDirection(pinpoint.getHeading(AngleUnit.RADIANS), targetHeading);
-        headingPIDF_Controller.updateError(headingError);
+        powerAngle = headingPIDFController.run(headingError);
 
         if (gamepad1.left_trigger > 0.2 || gamepad2.left_trigger > 0.2) {
-            powerAngle = headingPIDF_Controller.run();
             powerAngle = Math.max(-1.0, Math.min(1.0, powerAngle));
             targetTrack = true;
         } else {
@@ -176,8 +173,8 @@ public class FalconsTeleOp extends OpMode {
         double sinH = Math.sin(currentHeading);
         double axX = cosH * 9;
         double axY = sinH * 9;
-        double ayX = -sinH * 8;
-        double ayY = cosH * 8;
+        double ayX = -sinH * 7;
+        double ayY = cosH * 7;
 
         double[][] corners = {
                 {currentX + axX + ayX, currentY + axY + ayY},  // front left
@@ -293,7 +290,6 @@ public class FalconsTeleOp extends OpMode {
         // *************    TELEMETRY    *************
         telemetry.addData("launchVel",  motorLaunch1.getVelocity());
         telemetry.addData("timeOfFlight", timeOfFlight);
-        telemetry.addData("headingPIDFController", headingPIDF_Controller.getCoefficients());
         telemetry.addLine();
         telemetry.addData("X", currentX);
         telemetry.addData("Y", currentY);

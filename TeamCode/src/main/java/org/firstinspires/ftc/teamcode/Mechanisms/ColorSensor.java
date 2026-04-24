@@ -9,7 +9,7 @@ public class ColorSensor {
     ColorRangeSensor colorSensor;
 
     // Tune this to match your sensor placement
-    private static final double DETECT_DISTANCE_IN = 5.0;
+    private static final double DETECT_DISTANCE_IN = 3.0;
 
     int artifactCount = 0;
     boolean ballWasDetected = false;

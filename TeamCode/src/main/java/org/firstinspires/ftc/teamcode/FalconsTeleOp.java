@@ -45,7 +45,7 @@ public class FalconsTeleOp extends OpMode {
     public static double launcherVel =  1800;
     public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
     public static double expoX = 0.3, expoY = 0.3, expoAng = 0.3;
-    public static double heading_p = 1.7, heading_d = 0.2, heading_f = 0;
+    public static double heading_p = 1, heading_d = 0.11, heading_f = 0.038;
     public static double launch_p = 60, launch_d = 0, launch_f = 13.88;
     public static double timeOfFlight;
 
@@ -249,23 +249,24 @@ public class FalconsTeleOp extends OpMode {
             launchVel = 0;
         }
 
-        motorLaunch1.setVelocity(launchVel * 0.95);
-        motorLaunch2.setVelocity(launchVel * 0.95);
+        motorLaunch1.setVelocity(launchVel * 0.96);
+        motorLaunch2.setVelocity(launchVel * 0.96);
 
         if (inFar) {
-            motorLaunch1.setVelocity(launchVel * 0.97);
-            motorLaunch2.setVelocity(launchVel * 0.97);
+            motorLaunch1.setVelocity(launchVel * 0.972);
+            motorLaunch2.setVelocity(launchVel * 0.972);
         }
 
 
         // *************    AUTO LAUNCH    *************
         boolean goingSlow = Math.hypot(velX, velY) < 2;
+        boolean facingTarget = (inClose) ? Math.abs(headingError) < 7 : inFar && Math.abs(headingError) < 2;
 
         if (gamepad1.dpadRightWasPressed() || gamepad2.dpadRightWasPressed()) {
             autoLaunchToggle = !autoLaunchToggle;
         }
 
-        if (autoLaunchToggle && (inClose || inFar) && targetTrack && Math.abs(targetHeading) < 10 && (motorLaunch1.getVelocity() > targetVel - 500) && (goingSlow || correctedTargetToggle)) {
+        if (autoLaunchToggle && (inClose || inFar) && targetTrack && facingTarget && (motorLaunch1.getVelocity() > targetVel - 500) && (goingSlow || correctedTargetToggle)) {
             motorIntake.setPower(1);
             servoGayte.setPosition(SERVO_OPEN);
             counter.resetCount();
@@ -276,13 +277,14 @@ public class FalconsTeleOp extends OpMode {
         // *************    INDICATOR LIGHT    *************
         double RED = 0.277, YELLOW = 0.388, GREEN = 0.500;
 
-        lightIndicator.setPosition(0);
         if (artifacts == 1) {
             lightIndicator.setPosition(RED);
         } else if (artifacts == 2) {
             lightIndicator.setPosition(YELLOW);
         } else if (artifacts >= 3) {
             lightIndicator.setPosition(GREEN);
+        } else {
+            lightIndicator.setPosition(0);
         }
 
 
@@ -510,14 +512,16 @@ public class FalconsTeleOp extends OpMode {
         return 0.08945 * Math.pow(distance, 2) - 10.85 * distance + 1873.23;
     }
 
-    public static double[] getAdjustedTarget( 
+    public static double multiplier = 3.7;
+
+    public static double[] getAdjustedTarget(
         double targetX, double targetY,
         double velX,    double velY,
         double timeOfFlight) 
     {
 
-    double adjustedX = targetX - velX * timeOfFlight;
-    double adjustedY = targetY - velY * timeOfFlight;
+    double adjustedX = targetX - velX * timeOfFlight * multiplier;
+    double adjustedY = targetY - velY * timeOfFlight * multiplier;
 
     return new double[] { adjustedX, adjustedY };
 

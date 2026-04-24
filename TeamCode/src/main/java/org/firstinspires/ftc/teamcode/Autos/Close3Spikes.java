@@ -30,7 +30,7 @@ public class Close3Spikes extends OpMode {
     final double AUTO_LENGTH_SECONDS = 30.0;
     final double AUTO_END_BUFFER_SECONDS = 1.0;
     public static int INTAKE_FROM_GATE = 3;
-    int intakeFromGate = 4;
+    int intakeFromGate = 3;
 
 
     OuttakeFR outtake = new OuttakeFR();
@@ -38,35 +38,35 @@ public class Close3Spikes extends OpMode {
 
 
     // *************     POSES    *************
-    private Pose startPose = new Pose(22, 122.6, Math.toRadians(145));
-    private Pose startControlPoint = new Pose(53, 92);
-    private Pose launchPosePreload = new Pose(61, 82,Math.toRadians(137));
+    private Pose startPose = new Pose(22, 122.8, Math.toRadians(142));
+    private Pose startControlPoint = new Pose(60, 86);
+    private Pose launchPosePreload = new Pose(60, 82,Math.toRadians(134));
 
 
-    private Pose intake1ControlPoint =  new Pose(36, 76);
-    private Pose intake1Pose = new Pose(24, 84, Math.toRadians(180));
+    private Pose intake1ControlPoint =  new Pose(51.5, 65.5);
+    private Pose intake1Pose = new Pose(23, 84, Math.toRadians(180));
     private Pose launch1ControlPoint =  new Pose(45, 78);
-    private Pose launchPose1 = new Pose(61,84,Math.toRadians(137));
+    private Pose launchPose1 = new Pose(60,84,Math.toRadians(134));
 
 
     private Pose intake2ControlPoint = new Pose(50, 55);
-    private Pose intake2Pose =  new Pose(22, 60, Math.toRadians(185));
+    private Pose intake2Pose =  new Pose(21, 57, Math.toRadians(185));
     private Pose launch2ControlPoint = new Pose(42, 63);
-    private Pose launchPose2 = new Pose(61,80.5,Math.toRadians(137));
+    private Pose launchPose2 = new Pose(60,80.5,Math.toRadians(134));
 
 
     private Pose intakeRampControlPoint = new Pose(28, 48);
     private Pose intakeRampReadyPose = new Pose(22, 60, Math.toRadians(140));
-    private Pose intakeRampPose = new Pose(14.2,58.5, Math.toRadians(143.4));
+    private Pose intakeRampPose = new Pose(14,59.6, Math.toRadians(140.9));
     private Pose launchRampControlPoint = new Pose(25.5, 53);
-    private Pose launchPoseRamp = new Pose(61,80.5,Math.toRadians(137));
+    private Pose launchPoseRamp = new Pose(60,80.5,Math.toRadians(134));
 
 
     private Pose intake3ControlPoint = new Pose(59.5, 55);
     private Pose intake3ReadyPose = new Pose(50, 50, Math.toRadians(220));
     private Pose intake3Pose = new Pose(22, 36, Math.toRadians(220));
     private Pose launch3ControlPoint = new Pose(48, 48);
-    private Pose launchPose3 = new Pose(60,80.5,Math.toRadians(137));
+    private Pose launchPose3 = new Pose(60,80.5,Math.toRadians(134));
 
 
     private Pose leavePose = new Pose(44, 80, Math.toRadians(140));
@@ -224,21 +224,24 @@ public class Close3Spikes extends OpMode {
         switch (pathState) {
             case 0:
                 if (delayTimer.seconds() > delaySeconds) {
-                    outtake.setOuttakeVelocity(false);
-                    follower.followPath(launchPathPreload,true);
-                    pathState = 1;
-                }
-                break;
-
-            case 1:
-                if (!follower.isBusy()) {
+                    outtake.close = true;
+                    outtake.far = false;
+                    outtake.setOuttakeVelocity(1580);
                     outtake.fireShots(3);
+                    follower.followPath(launchPathPreload,true);
                     pathState = 2;
                 }
                 break;
 
+            /*case 1:
+                if (!follower.isBusy()) {
+                    outtake.fireShots(3);
+                    pathState = 2;
+                }
+                break;*/
+
             case 2:
-                if (!outtake.isBusy()) {
+                if (!outtake.isBusy() && !follower.isBusy()) {
                     follower.followPath(intakeSpike1, true);
                     outtake.setIntakePower(true);
                     pathState = 3;

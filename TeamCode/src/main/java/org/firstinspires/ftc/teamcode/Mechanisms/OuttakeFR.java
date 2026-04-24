@@ -15,7 +15,7 @@ public class OuttakeFR {
     private ElapsedTime stateTimer = new ElapsedTime();
 
     public double launchVel;
-    boolean far, close;
+    public boolean far, close;
 
 
     private enum LaunchState {

@@ -24,7 +24,7 @@ public class HeadingPIDFController {
 
     public double run(double error) {
         double currentTime = System.nanoTime() / 1e9;
-        double deltaTime = (lastTime == 0) ? 0 : (currentTime - lastTime);
+        double deltaTime = (lastTime == 0) ? 0.02 : (currentTime - lastTime);
 
         // Proportional
         double P = kP * error;

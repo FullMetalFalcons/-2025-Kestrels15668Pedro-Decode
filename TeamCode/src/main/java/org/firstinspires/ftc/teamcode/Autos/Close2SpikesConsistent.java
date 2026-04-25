@@ -243,7 +243,7 @@ public class Close2SpikesConsistent extends OpMode {
 
             case 3:
                 if (!follower.isBusy()) {
-                    follower.followPath(intakeSpike1, true);
+                    follower.followPath(intakeSpike1, 0.85,true);
                     outtake.setIntakePower(true);
                     pathState = 4;
                     timer.reset();
@@ -252,7 +252,7 @@ public class Close2SpikesConsistent extends OpMode {
 
             case 4:
                 if (!follower.isBusy()) {
-                    follower.followPath(hitGate1, true);
+                    follower.followPath(hitGate1, 0.8,true);
                     pathState = 5;
                     timer.reset();
                 }
@@ -288,8 +288,8 @@ public class Close2SpikesConsistent extends OpMode {
                 break;
 
             case 8:
-                if (!outtake.isBusy()) {
-                    follower.followPath(intakeSpike2,true);
+                if (!follower.isBusy()) {
+                    follower.followPath(intakeSpike2,0.85,true);
                     outtake.setIntakePower(true);
                     pathState = 9;
                 }
@@ -297,7 +297,7 @@ public class Close2SpikesConsistent extends OpMode {
 
             case 9:
                 if (!follower.isBusy()) {
-                    follower.followPath(hitGate2, true);
+                    follower.followPath(hitGate2, 0.8, true);
                     pathState = 10;
                     timer.reset();
                 }
@@ -310,12 +310,12 @@ public class Close2SpikesConsistent extends OpMode {
                 if (!follower.isBusy()) {
                     follower.followPath(launchPath2, true);
                     pathState = 11;
+                    timer.reset();
                 }
                 break;
 
             case 11:
                 if (timer.seconds() > 0.5) {
-                    outtake.setIntakePower(false);
                     outtake.setOuttakeVelocity(false);
                 }
                 if (!follower.isBusy()) {

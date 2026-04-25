@@ -51,7 +51,7 @@ public class OuttakeFR {
         motorLaunch1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorLaunch2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        launcherPIDF = new PIDFCoefficients(60,0,0,13.88);
+        launcherPIDF = new PIDFCoefficients(50,0,0,13.88);
 
         motorLaunch1.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);
         motorLaunch2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, launcherPIDF);

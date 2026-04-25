@@ -44,19 +44,19 @@ public class Close3Spikes extends OpMode {
 
 
     private Pose intake1ControlPoint =  new Pose(51.5, 65.5);
-    private Pose intake1Pose = new Pose(23, 84, Math.toRadians(180));
+    private Pose intake1Pose = new Pose(21, 84, Math.toRadians(180));
     private Pose launch1ControlPoint =  new Pose(45, 78);
     private Pose launchPose1 = new Pose(60,84,Math.toRadians(134));
 
 
     private Pose intake2ControlPoint = new Pose(50, 55);
-    private Pose intake2Pose =  new Pose(21, 57, Math.toRadians(185));
+    private Pose intake2Pose =  new Pose(19, 57, Math.toRadians(185));
     private Pose launch2ControlPoint = new Pose(42, 63);
-    private Pose launchPose2 = new Pose(60,80.5,Math.toRadians(134));
+    private Pose launchPose2 = new Pose(60,80.5,Math.toRadians(138));
 
 
     private Pose intakeRampControlPoint = new Pose(28, 48);
-    private Pose intakeRampReadyPose = new Pose(22, 60, Math.toRadians(140));
+    private Pose intakeRampReadyPose = new Pose(22, 56, Math.toRadians(140));
     private Pose intakeRampPose = new Pose(14,59.6, Math.toRadians(140.9));
     private Pose launchRampControlPoint = new Pose(25.5, 53);
     private Pose launchPoseRamp = new Pose(60,80.5,Math.toRadians(134));
@@ -320,7 +320,7 @@ public class Close3Spikes extends OpMode {
                 break;
 
             case 84:
-                if (timer.seconds() > 0.6) {
+                if (timer.seconds() > 0.5) {
                     outtake.setIntakePower(false);
                     outtake.setOuttakeVelocity(false);
                 }

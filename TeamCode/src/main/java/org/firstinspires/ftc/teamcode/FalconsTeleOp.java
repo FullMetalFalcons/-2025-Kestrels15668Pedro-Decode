@@ -42,14 +42,15 @@ public class FalconsTeleOp extends OpMode {
     boolean blue = false, launchRun = false, autoLaunchToggle = true, correctedTargetToggle = false;
 
     // Configurables
-    public static double launcherVel =  1800;
+    public static double farVel =  1940, reverseVel = -800;
+    public static double closeMultiplier = 0.96;
     public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
     public static double expoX = 0.3, expoY = 0.3, expoAng = 0.3;
     public static double heading_p = 1, heading_d = 0.11, heading_f = 0.038;
     public static double launch_p = 60, launch_d = 0, launch_f = 13.88;
     public static double timeOfFlight;
 
-    double headingError;
+    double headingError, targetVel = 1600;
 
     double targetBlueX = 10, targetBlueY = 140;
     double targetRedX = 140, targetRedY = 140;
@@ -66,8 +67,8 @@ public class FalconsTeleOp extends OpMode {
         initLaunchMotors(DcMotor.ZeroPowerBehavior.FLOAT);
         initIntakeMotor();
 
-        servoGayte = (Servo) hardwareMap.servo.get("gayte");
-        lightIndicator = (Servo) hardwareMap.servo.get("light");
+        servoGayte = hardwareMap.servo.get("gayte");
+        lightIndicator = hardwareMap.servo.get("light");
 
         // Init any other systems
         initPinpoint();
@@ -84,8 +85,15 @@ public class FalconsTeleOp extends OpMode {
     public void loop() {
 
         // *************    ODOMETRY    *************
-        if (gamepad1.dpadUpWasPressed()) {
-            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 72, 72, AngleUnit.DEGREES, 0));
+        if (gamepad1.dpadUpWasPressed() || gamepad2.dpadUpWasPressed()) {
+            if (blue) {
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 13.89, 9.38, AngleUnit.DEGREES, 178.24));
+            } else {
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 131.65, 8.22, AngleUnit.DEGREES, 0.91));
+            }
+        }
+        if (gamepad1.xWasPressed() || gamepad2.xWasPressed()) {
+            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 72, 9.25, AngleUnit.DEGREES,90));
         }
 
         pinpoint.update();
@@ -125,7 +133,7 @@ public class FalconsTeleOp extends OpMode {
         double[] targetCurrentAdjusted = getAdjustedTarget(
                 targetCurrentX, targetCurrentY,
                 velX, velY,
-                timeOfFlight = calculateTimeOfFlight(1.7142857143*launcherVel, distance)
+                timeOfFlight = calculateTimeOfFlight(1.7142857143*targetVel, distance)
         );
         if (correctedTargetToggle) {
             targetCurrentX = targetCurrentAdjusted[0];
@@ -228,7 +236,7 @@ public class FalconsTeleOp extends OpMode {
 
         // *************    LAUNCHER LOGIC    *************
         double launchVel;
-        double targetVel = runLaunchFormula(distance);
+        targetVel = runLaunchFormula(distance);
 
         launcherPIDF = new PIDFCoefficients(launch_p, 0, launch_d, launch_f);
 
@@ -240,21 +248,25 @@ public class FalconsTeleOp extends OpMode {
         }
 
         if (launchRun) {
-            launchVel = targetVel;
+            if (currentY < 42) {
+                launchVel = farVel;
+            } else {
+                launchVel = targetVel;
+            }
         } else if (gamepad2.a) {
-            launchVel = launcherVel;
-        } else if (gamepad2.x) {
-            launchVel = -1000;
+            launchVel = farVel;
+        } else if (gamepad1.b || gamepad2.b) {
+            launchVel = reverseVel;
         } else {
             launchVel = 0;
         }
 
-        motorLaunch1.setVelocity(launchVel * 0.96);
-        motorLaunch2.setVelocity(launchVel * 0.96);
-
         if (inFar) {
-            motorLaunch1.setVelocity(launchVel * 0.972);
-            motorLaunch2.setVelocity(launchVel * 0.972);
+            motorLaunch1.setVelocity(launchVel);
+            motorLaunch2.setVelocity(launchVel);
+        } else {
+            motorLaunch1.setVelocity(launchVel * closeMultiplier);
+            motorLaunch2.setVelocity(launchVel * closeMultiplier);
         }
 
 

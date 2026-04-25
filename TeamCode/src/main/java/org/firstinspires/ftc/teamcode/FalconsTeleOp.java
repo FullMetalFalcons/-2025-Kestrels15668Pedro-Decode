@@ -47,7 +47,7 @@ public class FalconsTeleOp extends OpMode {
     public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
     public static double expoX = 0.3, expoY = 0.3, expoAng = 0.3;
     public static double heading_p = 1, heading_d = 0.11, heading_f = 0.038;
-    public static double launch_p = 60, launch_d = 0, launch_f = 13.88;
+    public static double launch_p = 50, launch_d = 0, launch_f = 13.88;
     public static double timeOfFlight;
 
     double headingError, targetVel = 1600;

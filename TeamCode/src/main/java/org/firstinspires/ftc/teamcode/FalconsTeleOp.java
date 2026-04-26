@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Mechanisms.ColorSensor;
 import org.firstinspires.ftc.teamcode.Mechanisms.HeadingPIDFController;
@@ -35,11 +36,12 @@ public class FalconsTeleOp extends OpMode {
     ColorRangeSensor colorSensor;
     ColorSensor counter = new ColorSensor();
     TelemetryManager telemetryManager;
+    ElapsedTime gameTimer;
     PIDFCoefficients  launcherPIDF;
     HeadingPIDFController headingPIDFController = new HeadingPIDFController();
 
     // Set toggles
-    boolean blue = false, launchRun = false, autoLaunchToggle = true, correctedTargetToggle = false;
+    boolean blue = false, launchRun = false, autoLaunchToggle = true, correctedTargetToggle = false, timerStopToggle = true;
 
     // Configurables
     public static double farVel =  1940, reverseVel = -800;
@@ -80,6 +82,10 @@ public class FalconsTeleOp extends OpMode {
         telemetryManager = PanelsTelemetry.INSTANCE.getTelemetry();
     }
 
+    @Override
+    public void start() {
+        gameTimer.reset();
+    }
 
     @Override
     public void loop() {
@@ -168,9 +174,19 @@ public class FalconsTeleOp extends OpMode {
             targetTrack = false;
         }
 
-        powerX = applyDeadZone(applyExpo(gamepad1.left_stick_x,expoX), 0.11);
-        powerY = applyDeadZone(applyExpo(-gamepad1.left_stick_y,expoY), 0.045);
-        powerAng = powerAngle;
+        if (gamepad2.dpadRightWasPressed()) {
+            timerStopToggle = !timerStopToggle;
+        }
+
+        if (timerStopToggle && gameTimer.seconds() > 120) {
+            powerX = applyDeadZone(applyExpo(gamepad1.left_stick_x, expoX), 0.11);
+            powerY = applyDeadZone(applyExpo(-gamepad1.left_stick_y, expoY), 0.045);
+            powerAng = powerAngle;
+        } else {
+            powerX = 0;
+            powerY = 0;
+            powerAng = 0;
+        }
 
         mecanumDriveCode(powerY, powerX, powerAng, 1.0);
 
@@ -274,7 +290,7 @@ public class FalconsTeleOp extends OpMode {
         boolean goingSlow = Math.hypot(velX, velY) < 2;
         boolean facingTarget = (inClose) ? Math.abs(headingError) < 7 : inFar && Math.abs(headingError) < 2;
 
-        if (gamepad1.dpadRightWasPressed() || gamepad2.dpadRightWasPressed()) {
+        if (gamepad1.dpadRightWasPressed()) {
             autoLaunchToggle = !autoLaunchToggle;
         }
 
@@ -287,9 +303,13 @@ public class FalconsTeleOp extends OpMode {
 
 
         // *************    INDICATOR LIGHT    *************
-        double RED = 0.277, YELLOW = 0.388, GREEN = 0.500;
+        double RED = 0.277, YELLOW = 0.388, GREEN = 0.500, WHITE = 0.850;
 
-        if (artifacts == 1) {
+        if (gameTimer.seconds() > 100) {
+            lightIndicator.setPosition(WHITE);
+        } else if (gameTimer.seconds() > 120) {
+            lightIndicator.setPosition(RED);
+        } else if (artifacts == 1) {
             lightIndicator.setPosition(RED);
         } else if (artifacts == 2) {
             lightIndicator.setPosition(YELLOW);
@@ -304,6 +324,7 @@ public class FalconsTeleOp extends OpMode {
         // *************    TELEMETRY    *************
         telemetry.addData("launchVel",  motorLaunch1.getVelocity());
         telemetry.addData("timeOfFlight", timeOfFlight);
+        telemetry.addData("distance", distance);
         telemetry.addLine();
         telemetry.addData("X", currentX);
         telemetry.addData("Y", currentY);
@@ -335,8 +356,8 @@ public class FalconsTeleOp extends OpMode {
             telemetry.addLine("SUPER FAST VROOM VROOM");
         }
         telemetry.addLine();
+        telemetry.addData("game time", gameTimer.seconds());
         telemetry.addData("targetHeading", Math.toDegrees(targetHeading));
-        telemetry.addData("distance", distance);
         telemetry.addData("balls Counted", counter.getCount());
         telemetry.addLine();
         telemetry.addData("targetX", targetCurrentX);

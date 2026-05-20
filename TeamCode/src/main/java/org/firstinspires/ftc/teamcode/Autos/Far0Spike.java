@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
-@Autonomous(name = "Far1Spike", group = "Auto")
-public class Far1Spike extends OpMode {
+@Autonomous(name = "Far0Spike", group = "Auto")
+public class Far0Spike extends OpMode {
 
     public Follower follower;
     private int pathState;
@@ -30,7 +30,7 @@ public class Far1Spike extends OpMode {
     double delaySeconds = 0.0;
     final double AUTO_LENGTH_SECONDS = 30.0;
     final double AUTO_END_BUFFER_SECONDS = 1.0;
-    //int intakeFromTunnel = 4;
+    int intakeFromTunnel = 2;
 
 
     Servo indicatorLight;
@@ -40,33 +40,26 @@ public class Far1Spike extends OpMode {
 
     // *************     POSES    *************
     private Pose startPose = new Pose(53.5, 8.8, Math.toRadians(90));
-    private Pose launchPosePreload = new Pose(53.5,17, Math.toRadians(112.2));
-
-
-    private Pose intake3ControlPoint =  new Pose(48, 29);
-    private Pose intake3Pose = new Pose(23, 36.5, Math.toRadians(170));
-    private Pose launch3ControlPoint =  new Pose(51, 31.5);
-    private Pose launchPose3 = new Pose(53.5,17,Math.toRadians(112.2));
+    private Pose launchPosePreload = new Pose(53.5,17, Math.toRadians(112.1));
 
 
     private Pose intakeCornerControlPoint = new Pose(25.5, 23);
-    private Pose intakeCornerReadyPose = new Pose(17, 24, Math.toRadians(235));
+    private Pose intakeCornerReadyPose = new Pose(16.3, 20, Math.toRadians(235));
     private Pose intakeCornerPose = new Pose(13, 10, Math.toRadians(185));
-    private Pose launchCornerControlPoint = new Pose(25.5, 24);
-    private Pose launchPoseCorner = new Pose(53.5,17,Math.toRadians(112.2));
+    private Pose launchCornerControlPoint = new Pose(24, 21);
+    private Pose launchPoseCorner = new Pose(53.5,17,Math.toRadians(112.1));
 
     private Pose intakeTunnelControlPoint = new Pose(26.6, 9);
     private Pose intakeTunnelReadyPose = new Pose(17, 14.5, Math.toRadians(150));
     private Pose intakeTunnelReadyControlPoint = new Pose(10, 18);
     private Pose intakeTunnelPose = new Pose(10, 32, Math.toRadians(90));
     private Pose launchTunnelControlPoint = new Pose(29, 24);
-    private Pose launchPoseTunnel = new Pose(53.5,17,Math.toRadians(112.2));
-
+    private Pose launchPoseTunnel = new Pose(53.5,17,Math.toRadians(112.1));
 
     private Pose leavePose = new Pose(50, 20, Math.toRadians(135));
 
 
-    private PathChain launchPathPreload, intakeSpike3, launchPath3, intakeCornerReady, intakeCorner, launchPathCorner, intakeTunnelReady, intakeTunnel, launchPathTunnel, leavePath;
+    private PathChain launchPathPreload, intakeCornerReady, intakeCorner, launchPathCorner, intakeTunnelReady, intakeTunnel, launchPathTunnel, leavePath;
 
 
 
@@ -80,11 +73,6 @@ public class Far1Spike extends OpMode {
 
             startPose = startPose.mirror();
             launchPosePreload = launchPosePreload.mirror();
-
-            intake3ControlPoint = intake3ControlPoint.mirror();
-            intake3Pose = intake3Pose.mirror();
-            launch3ControlPoint = launch3ControlPoint.mirror();
-            launchPose3 = launchPose3.mirror();
 
             intakeCornerControlPoint = intakeCornerControlPoint.mirror();
             intakeCornerReadyPose = intakeCornerReadyPose.mirror();
@@ -165,36 +153,18 @@ public class Far1Spike extends OpMode {
         // ....... Launch Preload
         launchPathPreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, launchPosePreload))
-                .setLinearHeadingInterpolation(startPose.getHeading(), launchPosePreload.getHeading())
-                .setTimeoutConstraint(150)
-                .setVelocityConstraint(.05)
-                .build();
-
-        // ....... Intake/Launch 3
-        intakeSpike3 = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPosePreload, intake3ControlPoint, intake3Pose  ))
-                .setLinearHeadingInterpolation(launchPosePreload.getHeading(), intake3Pose.getHeading()).build();
-        launchPath3 = follower.pathBuilder()
-                .addPath(new BezierCurve(  intake3Pose, launch3ControlPoint, launchPose3  ))
-                .setLinearHeadingInterpolation(intake3Pose.getHeading(), launchPose3.getHeading())
-                .setTimeoutConstraint(150)
-                .setVelocityConstraint(.05)
-                .build();
-
+                .setLinearHeadingInterpolation(startPose.getHeading(), launchPosePreload.getHeading()).build();
 
         // ....... Intake/Launch Corner
         intakeCornerReady = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPose3, intakeCornerControlPoint, intakeCornerReadyPose  ))
-                .setLinearHeadingInterpolation(launchPose3.getHeading(), intakeCornerReadyPose.getHeading()).build();
+                .addPath(new BezierCurve(  launchPosePreload, intakeCornerControlPoint, intakeCornerReadyPose  ))
+                .setLinearHeadingInterpolation(launchPosePreload.getHeading(), intakeCornerReadyPose.getHeading()).build();
         intakeCorner = follower.pathBuilder()
                 .addPath(new BezierLine(  intakeCornerReadyPose, intakeCornerPose  ))
                 .setLinearHeadingInterpolation(intakeCornerReadyPose.getHeading(), intakeCornerPose.getHeading()).build();
         launchPathCorner = follower.pathBuilder()
                 .addPath(new BezierCurve(  intakeCornerPose, launchCornerControlPoint, launchPoseCorner  ))
-                .setLinearHeadingInterpolation(intakeCornerPose.getHeading(), launchPoseCorner.getHeading())
-                .setTimeoutConstraint(150)
-                .setVelocityConstraint(.05)
-                .build();
+                .setLinearHeadingInterpolation(intakeCornerPose.getHeading(), launchPoseCorner.getHeading()).build();
 
         // ....... Intake/Launch Tunnel
         intakeTunnelReady = follower.pathBuilder()
@@ -207,11 +177,10 @@ public class Far1Spike extends OpMode {
                 .addPath(new BezierCurve(  intakeTunnelPose, launchTunnelControlPoint, launchPoseTunnel  ))
                 .setLinearHeadingInterpolation(intakeTunnelPose.getHeading(), launchPoseTunnel.getHeading()).build();
 
-
         // ....... Leave Points
         leavePath = follower.pathBuilder()
-                .addPath(new BezierLine(  launchPoseTunnel, leavePose  ))
-                .setLinearHeadingInterpolation(launchPoseTunnel.getHeading(), leavePose.getHeading()).build();
+                .addPath(new BezierLine(  launchPoseCorner, leavePose  ))
+                .setLinearHeadingInterpolation(launchPoseCorner.getHeading(), leavePose.getHeading()).build();
     }
 
     public void autonomousPathUpdate() {
@@ -238,29 +207,75 @@ public class Far1Spike extends OpMode {
 
             case 2:
                 if (!outtake.isBusy()) {
-                    follower.followPath(intakeSpike3, 0.8, true);
+                    follower.followPath(intakeCornerReady,true);
                     outtake.setIntakePower(true);
-                    pathState = 3;
+                    pathState = 31;
                     timer.reset();
                 }
                 break;
 
-            case 3:
+            case 31:
                 if (!follower.isBusy()) {
-                    follower.followPath(launchPath3, true);
-                    pathState = 4;
+                    follower.followPath(intakeCorner, 0.7,true);
+                    pathState = 32;
+                }
+                break;
+
+            case 32:
+                if (timer.seconds() > 4) {
+                    follower.followPath(launchPathCorner, true);
+                    pathState = 33;
                     timer.reset();
                 }
                 break;
 
-            case 4:
+            case 33:
                 if (timer.seconds() > 0.5) {
                     outtake.setIntakePower(false);
                     outtake.setOuttakeVelocity(true);
                 }
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
+                    pathState = 41;
+                }
+                break;
+
+            case 41:
+                if (!outtake.isBusy()) {
+                    follower.followPath(intakeTunnelReady,true);
+                    outtake.setIntakePower(true);
+                    pathState = 42;
+                    timer.reset();
+                }
+                break;
+
+            case 42:
+                if (!follower.isBusy()) {
+                    follower.followPath(intakeTunnel, 0.7,true);
+                    pathState = 43;
+                }
+                break;
+
+            case 43:
+                if (timer.seconds() > 4) {
+                    follower.followPath(launchPathTunnel, true);
+                    outtake.setOuttakeVelocity(true);
+                    pathState = 44;
+                    timer.reset();
+                }
+                break;
+
+            case 44:
+                if (timer.seconds() > 0.5) {
+                    outtake.setIntakePower(false);
+                }
+                if (!follower.isBusy()) {
+                    outtake.fireShots(3);
+                    //if (intakeFromTunnel == 0) {
                     pathState = 5;
+                    //} else {
+                      //  pathState = 41;
+                    //}
                 }
                 break;
 
@@ -268,136 +283,99 @@ public class Far1Spike extends OpMode {
                 if (!outtake.isBusy()) {
                     follower.followPath(intakeCornerReady,true);
                     outtake.setIntakePower(true);
-                    pathState = 6;
+                    pathState = 61;
                     timer.reset();
                 }
                 break;
 
-            case 6:
+            case 61:
                 if (!follower.isBusy()) {
                     follower.followPath(intakeCorner, 0.7,true);
-                    pathState = 7;
+                    pathState = 62;
                 }
                 break;
 
-            case 7:
+            case 62:
                 if (timer.seconds() > 4) {
                     follower.followPath(launchPathCorner, true);
-                    pathState = 8;
+                    pathState = 63;
                     timer.reset();
                 }
                 break;
 
-            case 8:
+            case 63:
                 if (timer.seconds() > 0.5) {
                     outtake.setIntakePower(false);
                     outtake.setOuttakeVelocity(true);
                 }
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
-                    pathState = 91;
+                    pathState = 71;
                 }
                 break;
 
-            case 91:
-                if (!outtake.isBusy()) {
-                    follower.followPath(intakeTunnelReady,true);
-                    outtake.setIntakePower(true);
-                    pathState = 92;
-                    timer.reset();
-                }
-                break;
-
-            case 92:
-                if (!follower.isBusy()) {
-                    follower.followPath(intakeTunnel, 0.7,true);
-                    pathState = 93;
-                }
-                break;
-
-            case 93:
-                if (timer.seconds() > 4) {
-                    follower.followPath(launchPathTunnel, true);
-                    outtake.setOuttakeVelocity(true);
-                    pathState = 94;
-                    timer.reset();
-                }
-                break;
-
-            case 94:
-                if (timer.seconds() > 0.5) {
-                    outtake.setIntakePower(false);
-                }
-                if (!follower.isBusy()) {
-                    outtake.fireShots(3);
-                    //if (intakeFromTunnel == 0) {
-                        pathState = 10;
-                    //} else {
-                        //pathState = 91;
-                    //}
-                }
-                break;
-
-            case 10:
+            case 71:
                 if (!outtake.isBusy()) {
                     follower.followPath(intakeCornerReady,true);
                     outtake.setIntakePower(true);
-                    pathState = 11;
+                    pathState = 72;
                     timer.reset();
                 }
                 break;
 
-            case 11:
+            case 72:
                 if (!follower.isBusy()) {
                     follower.followPath(intakeCorner, 0.7,true);
-                    pathState = 12;
+                    pathState = 73;
                 }
                 break;
 
-            case 12:
+            case 73:
                 if (timer.seconds() > 4) {
                     follower.followPath(launchPathCorner, true);
-                    pathState = 13;
+                    pathState = 74;
                     timer.reset();
                 }
                 break;
 
-            case 13:
+            case 74:
                 if (timer.seconds() > 0.5) {
                     outtake.setIntakePower(false);
                     outtake.setOuttakeVelocity(true);
                 }
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
-                    pathState = 14;
+                    pathState = 81;
                 }
                 break;
 
-            case 14:
+            case 81:
                 if (!outtake.isBusy()) {
                     follower.followPath(intakeCornerReady,true);
                     outtake.setIntakePower(true);
-                    pathState = 15;
+                    pathState = 82;
                     timer.reset();
                 }
                 break;
 
-            case 15:
+            case 82:
                 if (!follower.isBusy()) {
                     follower.followPath(intakeCorner, 0.7,true);
-                    pathState = 16;
+                    pathState = 83;
+                    timer.reset();
                 }
                 break;
 
-            case 16:
+            case 83:
                 if (timer.seconds() > 4) {
-                    outtake.setOuttakeVelocity(0);
                     outtake.setIntakePower(0);
                     pathState = -1;
+                    timer.reset();
                 }
                 break;
 
-            /*case 18:
+
+            /*case 6:
                 if (!outtake.isBusy()) {
                     outtake.setOuttakeVelocity(0);
                     follower.followPath(leavePath, true);

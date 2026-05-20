@@ -15,7 +15,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Webcam {
+public class Limelight {
     private AprilTagProcessor aprilTagProcessor;
     private VisionPortal visionPortal;
 
@@ -23,7 +23,7 @@ public class Webcam {
 
     private Telemetry telemetry;
 
-    public Webcam(HardwareMap hardwareMap) {
+    public Limelight(HardwareMap hardwareMap) {
     }
 
     public void init(HardwareMap hwMap, Telemetry telemetry) {

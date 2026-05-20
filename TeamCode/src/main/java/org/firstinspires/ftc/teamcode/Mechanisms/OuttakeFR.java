@@ -15,7 +15,8 @@ public class OuttakeFR {
     private ElapsedTime stateTimer = new ElapsedTime();
 
     public double launchVel;
-    public boolean far, close;
+    public static boolean far;
+    public static boolean close;
 
 
     private enum LaunchState {
@@ -67,18 +68,16 @@ public class OuttakeFR {
     public void update() {
         switch (launchState) {
             case IDLE:
-                if (motorLaunch1.getVelocity() > launchVel - 100) {
-                    if (shotsRemaining > 0) {
-                        stateTimer.reset();
-                        servoGayte.setPosition(SERVO_OPEN);
-                        launchState = LaunchState.LAUNCH;
-                    }
+                if (shotsRemaining > 0) {
+                    stateTimer.reset();
+                    servoGayte.setPosition(SERVO_OPEN);
+                    launchState = LaunchState.LAUNCH;
                 }
                 break;
             case LAUNCH:
                 if (shotsRemaining > 0) {
                     if (motorLaunch1.getVelocity() > launchVel - 100 && close) {
-                        if (stateTimer.seconds() < 0.40) {
+                        if (stateTimer.seconds() < 0.48) {
                             motorIntake.setPower(1);
                         } else {
                             shotsRemaining -= 3;
@@ -87,7 +86,7 @@ public class OuttakeFR {
                     }
                     if (motorLaunch1.getVelocity() > launchVel - 100 && far) {
                         if (stateTimer.seconds() < 0.80) {
-                            motorIntake.setPower(0.9);
+                            motorIntake.setPower(0.85);
                         } else {
                             shotsRemaining -= 3;
                             stateTimer.reset();
@@ -114,14 +113,14 @@ public class OuttakeFR {
     // Outtake Logic
     public void setOuttakeVelocity(boolean launchFar) {
         if (launchFar) {
-            motorLaunch1.setVelocity(2000);
-            motorLaunch2.setVelocity(2000);
-            launchVel = 2000;
+            motorLaunch1.setVelocity(1880);
+            motorLaunch2.setVelocity(1880);
+            launchVel = 1880;
             far = true;
             close = false;
         } else {
-            motorLaunch1.setVelocity(1480);
-            motorLaunch2.setVelocity(1480);
+            motorLaunch1.setVelocity(1500);
+            motorLaunch2.setVelocity(1500);
             launchVel = 1480;
             far = false;
             close = true;

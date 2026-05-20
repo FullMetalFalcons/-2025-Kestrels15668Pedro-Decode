@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.Mechanisms.OuttakeFR;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
-@Autonomous(name = "Close2SpikesConsistent", group = "Auto")
-public class Close2SpikesConsistent extends OpMode {
+@Autonomous(name = "Close2SpikesConsistentNoCoop", group = "Auto")
+public class Close2SpikesConsistentNoCoop extends OpMode {
 
     public Follower follower;
     private int pathState;
@@ -28,7 +28,7 @@ public class Close2SpikesConsistent extends OpMode {
 
     ElapsedTime delayTimer = new ElapsedTime();
     double delaySeconds = 0.0;
-    int intakeFromGate = 2;
+    int intakeFromGate = 3;
 
 
     Servo indicatorLight;
@@ -37,32 +37,30 @@ public class Close2SpikesConsistent extends OpMode {
 
 
     // *************     POSES    *************
-    private Pose startPose = new Pose(22, 122.8, Math.toRadians(142));
+    private Pose startPose = new Pose(24, 122.8, Math.toRadians(142));
     private Pose startControlPoint = new Pose(46.4, 102.4);
     private Pose launchPosePreload = new Pose(59, 82,Math.toRadians(134));
 
 
     private Pose intake1ControlPoint =  new Pose(51.7, 83.8);
-    private Pose intake1ReadyPose = new Pose(43, 84, Math.toRadians(180));
-    private Pose intake1Pose = new Pose(20,84,Math.toRadians(180));
-    private Pose hitGate1ControlPoint = new Pose(28,80);
-    private Pose hitGate1Pose = new Pose(18.5,74.4,Math.toRadians(180));
-    private Pose launch1ControlPoint =  new Pose(40, 75);
+    private Pose intake1ReadyPose = new Pose(45, 84, Math.toRadians(180));
+    private Pose intake1Pose = new Pose(22,84,Math.toRadians(180));
+    private Pose launch1ControlPoint =  new Pose(42, 75);
     private Pose launchPose1 = new Pose(59,84,Math.toRadians(134));
 
 
     private Pose intake2ControlPoint = new Pose(56.8, 60);
     private Pose intake2ReadyPose = new Pose(45, 60, Math.toRadians(180));
-    private Pose intake2Pose =  new Pose(16, 60, Math.toRadians(180));
+    private Pose intake2Pose =  new Pose(18, 60, Math.toRadians(180));
     private Pose hitGate2ControlPoint = new Pose(26,63.4);
-    private Pose hitGate2Pose = new Pose(18,65.8,Math.toRadians(170));
+    private Pose hitGate2Pose = new Pose(18.4,65.8,Math.toRadians(170));
     private Pose launch2ControlPoint = new Pose(42, 66);
-    private Pose launchPose2 = new Pose(59,78,Math.toRadians(132));
+    private Pose launchPose2 = new Pose(60,78,Math.toRadians(132));
 
 
     private Pose intakeRampControlPoint = new Pose(30, 56);
-    private Pose intakeRampReadyPose = new Pose(16, 60.5, Math.toRadians(160));
-    private Pose intakeRampPose = new Pose(13,60.7, Math.toRadians(148));
+    private Pose intakeRampReadyPose = new Pose(18, 61, Math.toRadians(160));
+    private Pose intakeRampPose = new Pose(16,60.3, Math.toRadians(148));
     private Pose launchRampControlPoint = new Pose(27.5, 60);
     private Pose launchPoseRamp = new Pose(59,78,Math.toRadians(132));
 
@@ -74,7 +72,7 @@ public class Close2SpikesConsistent extends OpMode {
 
 
 
-    @Override
+    @Override           
     public void init() {
 
         indicatorLight = hardwareMap.servo.get("light");
@@ -82,14 +80,12 @@ public class Close2SpikesConsistent extends OpMode {
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
         if (gamepad1.dpad_right || gamepad2.dpad_right) {
 
-            startPose = startPose.mirror();
+            startPose = new Pose(122.7,121.7, 0.7088);
             startControlPoint = startControlPoint.mirror();
             launchPosePreload = launchPosePreload.mirror();
 
             intake1ControlPoint = intake1ControlPoint.mirror();
             intake1ReadyPose = intake1ReadyPose.mirror();
-            hitGate1ControlPoint = hitGate1ControlPoint.mirror();
-            hitGate1Pose = hitGate1Pose.mirror();
             intake1Pose = intake1Pose.mirror();
             launch1ControlPoint = launch1ControlPoint.mirror();
             launchPose1 = launchPose1.mirror();
@@ -97,14 +93,16 @@ public class Close2SpikesConsistent extends OpMode {
             intake2ControlPoint = intake2ControlPoint.mirror();
             intake2ReadyPose = intake2ReadyPose.mirror();
             hitGate2ControlPoint = hitGate2ControlPoint.mirror();
-            hitGate2Pose = hitGate2Pose.mirror();
+            hitGate2Pose = new Pose(19,65.8,Math.toRadians(170)).mirror();
             intake2Pose = intake2Pose.mirror();
             launch2ControlPoint = launch2ControlPoint.mirror();
             launchPose2 = launchPose2.mirror();
 
             intakeRampControlPoint = intakeRampControlPoint.mirror();
-            intakeRampReadyPose = new Pose(18, 62, Math.toRadians(160)).mirror();
-            intakeRampPose = new Pose(13.7,60, Math.toRadians(145)).mirror();
+            //intakeRampReadyPose = new Pose(126.31, 58.45, Math.toRadians(23.8));
+            //intakeRampPose = new Pose(129.86, 57.42, 0.459);
+            intakeRampReadyPose = new Pose(126.31, 60.45, Math.toRadians(23.8));
+            intakeRampPose = new Pose(130.62,59.33, Math.toRadians(32.3));
             launchRampControlPoint = launchRampControlPoint.mirror();
             launchPoseRamp = launchPoseRamp.mirror();
 
@@ -185,12 +183,9 @@ public class Close2SpikesConsistent extends OpMode {
         intakeSpike1 = follower.pathBuilder()
                 .addPath(new BezierLine(  intake1ReadyPose, intake1Pose  ))
                 .setTangentHeadingInterpolation().build();
-        hitGate1 = follower.pathBuilder()
-                .addPath(new BezierCurve(  intake1Pose, hitGate1ControlPoint, hitGate1Pose  ))
-                .setLinearHeadingInterpolation(intake1Pose.getHeading(), hitGate1Pose.getHeading()).build();
         launchPath1 = follower.pathBuilder()
-                .addPath(new BezierCurve(  hitGate1Pose, launch1ControlPoint, launchPose1  ))
-                .setLinearHeadingInterpolation(hitGate1Pose.getHeading(), launchPose1.getHeading()).build();
+                .addPath(new BezierCurve(  intake1Pose, launch1ControlPoint, launchPose1  ))
+                .setLinearHeadingInterpolation(intake1Pose.getHeading(), launchPose1.getHeading()).build();
 
         // ....... Intake/Launch 2
         intakeSpike2Ready = follower.pathBuilder()
@@ -202,9 +197,9 @@ public class Close2SpikesConsistent extends OpMode {
         hitGate2 = follower.pathBuilder()
                 .addPath(new BezierCurve(  intake2Pose, hitGate2ControlPoint, hitGate2Pose  ))
                 .setLinearHeadingInterpolation(intake2Pose.getHeading(), hitGate2Pose.getHeading()).build();
-        launchPath2 = follower.pathBuilder()
-                .addPath(new BezierCurve(  hitGate2Pose, launch2ControlPoint, launchPose2  ))
-                .setLinearHeadingInterpolation(hitGate2Pose.getHeading(), launchPose2.getHeading()).build();
+        launchPath2 = follower.pathBuilder() // TODO FIX GATE HIT
+                .addPath(new BezierCurve(  intake2Pose, launch2ControlPoint, launchPose2  ))
+                .setLinearHeadingInterpolation(intake2Pose.getHeading(), launchPose2.getHeading()).build();
 
         // ....... Intake/Launch Ramp
         intakeRampReady = follower.pathBuilder()
@@ -219,8 +214,8 @@ public class Close2SpikesConsistent extends OpMode {
 
         // ....... Leave Points
         launchPathEnd = follower.pathBuilder()
-                .addPath(new BezierCurve(  intakeRampPose, launchRampControlPoint, leavePose  ))
-                .setLinearHeadingInterpolation(intakeRampPose.getHeading(), leavePose.getHeading()).build();
+                .addPath(new BezierCurve(  intake1Pose, launch1ControlPoint, leavePose  ))
+                .setLinearHeadingInterpolation(intake1Pose.getHeading(), leavePose.getHeading()).build();
     }
 
     public void autonomousPathUpdate() {
@@ -243,7 +238,7 @@ public class Close2SpikesConsistent extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
-                    pathState = 2;
+                    pathState = 6;
                 }
                 break;
 
@@ -264,8 +259,10 @@ public class Close2SpikesConsistent extends OpMode {
                 break;
 
             case 4:
+
                 if (!follower.isBusy()) {
-                    follower.followPath(hitGate1, true);
+                    //follower.followPath(launchPath1, true);
+                    follower.followPath(launchPathEnd, true);
                     pathState = 5;
                     timer.reset();
                 }
@@ -275,42 +272,47 @@ public class Close2SpikesConsistent extends OpMode {
                 if (timer.seconds() > 0.3) {
                     outtake.setIntakePower(false);
                 }
-                if (!follower.isBusy()) {
-                    follower.followPath(launchPath1, true);
-                    pathState = 6;
-                    timer.reset();
-                }
-                break;
-
-            case 6:
                 if (timer.seconds() > 0.5) {
                     outtake.setOuttakeVelocity(false);
                 }
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
-                    pathState = 7;
+                    pathState = 12;
                     timer.reset();
                 }
                 break;
 
-            case 7:
+            case 6:
                 if (!outtake.isBusy()) {
                     follower.followPath(intakeSpike2Ready,true);
-                    pathState = 8;
+                    pathState = 7;
                 }
                 break;
 
-            case 8:
+            case 7:
                 if (!follower.isBusy()) {
                     follower.followPath(intakeSpike2,true);
                     outtake.setIntakePower(true);
                     pathState = 9;
+                    timer.reset();
+                }
+                break;
+            // TODO FIX GATE HIT
+            case 8:
+                if (!follower.isBusy()) {
+                    follower.followPath(hitGate2, true);
+                    pathState = 9;
+                    timer.reset();
                 }
                 break;
 
             case 9:
+                /*if (timer.seconds() > 0.3) {
+                    outtake.setIntakePower(false);
+                }*/
                 if (!follower.isBusy()) {
-                    follower.followPath(hitGate2, true);
+                    follower.followPath(launchPath2, true);
+                    outtake.setIntakePower(false);
                     pathState = 10;
                     timer.reset();
                 }
@@ -320,16 +322,7 @@ public class Close2SpikesConsistent extends OpMode {
                 if (timer.seconds() > 0.3) {
                     outtake.setIntakePower(false);
                 }
-                if (!follower.isBusy()) {
-                    follower.followPath(launchPath2, true);
-                    pathState = 11;
-                    timer.reset();
-                }
-                break;
-
-            case 11:
                 if (timer.seconds() > 0.5) {
-                    outtake.setIntakePower(false);
                     outtake.setOuttakeVelocity(false);
                 }
                 if (!follower.isBusy()) {
@@ -356,31 +349,34 @@ public class Close2SpikesConsistent extends OpMode {
                 break;
 
             case 93:
-                if (timer.seconds() > 4.5) {
+                if (timer.seconds() > 3.8) {
                     if (intakeFromGate == 0) {
-                        follower.followPath(launchPathEnd, true);
-                        pathState = 12;
+                        follower.followPath(launchPathRamp, true);
+                        //follower.followPath(launchPathEnd, true);
+                        pathState = 11;
                     } else {
                         follower.followPath(launchPathRamp, true);
-                        pathState = 11;
+                        pathState = 10;
                     }
                     timer.reset();
                 }
                 break;
 
 
-            case 12:
+            case 11:
+                if (timer.seconds() > 0.5) {
+                    outtake.setIntakePower(false);
+                }
                 if (timer.seconds() > 0.8) {
                     outtake.setOuttakeVelocity(false);
-                    outtake.setIntakePower(false);
                 }
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
-                    pathState = 13;
+                    pathState = 2;
                 }
                 break;
 
-            case 13:
+            case 12:
                 if (!outtake.isBusy()) {
                     outtake.setOuttakeVelocity(0);
                     pathState = -1;

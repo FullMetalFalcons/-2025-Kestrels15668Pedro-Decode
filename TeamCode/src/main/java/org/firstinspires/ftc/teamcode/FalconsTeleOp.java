@@ -31,7 +31,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 public class FalconsTeleOp extends OpMode {
     //Initialize motors, servos, sensors, imus, etc.
     DcMotorEx motorLF, motorRF, motorLB, motorRB, motorIntake, motorLaunch1, motorLaunch2;
-    Servo servoGayte, lightIndicator;
+    Servo servoGayte, indicatorLight;
     GoBildaPinpointDriver pinpoint;
     ColorRangeSensor colorSensor;
     ColorSensor counter = new ColorSensor();
@@ -41,14 +41,15 @@ public class FalconsTeleOp extends OpMode {
     HeadingPIDFController headingPIDFController = new HeadingPIDFController();
 
     // Set toggles
-    boolean blue = false, launchRun = false, autoLaunchToggle = true, correctedTargetToggle = false, timerStopToggle = true;
+    boolean launchRun = false, autoLaunchToggle = true, correctedTargetToggle = false, timerStopToggle = true;
+    public static boolean blue = false;
 
     // Configurables
     public static double farVel =  1940, reverseVel = -800;
-    public static double closeMultiplier = 0.96;
+    public static double closeMultiplier = 0.95, intakePow = 1;
     public static double SERVO_CLOSE = 0.27, SERVO_OPEN = 0.45;
-    public static double expoX = 0.3, expoY = 0.3, expoAng = 0.3;
-    public static double heading_p = 1, heading_d = 0.11, heading_f = 0.038;
+    public static double expoX = 0.3, expoY = 0.3, expoAng = 0.6;
+    public static double heading_p = 0.9, heading_d = 0.11, heading_f = 0.038;
     public static double launch_p = 50, launch_d = 0, launch_f = 13.88;
     public static double timeOfFlight;
 
@@ -69,8 +70,10 @@ public class FalconsTeleOp extends OpMode {
         initLaunchMotors(DcMotor.ZeroPowerBehavior.FLOAT);
         initIntakeMotor();
 
+        gameTimer = new ElapsedTime();
+
         servoGayte = hardwareMap.servo.get("gayte");
-        lightIndicator = hardwareMap.servo.get("light");
+        indicatorLight = hardwareMap.servo.get("light");
 
         // Init any other systems
         initPinpoint();
@@ -92,14 +95,25 @@ public class FalconsTeleOp extends OpMode {
 
         // *************    ODOMETRY    *************
         if (gamepad1.dpadUpWasPressed() || gamepad2.dpadUpWasPressed()) {
-            if (blue) {
-                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 13.89, 9.38, AngleUnit.DEGREES, 178.24));
+            if (!blue) {
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 13.89, 9.38, AngleUnit.DEGREES, 179.09));
             } else {
                 pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 131.65, 8.22, AngleUnit.DEGREES, 0.91));
             }
         }
-        if (gamepad1.xWasPressed() || gamepad2.xWasPressed()) {
-            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 72, 9.25, AngleUnit.DEGREES,90));
+        if (gamepad1.xWasPressed()) {
+            if (blue) {
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 144 - 53.5, 8.8, AngleUnit.DEGREES, 90));
+            } else {
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 53.5, 8.8, AngleUnit.DEGREES, 90));
+            }
+        }
+        if (gamepad2.xWasPressed()) {
+            if (blue) {
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 13.6, 111.6, AngleUnit.DEGREES, 180));
+            } else {
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 119.9, 113.0, AngleUnit.DEGREES, 0));
+            }
         }
 
         pinpoint.update();
@@ -139,9 +153,9 @@ public class FalconsTeleOp extends OpMode {
         double[] targetCurrentAdjusted = getAdjustedTarget(
                 targetCurrentX, targetCurrentY,
                 velX, velY,
-                timeOfFlight = calculateTimeOfFlight(1.7142857143*targetVel, distance)
+                timeOfFlight = calculateTimeOfFlight(1.7142857143 * targetVel, distance)
         );
-        if (correctedTargetToggle) {
+        if (correctedTargetToggle && currentY > 42) {
             targetCurrentX = targetCurrentAdjusted[0];
             targetCurrentY = targetCurrentAdjusted[1];
             distance = calculateDistance(currentX, currentY, targetCurrentX, targetCurrentY);
@@ -164,13 +178,14 @@ public class FalconsTeleOp extends OpMode {
         headingPIDFController.PIDFController(heading_p, 0, heading_d, heading_f);
 
         headingError = determineRotationDirection(pinpoint.getHeading(AngleUnit.RADIANS), targetHeading);
-        powerAngle = headingPIDFController.run(headingError);
 
         if (gamepad1.left_trigger > 0.2 || gamepad2.left_trigger > 0.2) {
+            powerAngle = headingPIDFController.run(headingError);
             powerAngle = Math.max(-1.0, Math.min(1.0, powerAngle));
             targetTrack = true;
         } else {
-            powerAngle = applyExpo(-gamepad1.right_stick_x, expoAng);
+            //powerAngle = applyExpo(-gamepad1.right_stick_x, expoAng);
+            powerAngle = -gamepad1.right_stick_x;
             targetTrack = false;
         }
 
@@ -178,10 +193,12 @@ public class FalconsTeleOp extends OpMode {
             timerStopToggle = !timerStopToggle;
         }
 
-        if (timerStopToggle && gameTimer.seconds() > 120) {
-            powerX = applyDeadZone(applyExpo(gamepad1.left_stick_x, expoX), 0.11);
-            powerY = applyDeadZone(applyExpo(-gamepad1.left_stick_y, expoY), 0.045);
-            powerAng = powerAngle;
+        if (gameTimer.seconds() < 120 || !timerStopToggle) {
+            //powerX = applyExpo(gamepad1.left_stick_x, expoX);
+            //powerY = applyExpo(-gamepad1.left_stick_y, expoY);
+            powerX = gamepad1.left_stick_x;
+            powerY = -gamepad1.left_stick_y;
+            powerAng = powerAngle * 0.94;
         } else {
             powerX = 0;
             powerY = 0;
@@ -232,21 +249,20 @@ public class FalconsTeleOp extends OpMode {
 
         // *************    INTAKE LOGIC    *************
         if (gamepad1.right_bumper) {
-            motorIntake.setPower(1);
-            servoGayte.setPosition(SERVO_CLOSE);
+            motorIntake.setPower(intakePow);
         } else if (gamepad2.right_bumper) {
             motorIntake.setPower(1);
-            servoGayte.setPosition(SERVO_OPEN);
             counter.resetCount();
-        } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
+        } else if (gamepad1.left_bumper) {
             motorIntake.setPower(-1);
         } else {
             motorIntake.setPower(0);
-            servoGayte.setPosition(SERVO_OPEN);
         }
 
-        if (gamepad2.right_trigger > 0.2 || gamepad1.right_trigger > 0.2) {
+        if (gamepad2.right_trigger > 0.2 || gamepad1.right_trigger > 0.2 || gamepad2.right_bumper) {
             servoGayte.setPosition(SERVO_OPEN);
+        } else {
+            servoGayte.setPosition(SERVO_CLOSE);
         }
 
 
@@ -270,6 +286,8 @@ public class FalconsTeleOp extends OpMode {
                 launchVel = targetVel;
             }
         } else if (gamepad2.a) {
+            launchVel = 1700;
+        } else if (gamepad2.left_bumper) {
             launchVel = farVel;
         } else if (gamepad1.b || gamepad2.b) {
             launchVel = reverseVel;
@@ -295,28 +313,33 @@ public class FalconsTeleOp extends OpMode {
         }
 
         if (autoLaunchToggle && (inClose || inFar) && targetTrack && facingTarget && (motorLaunch1.getVelocity() > targetVel - 500) && (goingSlow || correctedTargetToggle)) {
-            motorIntake.setPower(1);
+            if (inClose) {
+                motorIntake.setPower(1);
+            } else {
+                motorIntake.setPower(0.92);
+            }
             servoGayte.setPosition(SERVO_OPEN);
             counter.resetCount();
         }
 
 
-
         // *************    INDICATOR LIGHT    *************
-        double RED = 0.277, YELLOW = 0.388, GREEN = 0.500, WHITE = 0.850;
+        double RED = 0.290, YELLOW = 0.388, GREEN = 0.500, PURPLE = 0.718,WHITE = 850;
 
-        if (gameTimer.seconds() > 100) {
-            lightIndicator.setPosition(WHITE);
-        } else if (gameTimer.seconds() > 120) {
-            lightIndicator.setPosition(RED);
+        if (gameTimer.seconds() > 120 && timerStopToggle) {
+            indicatorLight.setPosition(RED);
+        } else if (launchRun) {
+            indicatorLight.setPosition(PURPLE);
+        } else if ((gameTimer.seconds() > 100 && gameTimer.seconds() < 120)  && timerStopToggle) {
+            indicatorLight.setPosition(WHITE);
         } else if (artifacts == 1) {
-            lightIndicator.setPosition(RED);
+            indicatorLight.setPosition(RED);
         } else if (artifacts == 2) {
-            lightIndicator.setPosition(YELLOW);
+            indicatorLight.setPosition(YELLOW);
         } else if (artifacts >= 3) {
-            lightIndicator.setPosition(GREEN);
+            indicatorLight.setPosition(GREEN);
         } else {
-            lightIndicator.setPosition(0);
+            indicatorLight.setPosition(0);
         }
 
 
@@ -356,9 +379,9 @@ public class FalconsTeleOp extends OpMode {
             telemetry.addLine("SUPER FAST VROOM VROOM");
         }
         telemetry.addLine();
-        telemetry.addData("game time", gameTimer.seconds());
         telemetry.addData("targetHeading", Math.toDegrees(targetHeading));
         telemetry.addData("balls Counted", counter.getCount());
+        telemetry.addData("game time", gameTimer.seconds());
         telemetry.addLine();
         telemetry.addData("targetX", targetCurrentX);
         telemetry.addData("targetY", targetCurrentY);

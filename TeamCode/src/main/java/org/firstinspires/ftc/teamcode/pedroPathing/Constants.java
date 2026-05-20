@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PredictiveBrakingCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -25,14 +26,15 @@ public class Constants {
 
     final static double lbPerKg = 2.205;
     final static double robotWeightInPounds = 22; //
-    public static double offsetX = -5.38077863558, offsetY = 2.20494452;
+    public static double offsetX = -5.51177863558, offsetY = 2.33294452;
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(robotWeightInPounds / lbPerKg)
-            .forwardZeroPowerAcceleration(77.25213094395916)
-            .lateralZeroPowerAcceleration(57.2398710476132)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.08, 0, 0.01, 0.08))
+            //.forwardZeroPowerAcceleration(77.25213094395916)
+            //.lateralZeroPowerAcceleration(57.2398710476132)
+            //.translationalPIDFCoefficients(new PIDFCoefficients(0.08, 0, 0.01, 0.08))
             .headingPIDFCoefficients(new PIDFCoefficients(1,0,0.11,0.038))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.004,0,0.0006,0,0.024))
+            //.drivePIDFCoefficients(new FilteredPIDFCoefficients(0.004,0,0.0006,0,0.024))
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.13, 0.09568919477896312, 0.001302114196862323)) // (kP, kLinear, kQuadratic)
             .centripetalScaling(0.0009)
             ;
 

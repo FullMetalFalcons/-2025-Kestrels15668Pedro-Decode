@@ -35,7 +35,7 @@ public class Constants {
             .headingPIDFCoefficients(new PIDFCoefficients(1,0,0.11,0.038))
             //.drivePIDFCoefficients(new FilteredPIDFCoefficients(0.004,0,0.0006,0,0.024))
             .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.13, 0.09568919477896312, 0.001302114196862323)) // (kP, kLinear, kQuadratic)
-            .centripetalScaling(0.0009)
+            .centripetalScaling(0)
             ;
 
     public static MecanumConstants driveConstants = new MecanumConstants()

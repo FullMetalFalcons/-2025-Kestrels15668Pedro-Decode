@@ -17,8 +17,11 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Mechanisms.ColorSensor;
 import org.firstinspires.ftc.teamcode.Mechanisms.HeadingPIDFController;
+import org.firstinspires.ftc.teamcode.Mechanisms.Limelight;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
@@ -68,6 +71,7 @@ public class FalconsTeleOp extends OpMode {
         // Init motors/servos
         initDriveMotors(DcMotor.ZeroPowerBehavior.BRAKE);
         initLaunchMotors(DcMotor.ZeroPowerBehavior.FLOAT);
+        Limelight.init(hardwareMap);
         initIntakeMotor();
 
         gameTimer = new ElapsedTime();
@@ -87,6 +91,7 @@ public class FalconsTeleOp extends OpMode {
 
     @Override
     public void start() {
+        Limelight.start();
         gameTimer.reset();
     }
 
@@ -352,6 +357,14 @@ public class FalconsTeleOp extends OpMode {
         telemetry.addData("X", currentX);
         telemetry.addData("Y", currentY);
         telemetry.addData("H", pinpoint.getHeading(AngleUnit.DEGREES));
+        telemetry.addLine();
+        telemetry.addData("llX", Limelight.llPose.getPosition().x);
+        telemetry.addData("llY", Limelight.llPose.getPosition().y);
+        telemetry.addData("llH", Limelight.llPose.getOrientation().getYaw(AngleUnit.DEGREES));
+        telemetry.addLine();
+        telemetry.addData("llXError", currentX-Limelight.llPose.getPosition().x);
+        telemetry.addData("llYError", currentY-Limelight.llPose.getPosition().y);
+        telemetry.addData("llHError", currentHeading-Limelight.llPose.getOrientation().getYaw(AngleUnit.DEGREES));
         telemetry.addLine();
         telemetry.addData("move-n-shoot", correctedTargetToggle);
         telemetry.addLine();

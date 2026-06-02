@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -42,7 +43,7 @@ public class Limelight {
         limelight.start();
     }
 
-    public static Pose3D llPose;
+    public static Pose3D llPose = new Pose3D(new Position(DistanceUnit.INCH,0,0,0,0), new YawPitchRollAngles(AngleUnit.DEGREES,0,0,0,0));
 
     public static Pose3D update() {
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();

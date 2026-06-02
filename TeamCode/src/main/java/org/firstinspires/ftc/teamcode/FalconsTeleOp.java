@@ -115,9 +115,9 @@ public class FalconsTeleOp extends OpMode {
         }
         if (gamepad2.xWasPressed()) {
             if (blue) {
-                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 13.6, 111.6, AngleUnit.DEGREES, 180));
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 21.1, 102.8, AngleUnit.DEGREES, 180));
             } else {
-                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 119.9, 113.0, AngleUnit.DEGREES, 0));
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 128.4, 101.2, AngleUnit.DEGREES, 0));
             }
         }
 

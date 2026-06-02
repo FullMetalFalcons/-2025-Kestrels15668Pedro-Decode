@@ -39,14 +39,14 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
     // *************     POSES    *************
     private Pose startPose = new Pose(24, 122.8, Math.toRadians(142));
     private Pose startControlPoint = new Pose(46.4, 102.4);
-    private Pose launchPosePreload = new Pose(59, 82,Math.toRadians(134));
+    private Pose launchPosePreload = new Pose(58, 82,Math.toRadians(134));
 
 
     private Pose intake1ControlPoint =  new Pose(51.7, 83.8);
     private Pose intake1ReadyPose = new Pose(45, 84, Math.toRadians(180));
     private Pose intake1Pose = new Pose(22,84,Math.toRadians(180));
     private Pose launch1ControlPoint =  new Pose(42, 75);
-    private Pose launchPose1 = new Pose(59,84,Math.toRadians(134));
+    private Pose launchPose1 = new Pose(58,84,Math.toRadians(134));
 
 
     private Pose intake2ControlPoint = new Pose(56.8, 60);
@@ -55,17 +55,17 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
     private Pose hitGate2ControlPoint = new Pose(26,63.4);
     private Pose hitGate2Pose = new Pose(18.4,65.8,Math.toRadians(170));
     private Pose launch2ControlPoint = new Pose(42, 66);
-    private Pose launchPose2 = new Pose(60,78,Math.toRadians(132));
+    private Pose launchPose2 = new Pose(58,78,Math.toRadians(132));
 
 
     private Pose intakeRampControlPoint = new Pose(30, 56);
     private Pose intakeRampReadyPose = new Pose(18, 61, Math.toRadians(160));
     private Pose intakeRampPose = new Pose(16,60.3, Math.toRadians(148));
     private Pose launchRampControlPoint = new Pose(27.5, 60);
-    private Pose launchPoseRamp = new Pose(59,78,Math.toRadians(132));
+    private Pose launchPoseRamp = new Pose(58,78,Math.toRadians(132));
 
 
-    private Pose leavePose = new Pose(59, 100, Math.toRadians(142));
+    private Pose leavePose = new Pose(58, 100, Math.toRadians(146));
 
 
     private PathChain launchPathPreload, intakeSpike1Ready, intakeSpike1, hitGate1, launchPath1, intakeSpike2Ready, intakeSpike2, hitGate2, launchPath2, intakeRampReady, intakeRamp, launchPathRamp, launchPathEnd;
@@ -101,12 +101,12 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
             intakeRampControlPoint = intakeRampControlPoint.mirror();
             //intakeRampReadyPose = new Pose(126.31, 58.45, Math.toRadians(23.8));
             //intakeRampPose = new Pose(129.86, 57.42, 0.459);
-            intakeRampReadyPose = new Pose(126.31, 60.45, Math.toRadians(23.8));
-            intakeRampPose = new Pose(130.62,59.33, Math.toRadians(32.3));
+            intakeRampReadyPose = new Pose(127.31, 60.45, Math.toRadians(23.8));
+            intakeRampPose = new Pose(132.42,58.33, Math.toRadians(28.3));
             launchRampControlPoint = launchRampControlPoint.mirror();
             launchPoseRamp = launchPoseRamp.mirror();
 
-            leavePose = new Pose(59, 102, Math.toRadians(142)).mirror();
+            leavePose = leavePose.mirror();
             red = true;
             FalconsTeleOp.blue = false;
         } else {
@@ -176,28 +176,17 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
                 .addPath(new BezierCurve(  startPose, startControlPoint, launchPosePreload  ))
                 .setLinearHeadingInterpolation(startPose.getHeading(), launchPosePreload.getHeading()).build();
 
-        // ....... Intake/Launch 1
-        intakeSpike1Ready = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPosePreload, intake1ControlPoint, intake1ReadyPose  ))
-                .setLinearHeadingInterpolation(launchPosePreload.getHeading(), intake1ReadyPose.getHeading()).build();
-        intakeSpike1 = follower.pathBuilder()
-                .addPath(new BezierLine(  intake1ReadyPose, intake1Pose  ))
-                .setTangentHeadingInterpolation().build();
-        launchPath1 = follower.pathBuilder()
-                .addPath(new BezierCurve(  intake1Pose, launch1ControlPoint, launchPose1  ))
-                .setLinearHeadingInterpolation(intake1Pose.getHeading(), launchPose1.getHeading()).build();
-
         // ....... Intake/Launch 2
         intakeSpike2Ready = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPose1, intake2ControlPoint, intake2ReadyPose  ))
-                .setLinearHeadingInterpolation(launchPose1.getHeading(), intake2ReadyPose.getHeading()).build();
+                .addPath(new BezierCurve(  launchPosePreload, intake2ControlPoint, intake2ReadyPose  ))
+                .setLinearHeadingInterpolation(launchPosePreload.getHeading(), intake2ReadyPose.getHeading()).build();
         intakeSpike2 = follower.pathBuilder()
                 .addPath(new BezierLine(  intake2ReadyPose, intake2Pose  ))
                 .setTangentHeadingInterpolation().build();
         hitGate2 = follower.pathBuilder()
                 .addPath(new BezierCurve(  intake2Pose, hitGate2ControlPoint, hitGate2Pose  ))
                 .setLinearHeadingInterpolation(intake2Pose.getHeading(), hitGate2Pose.getHeading()).build();
-        launchPath2 = follower.pathBuilder() // TODO FIX GATE HIT
+        launchPath2 = follower.pathBuilder()
                 .addPath(new BezierCurve(  intake2Pose, launch2ControlPoint, launchPose2  ))
                 .setLinearHeadingInterpolation(intake2Pose.getHeading(), launchPose2.getHeading()).build();
 
@@ -211,6 +200,19 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
         launchPathRamp = follower.pathBuilder()
                 .addPath(new BezierCurve(  intakeRampPose, launchRampControlPoint, launchPoseRamp  ))
                 .setLinearHeadingInterpolation(intakeRampPose.getHeading(), launchPoseRamp.getHeading()).build();
+
+        // ....... Intake/Launch 1
+        intakeSpike1Ready = follower.pathBuilder()
+                .addPath(new BezierCurve(  launchPoseRamp, intake1ControlPoint, intake1ReadyPose  ))
+                .setLinearHeadingInterpolation(launchPoseRamp.getHeading(), intake1ReadyPose.getHeading())
+                .setTValueConstraint(0.9)
+                .build();
+        intakeSpike1 = follower.pathBuilder()
+                .addPath(new BezierLine(  intake1ReadyPose, intake1Pose  ))
+                .setTangentHeadingInterpolation().build();
+        launchPath1 = follower.pathBuilder()
+                .addPath(new BezierCurve(  intake1Pose, launch1ControlPoint, launchPose1  ))
+                .setLinearHeadingInterpolation(intake1Pose.getHeading(), launchPose1.getHeading()).build();
 
         // ....... Leave Points
         launchPathEnd = follower.pathBuilder()
@@ -284,7 +286,7 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
 
             case 6:
                 if (!outtake.isBusy()) {
-                    follower.followPath(intakeSpike2Ready,true);
+                    follower.followPath(intakeSpike2Ready, false);
                     pathState = 7;
                 }
                 break;
@@ -297,7 +299,6 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
                     timer.reset();
                 }
                 break;
-            // TODO FIX GATE HIT
             case 8:
                 if (!follower.isBusy()) {
                     follower.followPath(hitGate2, true);
@@ -349,10 +350,9 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
                 break;
 
             case 93:
-                if (timer.seconds() > 3.8) {
+                if (timer.seconds() > 4.2) {
                     if (intakeFromGate == 0) {
                         follower.followPath(launchPathRamp, true);
-                        //follower.followPath(launchPathEnd, true);
                         pathState = 11;
                     } else {
                         follower.followPath(launchPathRamp, true);

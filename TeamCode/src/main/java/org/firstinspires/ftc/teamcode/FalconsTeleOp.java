@@ -122,6 +122,7 @@ public class FalconsTeleOp extends OpMode {
         }
 
         pinpoint.update();
+        Limelight.update(pinpoint.getHeading(AngleUnit.DEGREES), telemetry);
 
         double currentX = pinpoint.getPosX(DistanceUnit.INCH);
         double currentY = pinpoint.getPosY(DistanceUnit.INCH);

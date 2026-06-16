@@ -6,6 +6,7 @@ import static com.pedropathing.math.MathFunctions.normalizeAngle;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.ftc.PoseConverter;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -19,6 +20,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Mechanisms.ColorSensor;
 import org.firstinspires.ftc.teamcode.Mechanisms.HeadingPIDFController;
 import org.firstinspires.ftc.teamcode.Mechanisms.Limelight;
@@ -42,10 +45,12 @@ public class FalconsTeleOp extends OpMode {
     ElapsedTime gameTimer;
     PIDFCoefficients  launcherPIDF;
     HeadingPIDFController headingPIDFController = new HeadingPIDFController();
+    Pose3D lllPose = new Pose3D(new Position(DistanceUnit.INCH, 0,0,0,0),new YawPitchRollAngles(AngleUnit.DEGREES,0,0,0,0));
 
     // Set toggles
     boolean launchRun = false, autoLaunchToggle = true, correctedTargetToggle = false, timerStopToggle = true;
     public static boolean blue = false;
+    boolean light = true;
 
     // Configurables
     public static double farVel =  1940, reverseVel = -800;
@@ -55,6 +60,9 @@ public class FalconsTeleOp extends OpMode {
     public static double heading_p = 0.9, heading_d = 0.11, heading_f = 0.038;
     public static double launch_p = 50, launch_d = 0, launch_f = 13.88;
     public static double timeOfFlight;
+
+    double RAINBOW = 0.280;
+
 
     double headingError, targetVel = 1600;
 
@@ -99,12 +107,23 @@ public class FalconsTeleOp extends OpMode {
     public void loop() {
 
         // *************    ODOMETRY    *************
+        pinpoint.update();
+        lllPose = Limelight.update(pinpoint.getHeading(AngleUnit.DEGREES));
+
+        Pose2D llllPose = limelightToPedro(Limelight.llPose.getPosition().y, Limelight.llPose.getPosition().x, Limelight.llPose.getOrientation().getYaw());
+
+        double llX = llllPose.getX(DistanceUnit.INCH);
+        double llY = llllPose.getY(DistanceUnit.INCH);
+        double llH = llllPose.getHeading(AngleUnit.DEGREES);
+
+        double currentX = pinpoint.getPosX(DistanceUnit.INCH);
+        double currentY = pinpoint.getPosY(DistanceUnit.INCH);
+        double currentHeading = pinpoint.getHeading(AngleUnit.DEGREES);
+        double velX = pinpoint.getVelX(DistanceUnit.INCH);
+        double velY = pinpoint.getVelY(DistanceUnit.INCH);
+
         if (gamepad1.dpadUpWasPressed() || gamepad2.dpadUpWasPressed()) {
-            if (!blue) {
-                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 13.89, 9.38, AngleUnit.DEGREES, 179.09));
-            } else {
-                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 131.65, 8.22, AngleUnit.DEGREES, 0.91));
-            }
+            pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, llX, llY, AngleUnit.DEGREES, currentHeading));
         }
         if (gamepad1.xWasPressed()) {
             if (blue) {
@@ -115,20 +134,11 @@ public class FalconsTeleOp extends OpMode {
         }
         if (gamepad2.xWasPressed()) {
             if (blue) {
-                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 21.1, 102.8, AngleUnit.DEGREES, 180));
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 17.6153, 103.3321, AngleUnit.DEGREES, 180));
             } else {
-                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 128.4, 101.2, AngleUnit.DEGREES, 0));
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 125, 103.655, AngleUnit.DEGREES, 0));
             }
         }
-
-        pinpoint.update();
-        Limelight.update(pinpoint.getHeading(AngleUnit.DEGREES), telemetry);
-
-        double currentX = pinpoint.getPosX(DistanceUnit.INCH);
-        double currentY = pinpoint.getPosY(DistanceUnit.INCH);
-        double currentHeading = pinpoint.getHeading(AngleUnit.DEGREES);
-        double velX = pinpoint.getVelX(DistanceUnit.INCH);
-        double velY = pinpoint.getVelY(DistanceUnit.INCH);
 
 
         // *************    COLOR SENSOR    *************
@@ -257,7 +267,11 @@ public class FalconsTeleOp extends OpMode {
         if (gamepad1.right_bumper) {
             motorIntake.setPower(intakePow);
         } else if (gamepad2.right_bumper) {
-            motorIntake.setPower(1);
+            if (currentY < 42) {
+                motorIntake.setPower(0.85);
+            } else {
+                motorIntake.setPower(1);
+            }
             counter.resetCount();
         } else if (gamepad1.left_bumper) {
             motorIntake.setPower(-1);
@@ -322,7 +336,7 @@ public class FalconsTeleOp extends OpMode {
             if (inClose) {
                 motorIntake.setPower(1);
             } else {
-                motorIntake.setPower(0.92);
+                motorIntake.setPower(0.85);
             }
             servoGayte.setPosition(SERVO_OPEN);
             counter.resetCount();
@@ -332,20 +346,34 @@ public class FalconsTeleOp extends OpMode {
         // *************    INDICATOR LIGHT    *************
         double RED = 0.290, YELLOW = 0.388, GREEN = 0.500, PURPLE = 0.718,WHITE = 850;
 
+        if (RAINBOW <= 0.281) {
+            light = true;
+        }
+        if (RAINBOW >= 0.717) {
+            light = false;
+        }
+
+        if (light) {
+            RAINBOW += 0.01;
+        } else {
+            RAINBOW -= 0.01;
+        }
+
+
         if (gameTimer.seconds() > 120 && timerStopToggle) {
             indicatorLight.setPosition(RED);
         } else if (launchRun) {
             indicatorLight.setPosition(PURPLE);
         } else if ((gameTimer.seconds() > 100 && gameTimer.seconds() < 120)  && timerStopToggle) {
             indicatorLight.setPosition(WHITE);
-        } else if (artifacts == 1) {
+        /*} else if (artifacts == 1) {
             indicatorLight.setPosition(RED);
         } else if (artifacts == 2) {
             indicatorLight.setPosition(YELLOW);
         } else if (artifacts >= 3) {
-            indicatorLight.setPosition(GREEN);
+            indicatorLight.setPosition(GREEN);*/
         } else {
-            indicatorLight.setPosition(0);
+            indicatorLight.setPosition(RAINBOW);
         }
 
 
@@ -354,18 +382,22 @@ public class FalconsTeleOp extends OpMode {
         telemetry.addData("launchVel",  motorLaunch1.getVelocity());
         telemetry.addData("timeOfFlight", timeOfFlight);
         telemetry.addData("distance", distance);
+        telemetry.addData("light", indicatorLight.getPosition());
         telemetry.addLine();
         telemetry.addData("X", currentX);
         telemetry.addData("Y", currentY);
         telemetry.addData("H", pinpoint.getHeading(AngleUnit.DEGREES));
         telemetry.addLine();
-        telemetry.addData("llX", Limelight.llPose.getPosition().x);
-        telemetry.addData("llY", Limelight.llPose.getPosition().y);
-        telemetry.addData("llH", Limelight.llPose.getOrientation().getYaw(AngleUnit.DEGREES));
+        telemetry.addData("llX", llX);
+        telemetry.addData("llY", llY);
+        telemetry.addData("llH", llH);
         telemetry.addLine();
-        telemetry.addData("llXError", currentX-Limelight.llPose.getPosition().x);
-        telemetry.addData("llYError", currentY-Limelight.llPose.getPosition().y);
-        telemetry.addData("llHError", currentHeading-Limelight.llPose.getOrientation().getYaw(AngleUnit.DEGREES));
+        telemetry.addData("Tx", Limelight.llTx);
+        telemetry.addData("Ty", Limelight.llTy);
+        telemetry.addData("Ta", Limelight.llTa);
+        telemetry.addLine();
+        telemetry.addData("llXError", currentX-llX);
+        telemetry.addData("llYError", currentY-llY);
         telemetry.addLine();
         telemetry.addData("move-n-shoot", correctedTargetToggle);
         telemetry.addLine();
@@ -595,5 +627,24 @@ public class FalconsTeleOp extends OpMode {
 
     return new double[] { adjustedX, adjustedY };
 
+    }
+
+    public static Pose2D limelightToPedro(
+        double lllX, double lllY, double lllH
+    ) {
+        double h = lllH - 90;
+        double x = lllX * 39.3701;
+        double y = -lllY * 39.3701;
+
+        x += 72;
+        y += 72;
+        if (h < -180) {
+            h = h + 360;
+        }
+        if (h > 180) {
+            h = h - 360;
+        }
+
+        return new Pose2D(DistanceUnit.INCH, x, y, AngleUnit.DEGREES, h);
     }
 }

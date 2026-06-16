@@ -44,7 +44,7 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
 
     private Pose intake1ControlPoint =  new Pose(51.7, 83.8);
     private Pose intake1ReadyPose = new Pose(45, 84, Math.toRadians(180));
-    private Pose intake1Pose = new Pose(22,84,Math.toRadians(180));
+    private Pose intake1Pose = new Pose(19,84,Math.toRadians(180));
     private Pose launch1ControlPoint =  new Pose(42, 75);
     private Pose launchPose1 = new Pose(58,84,Math.toRadians(134));
 
@@ -59,13 +59,13 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
 
 
     private Pose intakeRampControlPoint = new Pose(30, 56);
-    private Pose intakeRampReadyPose = new Pose(18, 61, Math.toRadians(160));
-    private Pose intakeRampPose = new Pose(16,60.3, Math.toRadians(148));
+    public static Pose intakeRampReadyPose = new Pose(127.31, 60.45, Math.toRadians(23.8)).mirror();
+    public static Pose intakeRampPose = new Pose(15,59.33, Math.toRadians(151.7));
     private Pose launchRampControlPoint = new Pose(27.5, 60);
     private Pose launchPoseRamp = new Pose(58,78,Math.toRadians(132));
 
 
-    private Pose leavePose = new Pose(58, 100, Math.toRadians(146));
+    private Pose leavePose = new Pose(58, 101, Math.toRadians(146));
 
 
     private PathChain launchPathPreload, intakeSpike1Ready, intakeSpike1, hitGate1, launchPath1, intakeSpike2Ready, intakeSpike2, hitGate2, launchPath2, intakeRampReady, intakeRamp, launchPathRamp, launchPathEnd;
@@ -99,10 +99,8 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
             launchPose2 = launchPose2.mirror();
 
             intakeRampControlPoint = intakeRampControlPoint.mirror();
-            //intakeRampReadyPose = new Pose(126.31, 58.45, Math.toRadians(23.8));
-            //intakeRampPose = new Pose(129.86, 57.42, 0.459);
             intakeRampReadyPose = new Pose(127.31, 60.45, Math.toRadians(23.8));
-            intakeRampPose = new Pose(132.42,58.33, Math.toRadians(28.3));
+            intakeRampPose = new Pose(132.92,58.33, Math.toRadians(28.3));
             launchRampControlPoint = launchRampControlPoint.mirror();
             launchPoseRamp = launchPoseRamp.mirror();
 
@@ -336,6 +334,7 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
             case 91:
                 if (!outtake.isBusy()) {
                     follower.followPath(intakeRampReady,true);
+                    outtake.setIntakePower(true);
                     intakeFromGate = intakeFromGate - 1;
                     pathState = 92;
                 }
@@ -344,13 +343,12 @@ public class Close2SpikesConsistentNoCoop extends OpMode {
             case 92:
                 if (!follower.isBusy()) {
                     follower.followPath(intakeRamp,0.6,true);
-                    outtake.setIntakePower(true);
                     pathState = 93;
                 }
                 break;
 
             case 93:
-                if (timer.seconds() > 4.2) {
+                if (timer.seconds() > 4.) { //TODO Change back to 4.2 after RAD
                     if (intakeFromGate == 0) {
                         follower.followPath(launchPathRamp, true);
                         pathState = 11;

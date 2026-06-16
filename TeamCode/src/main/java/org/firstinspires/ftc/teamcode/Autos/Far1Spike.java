@@ -46,21 +46,21 @@ public class Far1Spike extends OpMode {
     private Pose intake3ControlPoint =  new Pose(48, 29);
     private Pose intake3Pose = new Pose(23, 36.5, Math.toRadians(170));
     private Pose launch3ControlPoint =  new Pose(51, 31.5);
-    private Pose launchPose3 = new Pose(53.5,17,Math.toRadians(112.2));
+    private Pose launchPose3 = new Pose(53.5,17,Math.toRadians(112.0));
 
 
     private Pose intakeCornerControlPoint = new Pose(25.5, 23);
     private Pose intakeCornerReadyPose = new Pose(17, 24, Math.toRadians(235));
     private Pose intakeCornerPose = new Pose(13, 10, Math.toRadians(185));
     private Pose launchCornerControlPoint = new Pose(25.5, 24);
-    private Pose launchPoseCorner = new Pose(53.5,17,Math.toRadians(112.2));
+    private Pose launchPoseCorner = new Pose(53.5,17,Math.toRadians(112.0));
 
     private Pose intakeTunnelControlPoint = new Pose(26.6, 9);
     private Pose intakeTunnelReadyPose = new Pose(17, 14.5, Math.toRadians(150));
     private Pose intakeTunnelReadyControlPoint = new Pose(10, 18);
     private Pose intakeTunnelPose = new Pose(10, 32, Math.toRadians(90));
     private Pose launchTunnelControlPoint = new Pose(29, 24);
-    private Pose launchPoseTunnel = new Pose(53.5,17,Math.toRadians(112.2));
+    private Pose launchPoseTunnel = new Pose(53.5,17,Math.toRadians(112.0));
 
 
     private Pose leavePose = new Pose(50, 20, Math.toRadians(135));

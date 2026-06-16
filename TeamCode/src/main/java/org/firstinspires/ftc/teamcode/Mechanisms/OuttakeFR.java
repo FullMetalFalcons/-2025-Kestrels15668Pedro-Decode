@@ -77,7 +77,7 @@ public class OuttakeFR {
             case LAUNCH:
                 if (shotsRemaining > 0) {
                     if (motorLaunch1.getVelocity() > launchVel - 100 && close) {
-                        if (stateTimer.seconds() < 0.48) {
+                        if (stateTimer.seconds() < 0.58) { //TODO Change back to .48 after RAD
                             motorIntake.setPower(1);
                         } else {
                             shotsRemaining -= 3;

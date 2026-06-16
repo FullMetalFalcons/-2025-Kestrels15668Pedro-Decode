@@ -38,7 +38,7 @@ public class Close2Spikes extends OpMode {
 
 
     // *************     POSES    *************
-    private Pose startPose = new Pose(22, 122.8, Math.toRadians(142));
+    private Pose startPose = new Pose(24, 122.8, Math.toRadians(142));
     private Pose startControlPoint = new Pose(60, 86);
     private Pose launchPosePreload = new Pose(60, 82,Math.toRadians(134));
 
@@ -55,11 +55,11 @@ public class Close2Spikes extends OpMode {
     private Pose launchPose2 = new Pose(60,80.5,Math.toRadians(138));
 
 
-    private Pose intakeRampControlPoint = new Pose(28, 48);
-    private Pose intakeRampReadyPose = new Pose(22, 56, Math.toRadians(140));
-    private Pose intakeRampPose = new Pose(14,59.6, Math.toRadians(140.9));
-    private Pose launchRampControlPoint = new Pose(25.5, 53);
-    private Pose launchPoseRamp = new Pose(60,80.5,Math.toRadians(134));
+    private Pose intakeRampControlPoint = new Pose(30, 56);
+    private Pose intakeRampReadyPose = new Pose(127.31, 60.45, Math.toRadians(23.8)).mirror();
+    private Pose intakeRampPose = new Pose(14.3,59.33, Math.toRadians(151.7));
+    private Pose launchRampControlPoint = new Pose(27.5, 60);
+    private Pose launchPoseRamp = new Pose(58,78,Math.toRadians(132));
 
 
     private Pose intake3ControlPoint = new Pose(59.5, 55);
@@ -69,7 +69,7 @@ public class Close2Spikes extends OpMode {
     private Pose launchPose3 = new Pose(60,80.5,Math.toRadians(134));
 
 
-    private Pose leavePose = new Pose(44, 80, Math.toRadians(140));
+    private Pose leavePose = new Pose(58, 100, Math.toRadians(146));
 
 
     private PathChain launchPathPreload, intakeSpike1, launchPath1, intakeSpike2, launchPath2, intakeRampReady, intakeRamp, launchPathRamp, intakeSpike3Ready, intakeSpike3, launchPath3, leavePath;
@@ -83,7 +83,7 @@ public class Close2Spikes extends OpMode {
         // Mirror coordinates across the x-Axis if the autonomous is run on the Red side
         if (gamepad1.dpad_right || gamepad2.dpad_right) {
 
-            startPose = startPose.mirror();
+            startPose = new Pose(122.7,121.7, 0.7088);
             startControlPoint = startControlPoint.mirror();
             launchPosePreload = launchPosePreload.mirror();
 
@@ -104,8 +104,8 @@ public class Close2Spikes extends OpMode {
             launchPose3 = launchPose3.mirror();
 
             intakeRampControlPoint = intakeRampControlPoint.mirror();
-            intakeRampReadyPose = intakeRampReadyPose.mirror();
-            intakeRampPose = intakeRampPose.mirror();
+            intakeRampReadyPose = new Pose(127.31, 60.45, Math.toRadians(23.8));
+            intakeRampPose = new Pose(132.42,58.33, Math.toRadians(28.3));
             launchRampControlPoint = launchRampControlPoint.mirror();
             launchPoseRamp = launchPoseRamp.mirror();
 
@@ -174,18 +174,10 @@ public class Close2Spikes extends OpMode {
                 .addPath(new BezierCurve(  startPose, startControlPoint, launchPosePreload  ))
                 .setLinearHeadingInterpolation(startPose.getHeading(), launchPosePreload.getHeading()).build();
 
-        // ....... Intake/Launch 1
-        intakeSpike1 = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPosePreload, intake1ControlPoint, intake1Pose  ))
-                .setLinearHeadingInterpolation(launchPosePreload.getHeading(), intake1Pose.getHeading()).build();
-        launchPath1 = follower.pathBuilder()
-                .addPath(new BezierCurve(  intake1Pose, launch1ControlPoint, launchPose1  ))
-                .setLinearHeadingInterpolation(intake1Pose.getHeading(), launchPose1.getHeading()).build();
-
         // ....... Intake/Launch 2
         intakeSpike2 = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPose1, intake2ControlPoint, intake2Pose  ))
-                .setLinearHeadingInterpolation(launchPose1.getHeading(), intake2Pose.getHeading()).build();
+                .addPath(new BezierCurve(  launchPosePreload, intake2ControlPoint, intake2Pose  ))
+                .setLinearHeadingInterpolation(launchPosePreload.getHeading(), intake2Pose.getHeading()).build();
         launchPath2 = follower.pathBuilder()
                 .addPath(new BezierCurve(  intake2Pose, launch2ControlPoint, launchPose2  ))
                 .setLinearHeadingInterpolation(intake2Pose.getHeading(), launchPose2.getHeading()).build();
@@ -201,21 +193,18 @@ public class Close2Spikes extends OpMode {
                 .addPath(new BezierCurve(  intakeRampPose, launchRampControlPoint, launchPoseRamp  ))
                 .setLinearHeadingInterpolation(intakeRampPose.getHeading(), launchPoseRamp.getHeading()).build();
 
-        // ....... Intake/Launch 3
-        intakeSpike3Ready = follower.pathBuilder()
-                .addPath(new BezierCurve(  launchPose2, intake3ControlPoint, intake3ReadyPose  ))
-                .setLinearHeadingInterpolation(launchPose2.getHeading(), intake3ReadyPose.getHeading()).build();
-        intakeSpike3 = follower.pathBuilder()
-                .addPath(new BezierLine(  intake3ReadyPose, intake3Pose  ))
-                .setLinearHeadingInterpolation(intake3ReadyPose.getHeading(), intake3Pose.getHeading()).build();
-        launchPath3 = follower.pathBuilder()
-                .addPath(new BezierCurve(  intake3Pose, launch3ControlPoint, launchPose3  ))
-                .setLinearHeadingInterpolation(intake3Pose.getHeading(), launchPose3.getHeading()).build();
+        // ....... Intake/Launch 1
+        intakeSpike1 = follower.pathBuilder()
+                .addPath(new BezierCurve(  launchPoseRamp, intake1ControlPoint, intake1Pose  ))
+                .setLinearHeadingInterpolation(launchPoseRamp.getHeading(), intake1Pose.getHeading()).build();
+        launchPath1 = follower.pathBuilder()
+                .addPath(new BezierCurve(  intake1Pose, launch1ControlPoint, launchPose1  ))
+                .setLinearHeadingInterpolation(intake1Pose.getHeading(), launchPose1.getHeading()).build();
 
         // ....... Leave Points
         leavePath = follower.pathBuilder()
-                .addPath(new BezierLine(  launchPose3, leavePose  ))
-                .setLinearHeadingInterpolation(launchPose3.getHeading(), leavePose.getHeading()).build();
+                .addPath(new BezierCurve(  intake1Pose, launch1ControlPoint, leavePose  ))
+                .setLinearHeadingInterpolation(intake1Pose.getHeading(), leavePose.getHeading()).build();
     }
 
     public void autonomousPathUpdate() {
@@ -224,8 +213,8 @@ public class Close2Spikes extends OpMode {
         switch (pathState) {
             case 0:
                 if (delayTimer.seconds() > delaySeconds) {
-                    outtake.close = true;
-                    outtake.far = false;
+                    OuttakeFR.close = true;
+                    OuttakeFR.far = false;
                     outtake.setOuttakeVelocity(1580);
                     outtake.fireShots(3);
                     follower.followPath(launchPathPreload,true);
@@ -233,16 +222,9 @@ public class Close2Spikes extends OpMode {
                 }
                 break;
 
-            /*case 1:
-                if (!follower.isBusy()) {
-                    outtake.fireShots(3);
-                    pathState = 2;
-                }
-                break;*/
-
             case 2:
                 if (!outtake.isBusy() && !follower.isBusy()) {
-                    follower.followPath(intakeSpike1, true);
+                    follower.followPath(intakeSpike2, true);
                     outtake.setIntakePower(true);
                     pathState = 3;
                 }
@@ -250,42 +232,17 @@ public class Close2Spikes extends OpMode {
 
             case 3:
                 if (!follower.isBusy()) {
-                    follower.followPath(launchPath1, true);
+                    follower.followPath(launchPath2, true);
                     pathState = 4;
                     timer.reset();
                 }
                 break;
 
             case 4:
-                if (timer.seconds() > 0.5) {
+                if (timer.seconds() > 0.3) {
                     outtake.setIntakePower(false);
-                    outtake.setOuttakeVelocity(false);
                 }
-                if (!follower.isBusy()) {
-                    outtake.fireShots(3);
-                    pathState = 5;
-                    timer.reset();
-                }
-                break;
-
-            case 5:
-                if (!outtake.isBusy()) {
-                    follower.followPath(intakeSpike2,true);
-                    outtake.setIntakePower(true);
-                    pathState = 6;
-                }
-                break;
-
-            case 6:
-                if (!follower.isBusy()) {
-                    follower.followPath(launchPath2, true);
-                    pathState = 7;
-                }
-                break;
-
-            case 7:
                 if (timer.seconds() > 0.5) {
-                    outtake.setIntakePower(false);
                     outtake.setOuttakeVelocity(false);
                 }
                 if (!follower.isBusy()) {
@@ -327,7 +284,7 @@ public class Close2Spikes extends OpMode {
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
                     if (intakeFromGate == 0) {
-                        pathState = 13;
+                        pathState = 5;
                     } else {
                         pathState = 81;
                     }
@@ -335,44 +292,38 @@ public class Close2Spikes extends OpMode {
                 }
                 break;
 
-            case 9:
+            case 5:
                 if (!outtake.isBusy()) {
-                    follower.followPath(intakeSpike3Ready,true);
-                    pathState = 10;
-                }
-                break;
-
-            case 10:
-                if (!outtake.isBusy()) {
-                    follower.followPath(intakeSpike3Ready,true);
+                    follower.followPath(intakeSpike1,true);
                     outtake.setIntakePower(true);
-                    pathState = 11;
+                    pathState = 6;
                 }
                 break;
 
-            case 11:
+            case 6:
                 if (!follower.isBusy()) {
-                    follower.followPath(launchPath3,  true);
-                    pathState = 12;
-                    timer.reset();
+                    follower.followPath(leavePath, true);
+                    pathState = 7;
                 }
                 break;
 
-            case 12:
-                if (timer.seconds() > 0.5) {
+            case 7:
+                if (timer.seconds() > 0.3) {
                     outtake.setIntakePower(false);
+                }
+                if (timer.seconds() > 0.5) {
                     outtake.setOuttakeVelocity(false);
                 }
                 if (!follower.isBusy()) {
                     outtake.fireShots(3);
                     pathState = 13;
+                    timer.reset();
                 }
                 break;
 
             case 13:
                 if (!outtake.isBusy()) {
                     outtake.setOuttakeVelocity(0);
-                    follower.followPath(leavePath, true);
                     pathState = -1;
                 }
                 break;
